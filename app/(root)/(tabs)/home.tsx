@@ -1,10 +1,15 @@
+import { Link } from 'expo-router'
 import { Text, View } from 'react-native'
-import { SafeAreaView } from 'react-native-safe-area-context'
-const Home = () => {
+
+export default function Page() {
   return (
-    <SafeAreaView>
-      <Text>Hello World</Text>
-    </SafeAreaView>
+    <View>
+      <Link href="/sign-in">
+        <Text>Sign In</Text>
+      </Link>
+      <Link href="/sign-up">
+        <Text>Sign Up</Text>
+      </Link>
+    </View>
   )
 }
-export default Home
