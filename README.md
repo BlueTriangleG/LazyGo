@@ -9,7 +9,10 @@
    ```
 
 2. Create a .env file with content:
+
+```
    EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=pk_test_ZW1lcmdpbmctdG91Y2FuLTc4LmNsZXJrLmFjY291bnRzLmRldiQ
+```
 
 3. Start the app
 
