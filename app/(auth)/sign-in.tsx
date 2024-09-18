@@ -11,7 +11,9 @@ const SignIn = () => {
     email: '',
     password: '',
   })
-
+  const onSignInPress = async () => {
+    router.replace('/(root)/(tabs)/home')
+  }
   return (
     <ScrollView className="flex-1 bg-white">
       <View className="flex-1 bg-white">
@@ -40,8 +42,11 @@ const SignIn = () => {
             value={form.password}
             onChangeText={(value) => setForm({ ...form, password: value })}
           />
-
-          <CustomButton title="Sign In" className="mt-6" />
+          <CustomButton
+            title="Sign In"
+            onPress={onSignInPress}
+            className="mt-6"
+          />
 
           <Link
             href="/sign-up"

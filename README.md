@@ -40,6 +40,10 @@ You can start developing by editing the files inside the **app** directory. This
 - constants: Store constants.
 - lib: Store server actions.
 
+## Implement notes:
+
+Currently the login functions is not usable, just click login button or sign up function, you can enter the main home page. You can develop there.
+
 ## Technique usage
 
 Code language: typescript
