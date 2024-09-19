@@ -8,28 +8,36 @@ import { FlatList, ActivityIndicator } from 'react-native'
 import * as Location from 'expo-location';
 
 import mockRestaurants from "@/data/restaurants.json"
-import { API_BASE_URL, GOOGLE_MAP_KEY } from '@/lib/google-map-api'
+import { GOOGLE_MAP_API_BASE_URL } from '@/lib/google-map-api'
+
+type GooglePlace = {
+    placeTypes?: string[];
+    coordinate?: {
+        latitude: number;
+        longitude: number;
+    };
+    placeId?: string;
+    placeName?: string;
+    rating?: number;
+}
 
 const MapTest = () => {
 
     const [initialLocationLoaded, setInitialLocationLoaded] = useState(false);
     const [location, setLocation] = useState({ latitude: -37.8136, longitude: 144.9631 })
-    const [places, setPlaces] = useState<{ 
-                                    placeTypes?: string[], 
-                                    coordinate?: { 
-                                        latitude: number, 
-                                        longitude: number 
-                                    }, 
-                                    placeId?: string, 
-                                    placeName?: string, 
-                                    rating?: number 
-                                }[]>([])
+    const [places, setPlaces] = useState<GooglePlace[]>([])
 
     const [errorMsg, setErrorMsg] = useState("");
 
     const radius = 1 * 1000;    // Search within maximum 1 km radius.
     const placeType = 'restaurant';
 
+
+    /*  This useEffect hook is used to:
+     *    - Get the current location of the user by using expo-location.
+     *    - Then fetch the nearby places using Google Places API.
+     *    - The places are then displayed on the map and in a list below the map.
+     */
     useEffect(() => {
         // Using expo-location to get the current location. See the document: https://docs.expo.dev/versions/latest/sdk/location/
         (async () => {
@@ -39,9 +47,11 @@ const MapTest = () => {
                 return;
             }
             let location = await Location.getCurrentPositionAsync({});
-            const url = API_BASE_URL + location.coords.latitude + ',' + location.coords.longitude 
-                        + '&radius=' + radius + '&type=' + placeType + '&key=' + GOOGLE_MAP_KEY;
+            const url = GOOGLE_MAP_API_BASE_URL + '&location=' + location.coords.latitude + ',' + location.coords.longitude 
+                        + '&radius=' + radius + '&type=' + placeType;
 
+
+            // Mocking the api call for testing. !!! Set isMocking to false to use the real api.!!!
             const isMocking = true;             
 
             fetch(isMocking ? "https://www.google.com" : url)
@@ -56,27 +66,18 @@ const MapTest = () => {
             }).then(res => {
                 // Processing data from api response.
                 for (let googlePlace of res.results) {
-                    let place: { 
-                        placeTypes?: string[], 
-                        coordinate?: { 
-                            latitude: number, 
-                            longitude: number 
-                        }, 
-                        placeId?: string, 
-                        placeName?: string, 
-                        rating?: number 
-                    } = {};
+                    let place: GooglePlace = {};
                     var myLat = googlePlace.geometry.location.lat;
                     var myLong = googlePlace.geometry.location.lng;
                     var coordinate = {
                         latitude: myLat,
                         longitude: myLong,
                     };
-                    place['placeTypes'] = googlePlace.types;
-                    place['coordinate'] = coordinate;
-                    place['placeId'] = googlePlace.place_id;
-                    place['placeName'] = googlePlace.name;
-                    place['rating'] = googlePlace.rating;
+                    place.placeTypes = googlePlace.types;
+                    place.coordinate = coordinate;
+                    place.placeId = googlePlace.place_id;
+                    place.placeName = googlePlace.name;
+                    place.rating = googlePlace.rating;
                     places.push(place);
                     setPlaces([...places]);
                 }
@@ -103,8 +104,8 @@ const MapTest = () => {
                             latitude: location.latitude,
                             longitude: location.longitude,
                             // These two deltas below determine the initial zoom level of the map.
-                            latitudeDelta: 0.009,
-                            longitudeDelta: 0.009,
+                            latitudeDelta: 0.006,
+                            longitudeDelta: 0.006,
                         }}
                         provider={PROVIDER_GOOGLE}
                         showsUserLocation={true}
