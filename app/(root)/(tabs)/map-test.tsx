@@ -21,6 +21,13 @@ type GooglePlace = {
     rating?: number;
 }
 
+/**
+ * Resources:
+ * - [expo-location](https://docs.expo.dev/versions/latest/sdk/location/)
+ * - [React Native Maps with Marker & Callout](https://www.youtube.com/watch?v=_IyWSsFXLcA)
+ * - [Integrate Custom Zoom In And Zoom Out Feature in React Native Maps](https://medium.com/@akakankur81/integrate-custom-zoom-in-and-zoom-out-feature-in-react-native-maps-31867e0a546d)
+ * - [MapView documentation](https://github.com/react-native-maps/react-native-maps/blob/master/docs/mapview.md)
+ */
 const MapTest = () => {
 
     const [initialLocationLoaded, setInitialLocationLoaded] = useState(false);
