@@ -8,4 +8,10 @@ export const commonStyles = StyleSheet.create({
       marginLeft: "auto",
       marginRight: "auto",
     },
+    centerAll: {
+      marginLeft: "auto",
+      marginRight: "auto",
+      marginTop: "auto",
+      marginBottom: "auto",
+    },
 })
