@@ -46,7 +46,7 @@
     "react-native-gesture-handler": "~2.16.1",
     "react-native-google-places-autocomplete": "^2.5.6",
     "react-native-keyboard-aware-scroll-view": "^0.9.5",
-    "react-native-maps": "^1.14.0",
+    "react-native-maps": "1.14.0",
     "react-native-maps-directions": "^1.9.0",
     "react-native-modal": "^13.0.1",
     "react-native-reanimated": "~3.10.1",
@@ -59,7 +59,9 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
+    "@types/geojson": "^7946.0.14",
     "@types/jest": "^29.5.12",
+    "@types/parse-json": "^4.0.2",
     "@types/react": "~18.2.45",
     "@types/react-test-renderer": "^18.0.7",
     "eslint": "^8.57.0",
@@ -74,5 +76,10 @@
     "tailwindcss": "3.3.2",
     "typescript": "~5.3.3"
   },
-  "private": true
+  "private": true,
+  "platforms": [
+    "ios",
+    "android",
+    "web"
+  ]
 }
