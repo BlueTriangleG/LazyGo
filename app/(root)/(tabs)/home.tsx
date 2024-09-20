@@ -8,7 +8,7 @@ export default function Page() {
     <View>
       <Text style={commonStyles.h1text}>Welcome Lazy Go</Text>
       <CustomButton title="Go to Map" onPress={async () => {
-        router.replace('/(root)/(tabs)/map-test')
+        router.replace('/(root)/(tabs)/gpt_test')
       }} />
     </View>
   )

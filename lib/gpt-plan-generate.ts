@@ -1,7 +1,4 @@
-import dotenv from 'dotenv';
-dotenv.config();
-
-const GPT_KEY: string | undefined = process.env.GPT_KEY;
+const GPT_KEY= process.env.EXPO_PUBLIC_GPT_KEY;
 
 interface Activity {
     'time': string;
@@ -21,7 +18,7 @@ interface ResponseJSON {
     reply: string;
 }
 
-async function generatePlan(requestMessage: string): Promise<string | void> {
+export async function generatePlan(requestMessage: string): Promise<string | void> {
     if (!GPT_KEY) {
         console.error("GPT_KEY is not defined.");
         return;
