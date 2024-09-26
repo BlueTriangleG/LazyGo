@@ -132,3 +132,16 @@ export async function askAboutPlan(requestMessage: string): Promise<string | voi
     }
 }
 
+export const filterGoogleMapData = (data: any) => {
+    const filteredResults = data.results.map((place: any) => ({
+      name: place.name,
+      visinity: place.vicinity,
+      rating: place.rating,
+      user_ratings_total: place.user_ratings_total,
+      price_level: place.price_level,
+      types: place.types,
+      geometry: place.geometry.location
+    }));
+  
+    return filteredResults;
+  };

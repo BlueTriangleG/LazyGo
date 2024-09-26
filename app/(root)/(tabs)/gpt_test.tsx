@@ -1,12 +1,15 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
-import {askAboutPlan, generatePlan} from '../../../lib/gpt-plan-generate'
+import {askAboutPlan, generatePlan, filterGoogleMapData} from '../../../lib/gpt-plan-generate'
+import jsonData from '../../../data/restaurants.json'
 const MyComponent = () => {
     const [text, setText] = useState(''); 
     const handleButtonPress = async () => {
         try {
-            const result = await askAboutPlan(`{"plan":{"day1":{"activities":[{"time":"08:00","duration":"5","destination":"Cafe A","destination describ":"A cozy cafe with great coffee","destination duration":"60"},{"time":"10:00","duration":"10","destination":"Cafe B","destination describ":"Popular spot known for 
-pastries","destination duration":"45"}]},"reply":"This plan includes visits to two cafes in the morning, starting with Cafe A followed by Cafe B."}, How long I will take staying Cafe A`); 
+            // TODO: write function for each use case to generate the request String
+            const mapData = JSON.stringify(filterGoogleMapData(jsonData));
+            const requestString = `${mapData}, it's 10 am now. You should reasonably manage only the breakfast, lunch and dinner. If the current time exceed the meal time, please ignore that meal. You can add one afternoon tea in the afternoon. Give me a reasonable plan for a human being according to the rating and price level.`
+            const result = await generatePlan(requestString)
             if (result) { 
                 setText(result);
             } else {
