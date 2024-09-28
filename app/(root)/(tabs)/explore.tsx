@@ -21,6 +21,8 @@ export default function TabTwoScreen() {
         transportation: 'Public',
         distance: '3km',
         estimatedPrice: '15 EUR',
+        startLocation: '35.6500,139.7500', // 起点的经纬度
+        endLocation: '35.6586,139.7454',   // 终点的经纬度 (Tokyo Tower)
       },
       {
         time: '10:30',
@@ -31,6 +33,8 @@ export default function TabTwoScreen() {
         transportation: 'Car',
         distance: '2.5km',
         estimatedPrice: '3 EUR',
+        startLocation: '35.6586,139.7454', // 起点的经纬度 (Tokyo Tower)
+        endLocation: '35.6544,139.7480',   // 终点的经纬度 (Shiba Park)
       },
     ],
     2: [
@@ -43,6 +47,8 @@ export default function TabTwoScreen() {
         transportation: 'Bicycle',
         distance: '1.8km',
         estimatedPrice: '2 EUR',
+        startLocation: '35.6544,139.7480', // 起点的经纬度 (Shiba Park)
+        endLocation: '35.6580,139.7488',   // 终点的经纬度 (Zojoji Temple)
       },
       {
         time: '11:00',
@@ -53,6 +59,8 @@ export default function TabTwoScreen() {
         transportation: 'Walk',
         distance: '4km',
         estimatedPrice: '20 EUR',
+        startLocation: '35.6580,139.7488', // 起点的经纬度 (Zojoji Temple)
+        endLocation: '35.6604,139.7292',   // 终点的经纬度 (Roppongi Hills)
       },
       {
         time: '13:00',
@@ -63,10 +71,12 @@ export default function TabTwoScreen() {
         transportation: 'Public',
         distance: '1km',
         estimatedPrice: '5 EUR',
+        startLocation: '35.6604,139.7292', // 起点的经纬度 (Roppongi Hills)
+        endLocation: '35.6650,139.7495',   // 终点的经纬度 (Atago Shrine)
       },
     ],
   };
-
+  
   // 每天的坐标数据
   const latData = {
     1: [
@@ -140,6 +150,8 @@ export default function TabTwoScreen() {
             transportation={data.transportation}
             distance={data.distance}
             estimatedPrice={data.estimatedPrice}
+            startLocation={data.startLocation}
+            endLocation={data.endLocation}
             detailedInfo={''}
           />
           {/* 在最后一个卡片后添加文本 */}

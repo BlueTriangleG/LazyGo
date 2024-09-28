@@ -1,5 +1,5 @@
 import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
 
 type TravelCardProps = {
   time: string;
@@ -10,6 +10,8 @@ type TravelCardProps = {
   transportation: string;
   distance: string;
   estimatedPrice: string;
+  startLocation: string; // 起点经纬度
+  endLocation: string;   // 终点经纬度
 };
 
 const TravelCard: React.FC<TravelCardProps> = ({
@@ -21,6 +23,8 @@ const TravelCard: React.FC<TravelCardProps> = ({
   transportation,
   distance,
   estimatedPrice,
+  startLocation,
+  endLocation,
 }) => {
   const [lineHeight, setLineHeight] = useState(0);
   const cardRef = useRef<View>(null);
@@ -47,6 +51,17 @@ const TravelCard: React.FC<TravelCardProps> = ({
       default:
         return '';
     }
+  };
+
+  // 打开 Google Maps 的函数，包含起点和终点
+  const openGoogleMaps = () => {
+    // // 设置起点和终点
+    console.log("Start Point:", startLocation);
+    console.log("End Point:", endLocation);
+    // const startPoint = "35.6544,139.7480"; // 您的起点坐标
+    // const endPoint = "35.6586,139.7454";   // 您的终点坐标
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving`; // 可以根据需要更改travelmode
+    Linking.openURL(url).catch((err) => console.error('An error occurred', err));
   };
 
   return (
@@ -87,8 +102,11 @@ const TravelCard: React.FC<TravelCardProps> = ({
 
         {/* Additional info section */}
         <View style={styles.additionalInfoContainer}>
-          <Text style={styles.sectionTitle}>公共交通</Text>
-          <Text style={styles.detailedInfo}>如需進一步信息請查詢</Text>
+
+            <Text style={styles.sectionTitle}>公共交通</Text>
+          <TouchableOpacity onPress={openGoogleMaps}>
+          <Text style={styles.detailedInfo}>点击跳转google map</Text>
+          </TouchableOpacity>          
 
           <View style={styles.transportIcons}>
             <Text>
@@ -197,7 +215,7 @@ const styles = StyleSheet.create({
   },
   detailedInfo: {
     fontSize: 14,
-    color: '#333333',
+    color: '#023e8a',
     marginBottom: 5,
   },
   transportIcons: {
