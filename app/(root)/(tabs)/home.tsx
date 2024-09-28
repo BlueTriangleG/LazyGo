@@ -23,7 +23,7 @@ export default function Page() {
           className="mt-6"
           title="generate plan"
           onPress={async () => {
-            router.replace('/(root)/(tabs)/gpt_test')
+            router.replace('/(root)/(generate-plan)/gpt_test')
           }}
         />
       </SignedIn>

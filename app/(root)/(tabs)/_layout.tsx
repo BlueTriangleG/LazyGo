@@ -55,6 +55,26 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
+        name="history"
+        options={{
+          title: 'history',
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.list} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="map-test"
+        options={{
+          title: 'map',
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.map} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
         name="profile"
         options={{
           title: 'Profile',
