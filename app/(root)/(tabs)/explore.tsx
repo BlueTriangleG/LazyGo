@@ -1,7 +1,8 @@
 import React from 'react';
-import { ScrollView, StyleSheet, Text } from 'react-native';
-import ParallaxScrollView from '../../../components/ParallaxScrollView';
-import TravelCard from '../../../components/TravelCard'
+import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
+import TravelCard from '@/components/TravelCard';
+import Map from '@/components/Map';
 
 export default function TabTwoScreen() {
   // Sample travel data
@@ -49,12 +50,48 @@ export default function TabTwoScreen() {
     // Add more activities as needed
   ];
 
+  const latData = [
+    {
+      lat: 35.6544,
+      long: 139.7480,
+      "title": "Shiba Park",
+      "description": "芝公园，靠近东京铁塔的大型绿地。"
+    },
+    {
+      lat:35.6586,
+      long:139.7454,
+      title:'tokyo tower',
+      description:"东京铁塔",
+    },
+    {
+      lat: 35.6580,
+      long: 139.7488,
+      "title": "Zojoji Temple",
+      "description": "增上寺，东京著名的佛教寺庙。"
+    },
+    {
+      lat: 35.6604,
+      long: 139.7292,
+      "title": "Roppongi Hills",
+      "description": "六本木新城，时尚和文化的中心。"
+    },
+    {
+      lat: 35.6650,
+      long: 139.7495,
+      "title": "Atago Shrine",
+      "description": "爱宕神社，历史悠久的庙宇和著名的石阶。"
+    },
+  
+  ];
+
   return (
-    <ParallaxScrollView headerImage={undefined} headerBackgroundColor={{
-      dark: '',
-      light: ''
-    }}>
       <ScrollView style={styles.container}>
+        {/* 在顶部添加 Map */}
+        <View style={styles.mapContainer}>
+          <Map coords={latData}/>
+        </View>
+
+        {/* 显示 Travel Cards */}
         {travelData.map((data, index) => (
           <React.Fragment key={index}>
             <TravelCard
@@ -66,10 +103,6 @@ export default function TabTwoScreen() {
               transportation={data.transportation}
               distance={data.distance}
               estimatedPrice={data.estimatedPrice}
-              // location={data.location}
-              // departureTime={data.departureTime}
-              // waitTime={data.waitTime}
-              // transportInfo={data.transportInfo}
               detailedInfo={''}
             />
             {/* 在最后一个卡片后添加文本 */}
@@ -79,7 +112,6 @@ export default function TabTwoScreen() {
           </React.Fragment>
         ))}
       </ScrollView>
-    </ParallaxScrollView>
   );
 }
 
@@ -87,8 +119,11 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F5F5F5',
-    left: -15,
-    width: '110%',
+    right: -15,
+    width: '92%',
+  },
+  mapContainer: {
+    marginBottom: 20, // 调整地图与列表之间的间距
   },
   homeText: {
     fontSize: 24,
