@@ -69,7 +69,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
       {/* Left timeline with a marker and line */}
       <View style={styles.timelineContainer}>
         <Image
-          source={require('../assets/images/start.png')}
+          source={require('@/assets/images/start.png')}
           style={styles.marker}
         />
         <View style={[styles.line, { height: lineHeight }]}>

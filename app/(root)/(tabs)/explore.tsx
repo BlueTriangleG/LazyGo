@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
 import { ScrollView, StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import ParallaxScrollView from '@/components/ParallaxScrollView';
-import TravelCard from '@/components/TravelCard';
-import Map from '@/components/Map';
+import ParallaxScrollView from '@/components/TravelPlanComponent/ParallaxScrollView';
+import TravelCard from '@/components/TravelPlanComponent/TravelCard';
+import Map from '@/components/TravelPlanComponent/Map';
 
 // main page for travel plan
 export default function TabTwoScreen() {
