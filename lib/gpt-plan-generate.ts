@@ -11,8 +11,8 @@ interface Activity {
     "transportation": string;
     "distance": string;
     "estimated price": string;
-    'latitude': number;
-    'longitude': number;
+    "startLocation": string;
+    "endLocation": string;
 }
 
 interface Plan {
@@ -25,8 +25,8 @@ interface ResponseJSON {
     reply: string;
 }
 
-// Constant location of home for testing
-//const [home, setHome] = useState({ latitude: -37.8136, longitude: 144.9631 })
+// Constant current location for testing
+const [location, setLocation] = useState({ latitude: -37.8136, longitude: 144.9631 })
 
 export async function filterDestination(requestMessage: string): Promise<string | void> {
     if (!GPT_KEY) {
@@ -49,8 +49,8 @@ export async function filterDestination(requestMessage: string): Promise<string 
                         "transportation": "Car",
                         "distance": "3km",
                         "estimated price": "15 AUD",
-                        'latitude': 0,
-                        'longitude': 0
+                        "startLocation": "48.8566,2.3522",
+                        "endLocation": "48.8606,2.3376"
                     }
                 ]
             }
@@ -64,8 +64,8 @@ export async function filterDestination(requestMessage: string): Promise<string 
             {
                 role: "system",
                 content: `You are a robot to generate a plan in chronological order in the form of JSON based on the given data from Google Map API. You should return in the form like: ${JSON.stringify(json_sample)} 
-                "plan" can contain multiple days. Each day can have multiple activities. "time" is the recommended start time to go to the destination. "destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data). Fill in the "latitude" and "longitude" of the destination based on the given map data. 
-                At current stage keep reply, "duration", "transportation", "distance" must be null. You should only choose the destinations from the given Google Map API data.
+                "plan" can contain multiple days. Each day can have multiple activities. "time" is the recommended start time to go to the destination. "destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                If it is the first plan, the "startLocation" is the current location "${location.latitude},${location.longitude}.At current stage keep reply, "duration", "transportation", "distance" must be null. You should only choose the destinations from the given Google Map API data.
                 Do not return anything beyond the given data. Do not return anything besides the JSON. You must return a full JSON. The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.`
             },
             { role: "user", content: requestMessage }
@@ -92,7 +92,7 @@ export async function filterDestination(requestMessage: string): Promise<string 
 }
 
 
-
+// TODO: update this function to complete the plan
 export async function generatePlan(requestMessage: string): Promise<string | void> {
     if (!GPT_KEY) {
         console.error("GPT_KEY is not defined.");
@@ -114,8 +114,8 @@ export async function generatePlan(requestMessage: string): Promise<string | voi
                         "transportation": "Car",
                         "distance": "3km",
                         "estimated price": "15 AUD",
-                        'latitude': 0,
-                        'longitude': 0
+                        "startLocation": "48.8566,2.3522",
+                        "endLocation": "48.8606,2.3376"
                     }
                 ]
             }
@@ -157,7 +157,7 @@ export async function generatePlan(requestMessage: string): Promise<string | voi
 }
 
 
-
+// TODO: update the prompt
 export async function askAboutPlan(requestMessage: string): Promise<string | void> {
     if (!GPT_KEY) {
         console.error("GPT_KEY is not defined.");
@@ -179,8 +179,8 @@ export async function askAboutPlan(requestMessage: string): Promise<string | voi
                         "transportation": "Car",
                         "distance": "3km",
                         "estimated price": "15 AUD",
-                        'latitude': 0,
-                        'longitude': 0
+                        "startLocation": "48.8566,2.3522",
+                        "endLocation": "48.8606,2.3376"
                     }
                 ]
             }
