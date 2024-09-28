@@ -56,10 +56,6 @@ const TravelCard: React.FC<TravelCardProps> = ({
   // 打开 Google Maps 的函数，包含起点和终点
   const openGoogleMaps = () => {
     // // 设置起点和终点
-    console.log("Start Point:", startLocation);
-    console.log("End Point:", endLocation);
-    // const startPoint = "35.6544,139.7480"; // 您的起点坐标
-    // const endPoint = "35.6586,139.7454";   // 您的终点坐标
     const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving`; // 可以根据需要更改travelmode
     Linking.openURL(url).catch((err) => console.error('An error occurred', err));
   };

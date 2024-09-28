@@ -26,6 +26,13 @@ export default function Page() {
             router.replace('/(root)/(generate-plan)/gpt_test')
           }}
         />
+        <CustomButton
+          className="mt-6"
+          title="travel plan test"
+          onPress={async () => {
+            router.replace('/(root)/(tabs)/explore')
+          }}
+        />
       </SignedIn>
       <SignedOut>
         <Link href="/(auth)/sign-in">
