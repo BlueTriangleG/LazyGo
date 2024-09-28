@@ -34,12 +34,9 @@ export default function Layout() {
         tabBarShowLabel: false,
         tabBarStyle: {
           backgroundColor: '#333333',
-          borderRadius: 50,
           paddingBottom: 0, // ios only
           overflow: 'hidden',
-          marginHorizontal: 20,
-          marginBottom: 20,
-          height: 78,
+          height: 68,
           display: 'flex',
           justifyContent: 'space-between',
           alignItems: 'center',
@@ -54,6 +51,36 @@ export default function Layout() {
           headerShown: false,
           tabBarIcon: ({ focused }) => (
             <TabIcon source={icons.home} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="history"
+        options={{
+          title: 'history',
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.list} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="map-test"
+        options={{
+          title: 'map',
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.map} focused={focused} />
+          ),
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          headerShown: false,
+          tabBarIcon: ({ focused }) => (
+            <TabIcon source={icons.profile} focused={focused} />
           ),
         }}
       />
