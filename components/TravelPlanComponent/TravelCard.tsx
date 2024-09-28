@@ -84,9 +84,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
 
           <Text style={styles.waitTime}>步行時長 ({duration}){"\n"}</Text>
           <Text style={styles.destinationDescription}>{destinationDescrib}</Text>
-          <Text style={styles.transportationInfo}>
-            交通方式: {transportation} / 距離: {distance} / 預估價格: {estimatedPrice}
-          </Text>
+
           <Text style={styles.destinationDuration}>
             目的地停留時長: {destinationDuration}
           </Text>
