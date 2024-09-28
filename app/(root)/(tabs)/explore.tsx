@@ -4,7 +4,7 @@ import ParallaxScrollView from '@/components/ParallaxScrollView';
 import TravelCard from '@/components/TravelCard';
 import Map from '@/components/Map';
 
-// testtest
+// main page for travel plan
 export default function TabTwoScreen() {
   // Sample travel data
   const travelData = [
