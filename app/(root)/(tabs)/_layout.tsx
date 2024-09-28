@@ -39,9 +39,9 @@ export default function Layout() {
           height: 68,
           display: 'flex',
           justifyContent: 'space-between',
-          alignItems: 'center',
-          flexDirection: 'row',
-          position: 'absolute',
+          //   alignItems: 'center',
+          //   flexDirection: 'row',
+          //   position: 'absolute',
         },
       }}>
       <Tabs.Screen
