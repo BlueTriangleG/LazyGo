@@ -14,15 +14,15 @@ import AddMoreRes from '@/components/TravelPlanComponent/AddMoreRes';
 
 // main page for travel plan
 export default function TabTwoScreen() {
-  // 状态来存储当前选择的天数
+  // store current day
   const [selectedDay, setSelectedDay] = useState(1)
   const [modalVisible, setModalVisible] = useState(false);
   
   const handleAddDestination = () => {
-    setModalVisible(true); // 显示搜索弹窗
+    setModalVisible(true); // show dialog
   };
 
-  // 每天的旅行数据
+  // demo data
   const travelData = {
     1: [
       {
@@ -35,8 +35,34 @@ export default function TabTwoScreen() {
         transportation: 'Public',
         distance: '3km',
         estimatedPrice: '15 EUR',
-        startLocation: '35.6500,139.7500', // 起点的经纬度
-        endLocation: '35.6586,139.7454', // 终点的经纬度 (Tokyo Tower)
+        startLocation: '35.6500,139.7500', // start lat, long
+        endLocation: '35.6586,139.7454', // end lat long (Tokyo Tower)
+      },
+      {
+        time: '08:00',
+        duration: '2h',
+        destination: 'Tokyo Tower',
+        destinationDescrib:
+          '東京鐵塔，正式名稱為日本電波塔，是位於日本東京芝公園的一座電波塔。建於1958年。高332.9公尺，是日本第二高的結構物，僅次於東京晴空塔。',
+        destinationDuration: '1h',
+        transportation: 'Public',
+        distance: '3km',
+        estimatedPrice: '15 EUR',
+        startLocation: '35.6500,139.7500', // start lat, long
+        endLocation: '35.6586,139.7454', // end lat long (Tokyo Tower)
+      },
+      {
+        time: '08:00',
+        duration: '2h',
+        destination: 'Tokyo Tower',
+        destinationDescrib:
+          '東京鐵塔，正式名稱為日本電波塔，是位於日本東京芝公園的一座電波塔。建於1958年。高332.9公尺，是日本第二高的結構物，僅次於東京晴空塔。',
+        destinationDuration: '1h',
+        transportation: 'Public',
+        distance: '3km',
+        estimatedPrice: '15 EUR',
+        startLocation: '35.6500,139.7500', // start lat, long
+        endLocation: '35.6586,139.7454', // end lat long (Tokyo Tower)
       },
       {
         time: '10:30',
@@ -61,8 +87,8 @@ export default function TabTwoScreen() {
         transportation: 'Bicycle',
         distance: '1.8km',
         estimatedPrice: '2 EUR',
-        startLocation: '35.6544,139.7480', // 起点的经纬度 (Shiba Park)
-        endLocation: '35.6580,139.7488', // 终点的经纬度 (Zojoji Temple)
+        startLocation: '35.6544,139.7480', 
+        endLocation: '35.6580,139.7488', 
       },
       {
         time: '11:00',
@@ -73,8 +99,8 @@ export default function TabTwoScreen() {
         transportation: 'Walk',
         distance: '4km',
         estimatedPrice: '20 EUR',
-        startLocation: '35.6580,139.7488', // 起点的经纬度 (Zojoji Temple)
-        endLocation: '35.6604,139.7292', // 终点的经纬度 (Roppongi Hills)
+        startLocation: '35.6580,139.7488', 
+        endLocation: '35.6604,139.7292',
       },
       {
         time: '13:00',
@@ -85,13 +111,13 @@ export default function TabTwoScreen() {
         transportation: 'Public',
         distance: '1km',
         estimatedPrice: '5 EUR',
-        startLocation: '35.6604,139.7292', // 起点的经纬度 (Roppongi Hills)
-        endLocation: '35.6650,139.7495', // 终点的经纬度 (Atago Shrine)
+        startLocation: '35.6604,139.7292', 
+        endLocation: '35.6650,139.7495',
       },
     ],
   }
 
-  // 每天的坐标数据
+  // landmark lat&long
   const latData = {
     1: [
       {
@@ -172,7 +198,7 @@ export default function TabTwoScreen() {
             endLocation={data.endLocation}
             detailedInfo={''}
           />
-          {/* 在最后一个卡片后添加文本 */}
+          {/* add event at last card */}
           {index === travelData[selectedDay].length - 1 && (
             <TouchableOpacity
               style={styles.addButton}
@@ -183,7 +209,7 @@ export default function TabTwoScreen() {
         </React.Fragment>
       ))}
 
-      {/* 添加搜索弹窗 */}
+      {/* show dialog */}
       <AddMoreRes visible={modalVisible} onClose={() => setModalVisible(false)} />
     </ScrollView>
   )
@@ -197,14 +223,14 @@ const styles = StyleSheet.create({
     width: '92%',
   },
   mapContainer: {
-    marginBottom: 20, // 调整地图与列表之间的间距
+    marginBottom: 20, 
   },
   homeText: {
     fontSize: 24,
     textAlign: 'center',
     marginVertical: 0,
     fontWeight: 'bold',
-    color: '#333', // 可以根据需要调整颜色
+    color: '#333', 
   },
   daySelector: {
     flexDirection: 'row',

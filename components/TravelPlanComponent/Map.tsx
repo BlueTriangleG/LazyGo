@@ -63,28 +63,28 @@ const Map: React.FC<MapProps> = ({ coords }) => {
 
 const styles = StyleSheet.create({
   container: {
-    height: 300, // 根据需求调整地图的高度
+    height: 300, 
     width: '100%',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
   },
   markerContainer: {
-    position: 'relative', // 相对定位，以便将数字放在图片上面
+    position: 'relative', 
     alignItems: 'center',
     justifyContent: 'center',
   },
   markerImage: {
-    width: 20, // 根据实际图像大小调整
-    height: 20, // 根据实际图像大小调整
+    width: 20, 
+    height: 20, 
   },
   markerText: {
-    position: 'absolute', // 绝对定位以将文本放在图像中央
+    position: 'absolute', 
     fontWeight: 'bold',
-    fontSize: 10, // 字体大小
-    color: '#FFFFFF', // 字体颜色
+    fontSize: 10, 
+    color: '#FFFFFF', 
     textAlign: 'center',
-    bottom: 5, // 向下偏移一些以确保文本在图标的中心
+    bottom: 5, 
   },
 })
 
