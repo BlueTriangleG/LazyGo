@@ -2,6 +2,9 @@ import React, { useState } from 'react'
 import { View, Text, Button, StyleSheet } from 'react-native'
 import { generatePlan } from '@/lib/gpt-plan-generate'
 import { Link, router } from 'expo-router'
+import { Image, TouchableOpacity } from 'react-native'
+import { icons } from '@/constants'
+
 const MyComponent = () => {
   const [text, setText] = useState('')
   const handleButtonPress = async () => {
@@ -22,12 +25,11 @@ const MyComponent = () => {
 
   return (
     <View style={styles.container}>
-      <Text
-        onPress={() => router.push('/(root)/(tabs)/home')}
-        className="absolute top-5 left-5 5.	bg-blue-500">
-        {' '}
-        Back{' '}
-      </Text>
+      <Button title="Back" onPress={() => router.push('/(root)/(tabs)/home')} />
+      <Button
+        title="generate graph"
+        onPress={() => router.push('/(root)/(generate-plan)/explore')}
+      />
       <Text style={styles.text}>{text}</Text>
       <Button title="Generate Plan" onPress={handleButtonPress} />
     </View>

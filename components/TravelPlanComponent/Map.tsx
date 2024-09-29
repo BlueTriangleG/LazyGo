@@ -1,18 +1,18 @@
-import React from 'react';
-import { StyleSheet, View, Text, Image } from 'react-native';
-import MapView, { Marker, Polyline } from 'react-native-maps';
+import React from 'react'
+import { StyleSheet, View, Text, Image } from 'react-native'
+import MapView, { Marker, Polyline } from 'react-native-maps'
 
 // 定义 latDataCoords 类型
 type latDataCoords = {
-  lat: number;
-  long: number;
-  title: string;
-  description: string;
-};
+  lat: number
+  long: number
+  title: string
+  description: string
+}
 
 // 通过 props 传递 latDataCoords 数据
 interface MapProps {
-  coords: latDataCoords[]; // 接收的经纬度数据数组
+  coords: latDataCoords[] // 接收的经纬度数据数组
 }
 
 const Map: React.FC<MapProps> = ({ coords }) => {
@@ -25,8 +25,7 @@ const Map: React.FC<MapProps> = ({ coords }) => {
           longitude: coords.length > 0 ? coords[0].long : 139.7454,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
-        }}
-      >
+        }}>
         {/* 动态生成 Marker */}
         {coords.map((location, index) => (
           <Marker
@@ -49,7 +48,7 @@ const Map: React.FC<MapProps> = ({ coords }) => {
         {/* 根据传递的坐标连线 */}
         {coords.length > 1 && (
           <Polyline
-            coordinates={coords.map(location => ({
+            coordinates={coords.map((location) => ({
               latitude: location.lat,
               longitude: location.long,
             }))}
@@ -59,8 +58,8 @@ const Map: React.FC<MapProps> = ({ coords }) => {
         )}
       </MapView>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -87,6 +86,6 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     bottom: 5, // 向下偏移一些以确保文本在图标的中心
   },
-});
+})
 
-export default Map;
+export default Map

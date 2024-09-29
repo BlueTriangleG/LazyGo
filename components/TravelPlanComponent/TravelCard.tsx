@@ -1,18 +1,25 @@
-import React, { useState, useRef } from 'react';
-import { View, Text, StyleSheet, Image, TouchableOpacity, Linking } from 'react-native';
+import React, { useState, useRef } from 'react'
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  TouchableOpacity,
+  Linking,
+} from 'react-native'
 
 type TravelCardProps = {
-  time: string;
-  duration: string;
-  destination: string;
-  destinationDescrib: string;
-  destinationDuration: string;
-  transportation: string;
-  distance: string;
-  estimatedPrice: string;
-  startLocation: string; // 起点经纬度
-  endLocation: string;   // 终点经纬度
-};
+  time: string
+  duration: string
+  destination: string
+  destinationDescrib: string
+  destinationDuration: string
+  transportation: string
+  distance: string
+  estimatedPrice: string
+  startLocation: string // 起点经纬度
+  endLocation: string // 终点经纬度
+}
 
 const TravelCard: React.FC<TravelCardProps> = ({
   time,
@@ -26,39 +33,39 @@ const TravelCard: React.FC<TravelCardProps> = ({
   startLocation,
   endLocation,
 }) => {
-  const [lineHeight, setLineHeight] = useState(0);
-  const cardRef = useRef<View>(null);
+  const [lineHeight, setLineHeight] = useState(0)
+  const cardRef = useRef<View>(null)
 
   const handleCardLayout = () => {
     if (cardRef.current) {
       cardRef.current.measure((x, y, width, height) => {
-        const calculatedHeight = height * 0.8; 
-        setLineHeight(calculatedHeight);
-      });
+        const calculatedHeight = height * 0.8
+        setLineHeight(calculatedHeight)
+      })
     }
-  };
+  }
 
   const renderTransportationIcons = () => {
     switch (transportation) {
       case 'Public':
-        return '🚶‍♂️ → 🚆 → 🚶‍♂️';
+        return '🚶‍♂️ → 🚆 → 🚶‍♂️'
       case 'Car':
-        return '🚗 → 🚦 → 🏁';
+        return '🚗 → 🚦 → 🏁'
       case 'Bicycle':
-        return '🚲 → 🌳 → 🏖️';
+        return '🚲 → 🌳 → 🏖️'
       case 'Walk':
-        return '🚶‍♀️ → 🌳 → 🏞️';
+        return '🚶‍♀️ → 🌳 → 🏞️'
       default:
-        return '';
+        return ''
     }
-  };
+  }
 
   // 打开 Google Maps 的函数，包含起点和终点
   const openGoogleMaps = () => {
     // // 设置起点和终点
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving`; // 可以根据需要更改travelmode
-    Linking.openURL(url).catch((err) => console.error('An error occurred', err));
-  };
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving` // 可以根据需要更改travelmode
+    Linking.openURL(url).catch((err) => console.error('An error occurred', err))
+  }
 
   return (
     <View style={styles.container}>
@@ -82,8 +89,12 @@ const TravelCard: React.FC<TravelCardProps> = ({
             <Text style={styles.departureTime}>{time} 出發</Text>
           </View>
 
-          <Text style={styles.waitTime}>步行時長 ({duration}){"\n"}</Text>
-          <Text style={styles.destinationDescription}>{destinationDescrib}</Text>
+          <Text style={styles.waitTime}>
+            步行時長 ({duration}){'\n'}
+          </Text>
+          <Text style={styles.destinationDescription}>
+            {destinationDescrib}
+          </Text>
 
           <Text style={styles.destinationDuration}>
             目的地停留時長: {destinationDuration}
@@ -96,23 +107,24 @@ const TravelCard: React.FC<TravelCardProps> = ({
 
         {/* Additional info section */}
         <View style={styles.additionalInfoContainer}>
-
-            <Text style={styles.sectionTitle}>公共交通</Text>
+          <Text style={styles.sectionTitle}>公共交通</Text>
           <TouchableOpacity onPress={openGoogleMaps}>
-          <Text style={styles.detailedInfo}>点击跳转google map</Text>
-          </TouchableOpacity>          
+            <Text style={styles.detailedInfo}>点击跳转google map</Text>
+          </TouchableOpacity>
 
           <View style={styles.transportIcons}>
             <Text>
-              交通方式: {transportation} / 距離: {distance} / 預估價格: {estimatedPrice}
-              {"\n"}{renderTransportationIcons()}
+              交通方式: {transportation} / 距離: {distance} / 預估價格:{' '}
+              {estimatedPrice}
+              {'\n'}
+              {renderTransportationIcons()}
             </Text>
           </View>
         </View>
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -217,6 +229,6 @@ const styles = StyleSheet.create({
     justifyContent: 'flex-start',
     marginTop: 10,
   },
-});
+})
 
-export default TravelCard;
+export default TravelCard
