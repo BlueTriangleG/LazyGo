@@ -1,5 +1,5 @@
 import {toZonedTime } from 'date-fns-tz';
-import * as RNLocalize from 'react-native-localize';
+
 
 export const convertToUTC = (dateString: string, timeString: string, timeZone: string): string => {
     const localDateTimeString: string = `${dateString}T${timeString}:00`;
@@ -12,6 +12,6 @@ export const convertToUTC = (dateString: string, timeString: string, timeZone: s
 };
 
 export const getTimeZone = (): string => {
-  const timeZone = RNLocalize.getTimeZone();
-  return timeZone;
+    const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+    return timeZone;
 };

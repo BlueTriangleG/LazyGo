@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import {askAboutPlan, generatePlan, filterGoogleMapData, filterDestination} from '../../../lib/gpt-plan-generate'
+import {getTimeZone, convertToUTC} from '../../../lib/time-convert'
 import jsonData from '../../../data/restaurants.json'
 const MyComponent = () => {
     const [text, setText] = useState(''); 
@@ -27,6 +28,12 @@ const MyComponent = () => {
         <View style={styles.container}>
             <Text style={styles.text}>{text}</Text>
             <Button title="Generate Plan" onPress={handleButtonPress} />
+            <Button title="Test time convert" onPress={()=>{
+                const timeZone = getTimeZone();
+                console.log(timeZone);
+                const utcTime = convertToUTC("2024-09-29", "10:00", timeZone);
+                console.log(utcTime);
+            }} />
         </View>
     );
 };
