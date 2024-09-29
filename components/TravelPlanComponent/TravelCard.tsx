@@ -1,4 +1,5 @@
 import React, { useState, useRef } from 'react'
+import ResDetail from '@/components/TravelPlanComponent/ResDetailCard/ResDetail' // 导入 ResDetail 模态框
 import {
   View,
   Text,
@@ -6,7 +7,9 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  Modal,
 } from 'react-native'
+
 
 type TravelCardProps = {
   time: string
@@ -34,6 +37,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
   endLocation,
 }) => {
   const [lineHeight, setLineHeight] = useState(0)
+  const [modalVisible, setModalVisible] = useState(false) // 控制模态框的可见性
   const cardRef = useRef<View>(null)
 
   const handleCardLayout = () => {
@@ -60,16 +64,14 @@ const TravelCard: React.FC<TravelCardProps> = ({
     }
   }
 
-  // 打开 Google Maps 的函数，包含起点和终点
   const openGoogleMaps = () => {
-    // // 设置起点和终点
-    const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving` // 可以根据需要更改travelmode
+    const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving`
     Linking.openURL(url).catch((err) => console.error('An error occurred', err))
   }
 
   return (
     <View style={styles.container}>
-      {/* Left timeline with a marker and line */}
+      {/* 左边时间线，带有标记和线 */}
       <View style={styles.timelineContainer}>
         <Image
           source={require('@/assets/images/start.png')}
@@ -80,9 +82,9 @@ const TravelCard: React.FC<TravelCardProps> = ({
         </View>
       </View>
 
-      {/* Outer card */}
+      {/* 外部卡片 */}
       <View style={styles.outerCard} ref={cardRef} onLayout={handleCardLayout}>
-        {/* Inner card */}
+        {/* 内部卡片 */}
         <View style={styles.card}>
           <View style={styles.header}>
             <Text style={styles.location}>{destination}</Text>
@@ -100,12 +102,15 @@ const TravelCard: React.FC<TravelCardProps> = ({
             目的地停留時長: {destinationDuration}
           </Text>
 
+          {/* 更多交通信息，点击后显示模态框 */}
           <View style={styles.transportInfoContainer}>
-            <Text style={styles.transportInfo}>更多交通信息...</Text>
+            <TouchableOpacity onPress={() => setModalVisible(true)}>
+              <Text style={styles.transportInfo}>更多交通信息...</Text>
+            </TouchableOpacity>
           </View>
         </View>
 
-        {/* Additional info section */}
+        {/* 其他信息 */}
         <View style={styles.additionalInfoContainer}>
           <Text style={styles.sectionTitle}>公共交通</Text>
           <TouchableOpacity onPress={openGoogleMaps}>
@@ -122,6 +127,22 @@ const TravelCard: React.FC<TravelCardProps> = ({
           </View>
         </View>
       </View>
+
+      {/* 显示更多信息的模态框 */}
+      <Modal
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+      <ResDetail
+        onClose={() => setModalVisible(false)}
+        transportation="地铁"
+        distance="500米"
+        estimatedPrice="¥30"
+        description="这是一个很棒的地方。"
+        tips="尝试这里的街头小吃！"
+      />
+      </Modal>
     </View>
   )
 }
