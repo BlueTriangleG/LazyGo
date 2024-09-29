@@ -11,12 +11,13 @@ const MyComponent = () => {
     try {
         // TODO: write function for each use case to generate the request String
         const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",1)
-        console.log(result)
-        if (result) { 
-            setText(result);
-        } else {
-            setText("No plan generated"); 
-        }
+        const resultString = JSON.stringify(result)
+        console.log(resultString)
+        // if (result) { 
+        //     setText(result);
+        // } else {
+        //     setText("No plan generated"); 
+        // }
     } catch (error) {
         console.error("Error generating plan:", error);
         setText("Failed to generate plan.");
