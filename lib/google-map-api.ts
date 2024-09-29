@@ -7,40 +7,28 @@ export const GOOGLE_MAP_API_BASE_URL = 'https://maps.googleapis.com/maps/api/pla
 export async function getNearbyPlaces(currentLocation: string, radius: number, placeType: string, minPrice?: number, maxPrice?: number) {
     const url = GOOGLE_MAP_API_BASE_URL + '&location=' + currentLocation + '&radius=' + radius + '&type=' + placeType + 
                 (minPrice ? '&minprice=' + minPrice : '') + (maxPrice ? '&maxprice=' + maxPrice : '');
-    fetch(url)
-    .then(res => {
-        return res.json();
-    })
-    .catch(error => { 
-        console.log(error);
-    });
+    let res = await fetch(url);
+    return res.json();
 }
 
 // Get the distance matrix between the origins and destinations.
-export async function getDistanceMatrix(origins: string[], destinations: string[], mode?: string) {
+export async function getDistanceMatrix(origins: string[], destinations: string[], mode?: string, departureTime?: string) {
     if (!mode) {
         mode = 'driving';
+    }
+    if (!departureTime) {
+        departureTime = 'now';
     }
     const url = 'https://maps.googleapis.com/maps/api/distancematrix/json?key=' + GOOGLE_MAP_KEY + 
                 '&origins=' + origins.map(origin => origin).join('|') + 
                 '&destinations=' + destinations.map(destination => destination).join('|') + "&mode=" + mode;
-    return fetch(url)
-    .then(res => {
-        return res.json();
-    })
-    .catch(error => { 
-        console.log(error);
-    });
+    let res = await fetch(url);
+    return res.json();
 }
 
 // Get the photo by the photo reference.
 export async function getPhotoByReference(photoReference: string) {
     const url = 'https://maps.googleapis.com/maps/api/place/photo?key=' + GOOGLE_MAP_KEY + '&photoreference=' + photoReference + '&maxwidth=400';
-    return fetch(url)
-    .then(res => {
-        return res.blob();
-    })
-    .catch(error => { 
-        console.log(error);
-    });
+    let res = await fetch(url);
+    return res.blob();
 }
