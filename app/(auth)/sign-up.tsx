@@ -9,6 +9,7 @@ import { icons, images } from '@/constants'
 import { fetchAPI } from '@/lib/fetch'
 import { useSignUp } from '@clerk/clerk-expo'
 import { useRouter } from 'expo-router'
+import { clerk } from '@clerk/clerk-expo/dist/provider/singleton'
 const SignUp = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -52,7 +53,14 @@ const SignUp = () => {
 
       if (completeSignUp.status === 'complete') {
         // Create database user
-
+        await fetchAPI('/(api)/user', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            clerkId: completeSignUp.createdUserId,
+          }),
+        })
         await setActive({ session: completeSignUp.createdSessionId })
         setVerification({ ...verification, state: 'success' })
       } else {

@@ -1,17 +1,27 @@
-import React, { useState } from 'react';
-import { ScrollView, StyleSheet, Text, View, TouchableOpacity, Alert } from 'react-native';
-import ParallaxScrollView from '@/components/TravelPlanComponent/ParallaxScrollView';
-import TravelCard from '@/components/TravelPlanComponent/TravelCard';
-import Map from '@/components/TravelPlanComponent/Map';
+import React, { useState } from 'react'
+import {
+  ScrollView,
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Alert,
+} from 'react-native'
+import ParallaxScrollView from '@/components/TravelPlanComponent/ParallaxScrollView'
+import TravelCard from '@/components/TravelPlanComponent/TravelCard'
+import Map from '@/components/TravelPlanComponent/Map'
 
 // main page for travel plan
 export default function TabTwoScreen() {
   // 状态来存储当前选择的天数
-  const [selectedDay, setSelectedDay] = useState(1);
+  const [selectedDay, setSelectedDay] = useState(1)
   const handleAddDestination = () => {
-    Alert.alert("Add more destination", "Functionality for adding a destination will be implemented here.");
-  };
-  
+    Alert.alert(
+      'Add more destination',
+      'Functionality for adding a destination will be implemented here.'
+    )
+  }
+
   // 每天的旅行数据
   const travelData = {
     1: [
@@ -19,13 +29,14 @@ export default function TabTwoScreen() {
         time: '08:00',
         duration: '2h',
         destination: 'Tokyo Tower',
-        destinationDescrib: '東京鐵塔，正式名稱為日本電波塔，是位於日本東京芝公園的一座電波塔。建於1958年。高332.9公尺，是日本第二高的結構物，僅次於東京晴空塔。',
+        destinationDescrib:
+          '東京鐵塔，正式名稱為日本電波塔，是位於日本東京芝公園的一座電波塔。建於1958年。高332.9公尺，是日本第二高的結構物，僅次於東京晴空塔。',
         destinationDuration: '1h',
         transportation: 'Public',
         distance: '3km',
         estimatedPrice: '15 EUR',
         startLocation: '35.6500,139.7500', // 起点的经纬度
-        endLocation: '35.6586,139.7454',   // 终点的经纬度 (Tokyo Tower)
+        endLocation: '35.6586,139.7454', // 终点的经纬度 (Tokyo Tower)
       },
       {
         time: '10:30',
@@ -37,7 +48,7 @@ export default function TabTwoScreen() {
         distance: '2.5km',
         estimatedPrice: '3 EUR',
         startLocation: '35.6586,139.7454', // 起点的经纬度 (Tokyo Tower)
-        endLocation: '35.6544,139.7480',   // 终点的经纬度 (Shiba Park)
+        endLocation: '35.6544,139.7480', // 终点的经纬度 (Shiba Park)
       },
     ],
     2: [
@@ -51,7 +62,7 @@ export default function TabTwoScreen() {
         distance: '1.8km',
         estimatedPrice: '2 EUR',
         startLocation: '35.6544,139.7480', // 起点的经纬度 (Shiba Park)
-        endLocation: '35.6580,139.7488',   // 终点的经纬度 (Zojoji Temple)
+        endLocation: '35.6580,139.7488', // 终点的经纬度 (Zojoji Temple)
       },
       {
         time: '11:00',
@@ -63,7 +74,7 @@ export default function TabTwoScreen() {
         distance: '4km',
         estimatedPrice: '20 EUR',
         startLocation: '35.6580,139.7488', // 起点的经纬度 (Zojoji Temple)
-        endLocation: '35.6604,139.7292',   // 终点的经纬度 (Roppongi Hills)
+        endLocation: '35.6604,139.7292', // 终点的经纬度 (Roppongi Hills)
       },
       {
         time: '13:00',
@@ -75,63 +86,67 @@ export default function TabTwoScreen() {
         distance: '1km',
         estimatedPrice: '5 EUR',
         startLocation: '35.6604,139.7292', // 起点的经纬度 (Roppongi Hills)
-        endLocation: '35.6650,139.7495',   // 终点的经纬度 (Atago Shrine)
+        endLocation: '35.6650,139.7495', // 终点的经纬度 (Atago Shrine)
       },
     ],
-  };
-  
+  }
+
   // 每天的坐标数据
   const latData = {
     1: [
       {
         lat: 35.6544,
-        long: 139.7480,
-        title: "Shiba Park",
-        description: "芝公园，靠近东京铁塔的大型绿地。"
+        long: 139.748,
+        title: 'Shiba Park',
+        description: '芝公园，靠近东京铁塔的大型绿地。',
       },
       {
         lat: 35.6586,
         long: 139.7454,
         title: 'Tokyo Tower',
-        description: "东京铁塔",
+        description: '东京铁塔',
       },
     ],
     2: [
       {
-        lat: 35.6580,
+        lat: 35.658,
         long: 139.7488,
-        title: "Zojoji Temple",
-        description: "增上寺，东京著名的佛教寺庙。"
+        title: 'Zojoji Temple',
+        description: '增上寺，东京著名的佛教寺庙。',
       },
       {
         lat: 35.6604,
         long: 139.7292,
-        title: "Roppongi Hills",
-        description: "六本木新城，时尚和文化的中心。",
+        title: 'Roppongi Hills',
+        description: '六本木新城，时尚和文化的中心。',
       },
       {
-        lat: 35.6650,
+        lat: 35.665,
         long: 139.7495,
-        title: "Atago Shrine",
-        description: "爱宕神社，历史悠久的庙宇和著名的石阶。",
+        title: 'Atago Shrine',
+        description: '爱宕神社，历史悠久的庙宇和著名的石阶。',
       },
     ],
-  };
+  }
 
   return (
-    <ScrollView style={styles.container}   showsVerticalScrollIndicator={false}>
+    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
       {/* 显示选择天数的选项 */}
       <View style={styles.daySelector}>
         <TouchableOpacity
-          style={[styles.dayButton, selectedDay === 1 && styles.selectedDayButton]}
-          onPress={() => setSelectedDay(1)}
-        >
+          style={[
+            styles.dayButton,
+            selectedDay === 1 && styles.selectedDayButton,
+          ]}
+          onPress={() => setSelectedDay(1)}>
           <Text style={styles.dayButtonText}>Day 1</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          style={[styles.dayButton, selectedDay === 2 && styles.selectedDayButton]}
-          onPress={() => setSelectedDay(2)}
-        >
+          style={[
+            styles.dayButton,
+            selectedDay === 2 && styles.selectedDayButton,
+          ]}
+          onPress={() => setSelectedDay(2)}>
           <Text style={styles.dayButtonText}>Day 2</Text>
         </TouchableOpacity>
       </View>
@@ -159,14 +174,16 @@ export default function TabTwoScreen() {
           />
           {/* 在最后一个卡片后添加文本 */}
           {index === travelData[selectedDay].length - 1 && (
-            <TouchableOpacity style={styles.addButton} onPress={handleAddDestination}>
+            <TouchableOpacity
+              style={styles.addButton}
+              onPress={handleAddDestination}>
               <Text style={styles.addButtonText}>Add More Destination</Text>
-              </TouchableOpacity>
-            )}
+            </TouchableOpacity>
+          )}
         </React.Fragment>
       ))}
     </ScrollView>
-  );
+  )
 }
 
 const styles = StyleSheet.create({
@@ -224,5 +241,4 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
   },
-  
-});
+})
