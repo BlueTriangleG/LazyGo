@@ -36,7 +36,7 @@ const SignIn = () => {
         console.error(JSON.stringify(signInAttempt, null, 2))
       }
     } catch (err: any) {
-      console.error(JSON.stringify(err, null, 2))
+      Alert.alert('Error', err.errors[0].longMessage)
     }
   }, [isLoaded, form.email, form.password])
   return (
@@ -70,14 +70,13 @@ const SignIn = () => {
           <CustomButton
             title="Sign In"
             onPress={onSignInPress}
-            className="mt-6"
+            className="mt-6 bg-red-300"
           />
 
           <Link
             href="/sign-up"
             className="text-lg text-center text-general-200 mt-10">
-            Don't have an account?{' '}
-            <Text className="text-primary-500">Sign Up</Text>
+            Don't have an account? <Text className="text-red-300">Sign Up</Text>
           </Link>
         </View>
       </View>

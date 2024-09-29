@@ -13,21 +13,21 @@ export default function Page() {
       <SignedIn>
         <Text style={commonStyles.h1text}>Welcome Lazy Go</Text>
         <CustomButton
-          className="mt-6"
+          className="mt-6 bg-red-300"
           title="Go to Map"
           onPress={async () => {
             router.push('/(root)/(tabs)/map-test')
           }}
         />
         <CustomButton
-          className="mt-6"
+          className="mt-6 bg-red-300"
           title="generate plan"
           onPress={async () => {
             router.push('/(root)/(generate-plan)/gpt_test')
           }}
         />
         <CustomButton
-          className="mt-6"
+          className="mt-6 bg-red-300"
           title="travel plan test"
           onPress={async () => {
             router.push('/(root)/(generate-plan)/explore')

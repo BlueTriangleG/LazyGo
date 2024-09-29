@@ -113,14 +113,14 @@ const SignUp = () => {
           />
           <CustomButton
             title="Sign Up"
-            className="mt-6"
+            className="mt-6 bg-red-300"
             onPress={onSignUpPress}
           />
           <Link
             href="/sign-in"
             className="text-lg text-center text-general-200 mt-10">
             Already have an account?{' '}
-            <Text className="text-primary-500">Log In</Text>
+            <Text className="text-red-300">Log In</Text>
           </Link>
         </View>
         <ReactNativeModal
