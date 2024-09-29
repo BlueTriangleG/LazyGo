@@ -10,17 +10,17 @@ import {
 import ParallaxScrollView from '@/components/TravelPlanComponent/ParallaxScrollView'
 import TravelCard from '@/components/TravelPlanComponent/TravelCard'
 import Map from '@/components/TravelPlanComponent/Map'
+import AddMoreRes from '@/components/TravelPlanComponent/AddMoreRes';
 
 // main page for travel plan
 export default function TabTwoScreen() {
   // 状态来存储当前选择的天数
   const [selectedDay, setSelectedDay] = useState(1)
+  const [modalVisible, setModalVisible] = useState(false);
+  
   const handleAddDestination = () => {
-    Alert.alert(
-      'Add more destination',
-      'Functionality for adding a destination will be implemented here.'
-    )
-  }
+    setModalVisible(true); // 显示搜索弹窗
+  };
 
   // 每天的旅行数据
   const travelData = {
@@ -182,6 +182,9 @@ export default function TabTwoScreen() {
           )}
         </React.Fragment>
       ))}
+
+      {/* 添加搜索弹窗 */}
+      <AddMoreRes visible={modalVisible} onClose={() => setModalVisible(false)} />
     </ScrollView>
   )
 }

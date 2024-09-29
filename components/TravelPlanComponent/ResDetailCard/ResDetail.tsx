@@ -41,7 +41,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
         <ScrollView contentContainerStyle={{ padding: 16 }}>
           {/* Image */}
           <Image
-            source={{ uri: 'https://path-to-your-image.com/your-image.png' }} // 替换为你的图片 URL
+            source={{ uri: 'https://i.pinimg.com/564x/a7/76/fa/a776faacad7abdd153d59d1361ff2680.jpg' }} // 替换为你的图片 URL
             className="w-full h-40"
             resizeMode="cover"
           />
