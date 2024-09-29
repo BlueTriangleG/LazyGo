@@ -17,13 +17,13 @@ interface Activity {
 }
 
 interface Plan {
-    day1: { activities: Activity[] };
-    day2?: { activities: Activity[] };
+  day1: { activities: Activity[] }
+  day2?: { activities: Activity[] }
 }
 
 interface ResponseJSON {
-    plan: Plan;
-    reply: string;
+  plan: Plan
+  reply: string
 }
 
 // Constant current location for testing
@@ -101,7 +101,7 @@ export async function generatePlan(requestMessage: string): Promise<string | voi
         return;
     }
 
-    const url = 'https://api.openai.com/v1/chat/completions';
+    const url = 'https://api.openai.com/v1/chat/completions'
 
     const json_sample: ResponseJSON = {
         plan: {

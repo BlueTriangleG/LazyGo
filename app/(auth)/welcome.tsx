@@ -30,7 +30,7 @@ const Home = () => {
           <View className="w-[32px] h-[4px] mx-1 bg-[#E2E8F0] rounded-full" />
         }
         activeDot={
-          <View className="w-[32px] h-[4px] mx-1 bg-[#0286FF] rounded-full" />
+          <View className="w-[32px] h-[4px] mx-1 bg-red-300 rounded-full" />
         }
         onIndexChanged={(index) => setActiveIndex(index)}>
         {onboarding.map((item) => (
@@ -59,7 +59,7 @@ const Home = () => {
             ? router.replace('/(auth)/sign-up')
             : swiperRef.current?.scrollBy(1)
         }
-        className="w-11/12 mt-10 mb-5"
+        className="w-11/12 mt-10 mb-5 bg-red-300"
       />
     </SafeAreaView>
   )
