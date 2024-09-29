@@ -16,21 +16,21 @@ export default function Page() {
           className="mt-6"
           title="Go to Map"
           onPress={async () => {
-            router.replace('/(root)/(tabs)/map-test')
+            router.push('/(root)/(tabs)/map-test')
           }}
         />
         <CustomButton
           className="mt-6"
           title="generate plan"
           onPress={async () => {
-            router.replace('/(root)/(generate-plan)/gpt_test')
+            router.push('/(root)/(generate-plan)/gpt_test')
           }}
         />
         <CustomButton
           className="mt-6"
           title="travel plan test"
           onPress={async () => {
-            router.replace('/(root)/(tabs)/explore')
+            router.push('/(root)/(generate-plan)/explore')
           }}
         />
       </SignedIn>
