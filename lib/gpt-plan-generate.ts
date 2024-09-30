@@ -144,7 +144,7 @@ export async function generatePlan(mode:string, currentTime: string, days: numbe
 
             const distanceMatrix = await getDistanceMatrix([activity.startLocation], [activity.endLocation], travel_mode, activity.time);
             const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix);
-            console.log(distanceMatrix.destination_addresses)
+            console.log(distanceMatrix.destintion_addresses)
             console.log(distanceMatrix.origin_addresses)
             console.log("-----------------------------")
             const duration = filteredDistanceMatrix[0][0].duration;
@@ -161,31 +161,108 @@ export async function generatePlan(mode:string, currentTime: string, days: numbe
   }
 }
 
+// DO NOT USE THIS 
+export async function generatePlan_distance(mode:string, currentTime: string, days: number, travel_mode?: string, minPrice?: number, maxPrice?: number): Promise<string | void>{
+    try{
+        const placesJson = await getNearbyPlaces(`${location.latitude},${location.longitude}`, 1000, "restaurant", minPrice, maxPrice);
+        // console.log(placesJson);
+        //TODO: handle error of the getNearbyPlaces
+        let filteredPlacesJson = filterGoogleMapData(placesJson);
+        // console.log(filteredPlacesJson);
+        
+        const locations: LatLngTuple[] = [];
+        // Add current location into the list
+        locations.push([location.latitude, location.longitude]);
 
-// export async function generatePlan_distance(mode:string, currentTime: string, days: number, travel_mode?: string, minPrice?: number, maxPrice?: number): Promise<string | void>{
-//     try{
-//         const placesJson = await getNearbyPlaces(`${location.latitude},${location.longitude}`, 1000, "restaurant", minPrice, maxPrice);
-//         // console.log(placesJson);
-//         //TODO: handle error of the getNearbyPlaces
-//         let filteredPlacesJson = filterGoogleMapData(placesJson);
-//         // console.log(filteredPlacesJson);
-//         const locations: string[] = [];
+        filteredPlacesJson.forEach(place => {
+            const location: LatLngTuple= [place.geometry.lat,place.geometry.lng];
+            locations.push(location);
+        });
+        
+        const distances: DistanceEntry[] = [];
 
-//         filteredPlacesJson.forEach(place => {
-//             const location = `${place.geometry.lat},${place.geometry.lng}`;
-//             locations.push(location);
-//         });
-//         const distanceMatrix = await getDistanceMatrix(locations, locations,travel_mode);
-//         console.log(distanceMatrix);
-//         const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix);
-//         console.log(filteredDistanceMatrix);
+        for (let i = 0; i < locations.length; i++) {
+            for (let j = i + 1; j < locations.length; j++) {
+                const [lat1, lon1] = locations[i];
+                const [lat2, lon2] = locations[j];
 
-//         return locations.toString();
-//       } catch (error){
-//         console.error("Error generating plan:", error);
-//         return;
-//       }
-// }
+                const distance = haversine(lat1, lon1, lat2, lon2);
+                distances.push({
+                from: locations[i],
+                to: locations[j],
+                distance: distance
+                });
+            }
+        }
+        
+        if (!GPT_KEY) {
+            console.error("GPT_KEY is not defined.");
+            return;
+        }
+        let requestString = `You must consider the rating, price level of the places. The route of the plan must consider the distances between previous location and next location.All the places data: ${JSON.stringify(filteredPlacesJson)}. All the distances (km) between locations of places : ${JSON.stringify(distances)}. it's ${currentTime}.Give me a ${days}-day plan.` 
+        switch (mode){
+        case "restaurant":
+            requestString += restuarant_prompt;
+            break;
+        }
+        const url = 'https://api.openai.com/v1/chat/completions';
+        console.log(requestString);
+        const requestBody = {
+            model: "gpt-4o-mini",
+            messages: [
+                {
+                    role: "system",
+                    content: `You are a robot to generate a plan in chronological order in the form of JSON based on the given data from Google Map API. You must return in the form like: ${JSON.stringify(json_sample)} and avoid any syntax error.At current stage must keep "duration", "transportation", "distance" must be null.The key of each day must be number not a string(day1 is 1, day2 is 2,e.g.). You should only return the string form of the json.
+                    The plan can contain multiple days. Each day can have multiple activities.The key of the day is a number. "time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                    If it is the first plan, the "startLocation" is the current location "${location.latitude},${location.longitude}; otherwise, the "startLocation" is the location of the previous activity's "endLocation".You should only choose the destinations from the given Google Map API data.
+                    Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.`
+                },
+                { role: "user", content: requestString }
+            ],
+            max_tokens: 2000
+        };
+    
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GPT_KEY}`
+                },
+                body: JSON.stringify(requestBody)
+            });
+            
+            const data = await response.json();
+            let planJson = JSON.parse(data.choices[0].message.content);
+            for (const day in planJson) {
+                const activities = planJson[day];
+                // Loop through each activity for the day
+                for (const activity of activities) {
+                    const distanceMatrix = await getDistanceMatrix([activity.startLocation], [activity.endLocation], travel_mode, activity.time);
+                    const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix);
+                    console.log(distanceMatrix);
+                    console.log(distanceMatrix.destination_addresses)
+                    console.log(distanceMatrix.origin_addresses)
+                    
+                    const duration = filteredDistanceMatrix[0][0].duration;
+                    const distance = filteredDistanceMatrix[0][0].distance;
+                    console.log(`Duration:${duration}, Distance:${distance}`);
+                    activity.duration = duration;
+                    activity.distance = distance;
+                    activity.transportation = travel_mode || 'driving';
+                    console.log("-----------------------------")
+                }
+            }
+            return planJson;
+        } catch (error) {
+            console.error("Error calling GPT API:", error);
+            return;
+        }
+      } catch (error){
+        console.error("Error generating plan:", error);
+        return;
+      }
+}
 
 
 // TODO: update the prompt
@@ -250,6 +327,7 @@ interface GoogleMapResponse {
 }
 
 
+
 export const filterGoogleMapData = (data: GoogleMapResponse) => {
     const filteredResults = data.results.map((place: GoogleMapPlace) => ({
         name: place.name,
@@ -278,3 +356,34 @@ export const filterDistanceMatrixData = (data: any) => {
 
     return filteredResults;
 };
+
+
+// 地球的平均半径（以公里为单位）
+const EARTH_RADIUS = 6371;
+type LatLngTuple = [number, number];
+
+// 定义存储距离的结构
+interface DistanceEntry {
+    from: LatLngTuple;   // 出发点经纬度
+    to: LatLngTuple;     // 目标点经纬度
+    distance: number;    // 距离（公里）
+  }
+
+// Haversine 公式，将角度转换为弧度
+function toRadians(degrees: number): number {
+  return degrees * (Math.PI / 180);
+}
+
+// 计算两个经纬度之间的距离
+function haversine(lat1: number, lon1: number, lat2: number, lon2: number): number {
+  const dLat = toRadians(lat2 - lat1);
+  const dLon = toRadians(lon2 - lon1);
+
+  const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  
+  return EARTH_RADIUS * c; // 距离以公里为单位
+}
