@@ -1,46 +1,39 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text, View, StyleSheet } from 'react-native'
-import { commonStyles } from '@/styles/common-styles'
+import { Text, View, StyleSheet, ScrollView } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 
 import { useEffect, useState } from 'react'
 
 import presetChats from './data/preset-chats.json'
 import presetOptions from './data/preset-options.json'
-
+import CustomButton from '@/components/CustomButton'
+import { ProgressBar } from 'react-native-paper';
 
 type Message = {
     content: string;
     sender: string;
-    timestamp: string;
 }
 
-const mockMessages: Message[] = [
-    {
-        content: 'Hello, how can I help you?',
-        sender: 'bot',
-        timestamp: '2022-09-29T10:00:00Z',
-    },
-    {
-        content: 'I want to know more about the plan.',
-        sender: 'user',
-        timestamp: '2022-09-29T10:01:00Z',
-    },
-    {
-        content: 'Sure! What would you like to know?',
-        sender: 'bot',
-        timestamp: '2022-09-29T10:02:00Z',
-    },
-];
-
+type UserConfig = {
+    minPrice?: number;
+    maxPrice?: number;
+    departureTime: string;
+    transportation: string;
+}
 
 export default function Chat() {
+
+    const userConfig: UserConfig = {
+        departureTime: "",
+        transportation: "",
+    }
 
     const [messages, setMessages] = useState<Message[]>([])
 
     const chatsArray = Object.values(presetChats);
     const optionsArray = Object.values(presetOptions);
-     
+    const [currentChat, setCurrentChat] = useState<string>("");
+    
     const renderItem = ({ item }: { item: Message }) => {
         return (
             <Text style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
@@ -50,19 +43,40 @@ export default function Chat() {
     };
 
     useEffect(() => {
-        setMessages(mockMessages);
+        let initMsgContent = chatsArray.find((chat) => chat.keyword === "init");
+        if (initMsgContent) {
+            setCurrentChat(initMsgContent.keyword);
+            let initMsg: Message = {
+                content: initMsgContent.content,
+                sender: "bot",
+            };
+            setMessages([...messages, initMsg]);
+        }
     }, []);
 
     return (
         <SafeAreaView style={styles.contentWrapper}>
-            <Text style={commonStyles.h1text}>Chat</Text>
-            <View style={styles.message_container}>
-                <FlashList estimatedItemSize={35} data={messages} renderItem={renderItem}/>
-            </View>
+            <ScrollView style={styles.contentWrapper}>
+                <ProgressBar 
+                    style={{height: 10, width: '100%'}}
+                    progress = {1/3}
+                    />
+                <View style={styles.message_container}>
+                    <FlashList estimatedItemSize={35} data={messages} renderItem={renderItem}/>
+                </View>
+                <View style={styles.options_container}>
+                    {optionsArray.find((options) => options.keyword === currentChat)?.options.map((option: { content: string }) => {
+                        return (
+                            <CustomButton
+                                title={option.content}
+                                className="mt-6 bg-red-300"/>
+                        );
+                    })}
+                </View>
+            </ScrollView>
         </SafeAreaView>
     )
 }
-
 const styles = StyleSheet.create({
     message_container: {
         flex: 1,
@@ -77,13 +91,18 @@ const styles = StyleSheet.create({
     },
     contentWrapper: {
         flex: 1,
-        width: '100%',
         height: '100%',
     },
     messageItem: {
         padding: 10,
         marginVertical: 10,
         borderRadius: 10,
+        maxWidth: '90%',
         backgroundColor: 'lightgrey',
+    },
+    options_container: {
+        marginLeft: 20,
+        marginRight: 20,
+        marginBottom: 40,
     },
 })
