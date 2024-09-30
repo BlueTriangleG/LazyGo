@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { View, Text, Button, StyleSheet } from 'react-native'
-import {askAboutPlan, generatePlan, filterGoogleMapData, filterDestination} from '@/lib/gpt-plan-generate'
+import {askAboutPlan, generatePlan, filterGoogleMapData, filterDestination, generatePlan_restaurant} from '@/lib/gpt-plan-generate'
 import { Link, router } from 'expo-router'
 import { Image, TouchableOpacity } from 'react-native'
 import { icons } from '@/constants'
@@ -14,8 +14,8 @@ const MyComponent = () => {
         // const resultString = JSON.stringify(result)
         // console.log(resultString)
 
-        const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",2);
-        console.log(result);
+        const result = await generatePlan_restaurant("2024-09-29T23:00:00Z");
+        console.log(JSON.stringify(result));
         // console.log(result)
         // if (result) { 
         //     setText(result);

@@ -30,7 +30,7 @@ const json_sample: Plan = {
             {
                 "date": "2024-09-29",
                 'time': "8:00",
-                'duration': "10",
+                'duration': "10 min",
                 'destination': "X",
                 'destination describ': "X",
                 'destination duration': "60",
@@ -43,7 +43,7 @@ const json_sample: Plan = {
             {
                 "date": "2024-09-29",
                 'time': "8:00",
-                'duration': "10",
+                'duration': "10 min",
                 'destination': "X",
                 'destination describ': "X",
                 'destination duration': "60",
@@ -160,6 +160,96 @@ export async function generatePlan(mode:string, currentTime: string, days: numbe
     return;
   }
 }
+
+
+export async function generatePlan_restaurant(currentTime: string, travel_mode?: string, minPrice?: number, maxPrice?: number): Promise<Plan | void>{
+    let currentLocation = `${location.latitude},${location.longitude}`;
+    const time = currentTime.slice(11, 19); 
+    const hours = parseInt(time.slice(0, 2));
+    const minutes = parseInt(time.slice(3, 5)); 
+    let numMeals= 0;
+    if (hours >= 5 && hours < 9) {
+        numMeals = 3; // 5 am - 9 am
+    } else if (hours >= 9 && hours < 14) {
+        numMeals = 2; // 9 am - 2 pm
+    } else if (hours >= 14 && hours < 21) {
+        numMeals = 1; // 2 pm - 9 pm
+    } else {
+        numMeals =3; // 9 pm - 5 am
+    }
+    console.log(`numMeals: ${numMeals}`);
+    try{
+        let planJson:Plan = {1:[]};
+        for (let i =0; i< numMeals;i++){
+            const placesJson = await getNearbyPlaces(currentLocation, 1000, "restaurant", minPrice, maxPrice);
+            let filteredPlacesJson = filterGoogleMapData(placesJson);
+            // console.log(filteredPlacesJson);
+            const locations: string[] = []
+            filteredPlacesJson.forEach(place => {
+                const location = place.vicinity;
+                locations.push(location);
+            });
+
+            const distanceMatrix = await getDistanceMatrix([currentLocation], locations, travel_mode);
+            const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix);
+            // console.log(JSON.stringify(filteredDistanceMatrix))
+            // Let GPT to generate the next activity
+            if (!GPT_KEY) {
+                console.error("GPT_KEY is not defined.");
+                return;
+            }
+            
+            const url = 'https://api.openai.com/v1/chat/completions';
+            const requestMessage = `It's ${currentTime} now. If the current time exceed 9 pm. Give me the meal plan for next day. Please fill in the "transportation" with ${travel_mode || "driving"} (Capitalize the first letter).There are ${numMeals-i} meals remaining.
+            If 3 meals remaining, give me the breakfast plan, "time" must be a reasonable breakfast time. If 2 meals remaining, give me the lunch plan, "time" must be a reasonable lunch time. If 1 meal remaining, give me dinner plan,"time" must be a reasonable dinner time.
+            All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
+            The current plan is ${JSON.stringify(planJson)}. Don't let me eat in the same retaurant twice.`
+            const requestBody = {
+                model: "gpt-4o-mini",
+                messages: [
+                    {
+                        role: "system",
+                        content: `You are a robot to decide which restuarant to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
+                        "time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                        Fill in the "duration", "distances" with the given data containing distances and durations.If it is the first plan, the "startLocation" is the current location "${location.latitude},${location.longitude}; otherwise, the "startLocation" is the location of the previous activity's "endLocation". You should only choose the destinations from the given Google Map API data.
+                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.`
+                    },
+                    { role: "user", content: requestMessage }
+                ],
+                max_tokens: 1000
+            };
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GPT_KEY}`
+                },
+                body: JSON.stringify(requestBody)
+            });
+    
+            const data = await response.json();
+            const activity= data.choices[0].message.content;
+            // console.log(activity);
+            const activity_json : Activity= JSON.parse(activity);
+            planJson[1].push(activity_json);
+            currentLocation = activity_json.endLocation;
+        }
+        return planJson;
+    }catch(error){
+        console.error("Error generating plan:", error);
+        return;
+    }
+}
+
+
+
+
+
+
+
+
+
 
 // DO NOT USE THIS 
 export async function generatePlan_distance(mode:string, currentTime: string, days: number, travel_mode?: string, minPrice?: number, maxPrice?: number): Promise<string | void>{
