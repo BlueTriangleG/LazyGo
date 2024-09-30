@@ -1,0 +1,58 @@
+[
+    {
+        "keyword": "init",
+        "options": [
+            {
+                "content": "Budget"
+            }, 
+            {
+                "content": "Transportation"
+            }, 
+            {
+                "content": "Departure Time"
+            }
+        ]
+    },
+    {
+        "keyword": "price_level",
+        "options": [
+            {
+                "content": "20 - 50"
+            }, 
+            {
+                "content": "50 - 100"
+            }, 
+            {
+                "content": "100+"
+            }
+        ]
+    },
+    {
+        "keyword": "travel_mode",
+        "options": [
+            {
+                "content": "Walking / Biking"
+            }, 
+            {
+                "content": "Tram / Train"
+            }, 
+            {
+                "content": "Driving / Bus"
+            }
+        ]
+    },
+    {
+        "keyword": "departure_time",
+        "options": [
+            {
+                "content": "20 minutes"
+            }, 
+            {
+                "content": "40 minutes"
+            }, 
+            {
+                "content": "60 minutes"
+            }
+        ]
+    }
+]
