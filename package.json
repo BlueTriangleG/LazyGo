@@ -61,7 +61,9 @@
     "stripe": "^16.7.0",
     "tailwind": "^4.0.0",
     "tailwind-rn": "^4.2.0",
-    "zustand": "^4.5.4"
+    "zustand": "^4.5.4",
+    "@shopify/flash-list": "1.6.4",
+    "expo-dev-client": "~4.0.27"
   },
   "devDependencies": {
     "@babel/core": "^7.20.0",
