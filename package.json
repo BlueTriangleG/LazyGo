@@ -55,6 +55,7 @@
     "react-native-screens": "3.31.1",
     "react-native-swiper": "^1.6.0",
     "react-native-web": "~0.19.10",
+    "sqlite3": "^5.1.7",
     "stripe": "^16.7.0",
     "tailwind": "^4.0.0",
     "tailwind-rn": "^4.2.0",
