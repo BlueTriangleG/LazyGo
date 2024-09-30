@@ -10,9 +10,13 @@ const MyComponent = () => {
   const handleButtonPress = async () => {
     try {
         // TODO: write function for each use case to generate the request String
-        const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",1)
-        const resultString = JSON.stringify(result)
-        console.log(resultString)
+        // const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",1)
+        // const resultString = JSON.stringify(result)
+        // console.log(resultString)
+
+        const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",2);
+        console.log(result);
+        // console.log(result)
         // if (result) { 
         //     setText(result);
         // } else {

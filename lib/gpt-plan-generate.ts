@@ -2,7 +2,7 @@ import { useState } from "react";
 import {getDistanceMatrix, getNearbyPlaces} from "./google-map-api"
 import { min } from "date-fns";
 const GPT_KEY= process.env.EXPO_PUBLIC_GPT_KEY;
-const restuarant_prompt= `You should reasonably manage only the breakfast, lunch, dinner and one small meal eating in cafe. If the current time exceed the meal time (breakfast:5 am - 10 am, lunch: before 11 am - 2 pm, afternoon tea: 2 pm - 4 pm, dinner: 5 pm - 11 pm), please ignore that meal.The plan should not have more than 4 meals a day.Give me a reasonable plan for a human being according to the rating and price level.`
+const restuarant_prompt= `You should reasonably manage only every day's the breakfast, lunch, dinner and one small meal eating in cafe. If the current time exceed the meal time (breakfast:5 am - 10 am, lunch: before 11 am - 2 pm, afternoon tea: 2 pm - 4 pm, dinner: 5 pm - 11 pm), please ignore that meal.In one day, it should not have more than 4 meals.Give me a reasonable plan for a human being according to the rating and price level.`
 interface Activity {
     "date": string;
     'time': string;
@@ -88,8 +88,8 @@ export async function filterDestination(requestMessage: string): Promise<string 
         messages: [
             {
                 role: "system",
-                content: `You are a robot to generate a plan in chronological order in the form of JSON based on the given data from Google Map API. You must return in the form like: ${JSON.stringify(json_sample)} and avoid any syntax error.
-                the plan can contain multiple days. Each day can have multiple activities.The key of the day is a number. "time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                content: `You are a robot to generate a plan in chronological order in the form of JSON based on the given data from Google Map API. You must return in the form like: ${JSON.stringify(json_sample)} and avoid any syntax error.The key of each day must be number not a string(day1 is 1, day2 is 2,e.g.). You should only return the string form of the json.
+                The plan can contain multiple days. Each day can have multiple activities.The key of the day is a number. "time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
                 If it is the first plan, the "startLocation" is the current location "${location.latitude},${location.longitude}; otherwise, the "startLocation" is the location of the previous activity's "endLocation".At current stage keep "duration", "transportation", "distance" must be null. You should only choose the destinations from the given Google Map API data.
                 Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.`
             },
@@ -162,18 +162,30 @@ export async function generatePlan(mode:string, currentTime: string, days: numbe
 }
 
 
-export async function generatePlan_distance(mode:string, currentTime: string, days: number, travel_mode?: string, minPrice?: number, maxPrice?: number): Promise<string | void>{
-    try{
-        const placesJson = await getNearbyPlaces(`${location.latitude},${location.longitude}`, 1000, "restaurant", minPrice, maxPrice);
-        // console.log(placesJson);
-        //TODO: handle error of the getNearbyPlaces
-        let filteredPlacesJson = filterGoogleMapData(placesJson);
-        
-      } catch (error){
-        console.error("Error generating plan:", error);
-        return;
-      }
-}
+// export async function generatePlan_distance(mode:string, currentTime: string, days: number, travel_mode?: string, minPrice?: number, maxPrice?: number): Promise<string | void>{
+//     try{
+//         const placesJson = await getNearbyPlaces(`${location.latitude},${location.longitude}`, 1000, "restaurant", minPrice, maxPrice);
+//         // console.log(placesJson);
+//         //TODO: handle error of the getNearbyPlaces
+//         let filteredPlacesJson = filterGoogleMapData(placesJson);
+//         // console.log(filteredPlacesJson);
+//         const locations: string[] = [];
+
+//         filteredPlacesJson.forEach(place => {
+//             const location = `${place.geometry.lat},${place.geometry.lng}`;
+//             locations.push(location);
+//         });
+//         const distanceMatrix = await getDistanceMatrix(locations, locations,travel_mode);
+//         console.log(distanceMatrix);
+//         const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix);
+//         console.log(filteredDistanceMatrix);
+
+//         return locations.toString();
+//       } catch (error){
+//         console.error("Error generating plan:", error);
+//         return;
+//       }
+// }
 
 
 // TODO: update the prompt
@@ -217,19 +229,41 @@ export async function askAboutPlan(requestMessage: string): Promise<string | voi
     }
 }
 
-export const filterGoogleMapData = (data: any) => {
-    const filteredResults = data.results.map((place: any) => ({
-      name: place.name,
-      visinity: place.vicinity,
-      rating: place.rating,
-      user_ratings_total: place.user_ratings_total,
-      price_level: place.price_level,
-      types: place.types,
-      geometry: place.geometry.location
+
+interface GoogleMapPlace {
+    name: string;
+    vicinity: string;
+    rating: number;
+    user_ratings_total: number;
+    price_level: number; 
+    types: string[];
+    geometry: {
+        location: {
+        lat: number;
+        lng: number;
+        };
+    };
+}
+
+interface GoogleMapResponse {
+    results: GoogleMapPlace[];
+}
+
+
+export const filterGoogleMapData = (data: GoogleMapResponse) => {
+    const filteredResults = data.results.map((place: GoogleMapPlace) => ({
+        name: place.name,
+        vicinity: place.vicinity,
+        rating: place.rating,
+        user_ratings_total: place.user_ratings_total,
+        price_level: place.price_level,
+        types: place.types,
+        geometry: place.geometry.location
     }));
-  
+
     return filteredResults;
-  };
+};
+
 
 
 export const filterDistanceMatrixData = (data: any) => {
