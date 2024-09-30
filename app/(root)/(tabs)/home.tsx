@@ -11,7 +11,7 @@ export default function Page() {
 
   return (
     <SafeAreaView>
-      <ScrollView>
+      <ScrollView style={styles.contentWrapper}>
         <SignedIn>
         <Text style={commonStyles.h1text}>Welcome Lazy Go</Text>
 
@@ -170,5 +170,8 @@ const styles = StyleSheet.create({
   buttonSection: {
     paddingHorizontal: 16,
     paddingBottom: 30,
+  },
+  contentWrapper: {
+    marginBottom: 100,
   },
 })
