@@ -8,8 +8,8 @@ interface Activity {
     'time': string;
     'duration': string;
     'destination': string;
-    'destination describ': string;
-    'destination duration': string;
+    'destinationDescrib': string;
+    'destinationDuration': string;
     "transportation": string;
     "distance": string;
     "estimated price": string;
@@ -32,8 +32,8 @@ const json_sample: Plan = {
                 'time': "8:00",
                 'duration': "10 min",
                 'destination': "X",
-                'destination describ': "X",
-                'destination duration': "60",
+                'destinationDescrib': "X",
+                'destinationDuration': "60",
                 "transportation": "Car",
                 "distance": "3km",
                 "estimated price": "15 AUD",
@@ -45,8 +45,8 @@ const json_sample: Plan = {
                 'time': "8:00",
                 'duration': "10 min",
                 'destination': "X",
-                'destination describ': "X",
-                'destination duration': "60",
+                'destinationDescrib': "X",
+                'destinationDuration': "60",
                 "transportation": "Car",
                 "distance": "3km",
                 "estimated price": "15 AUD",
@@ -61,8 +61,8 @@ const json_sample: Plan = {
                 'time': "8:00",
                 'duration': "10",
                 'destination': "X",
-                'destination describ': "X",
-                'destination duration': "60",
+                'destinationDescrib': "X",
+                'destinationDuration': "60",
                 "transportation": "Car",
                 "distance": "3km",
                 "estimated price": "15 AUD",
