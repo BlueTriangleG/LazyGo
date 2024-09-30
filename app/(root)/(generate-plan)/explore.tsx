@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState,useEffect } from 'react'
 import {
   ScrollView,
   StyleSheet,
@@ -11,20 +11,52 @@ import ParallaxScrollView from '@/components/TravelPlanComponent/ParallaxScrollV
 import TravelCard from '@/components/TravelPlanComponent/TravelCard'
 import Map from '@/components/TravelPlanComponent/Map'
 import AddMoreRes from '@/components/TravelPlanComponent/AddMoreRes';
-
+import {generatePlan_restaurant} from '@/lib/gpt-plan-generate'
 // main page for travel plan
 export default function TabTwoScreen() {
   // store current day
   const [selectedDay, setSelectedDay] = useState(1)
   const [modalVisible, setModalVisible] = useState(false);
   
+    // Initialize TravelData as an empty array or your expected data structure
+    const [travelData, setTravelData] = useState([]); 
+    const [loading, setLoading] = useState(true); // Loading state
+
+    useEffect(() => {
+      const fetchRestaurantPlan = async () => {
+        try {
+          const result = await generatePlan_restaurant("2024-09-29T23:00:00Z");
+          console.log(JSON.stringify(result));
+          
+          // Directly store the result in travelData
+          setTravelData(result); 
+        } catch (error) {
+          console.error('Error fetching restaurant plan:', error);
+        } finally {
+          setLoading(false); // Set loading to false when done
+        }
+      };
+  
+      fetchRestaurantPlan();
+    }, []); // Empty dependency array to run once on mount
+
+
+
   const handleAddDestination = () => {
     setModalVisible(true); // show dialog
   };
-
+  // Render loading indicator if still fetching data
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        {/* <ActivityIndicator size="large" color="#0000ff" /> */}
+        <Text>Loading...</Text>
+      </View>
+    );
+  }
   // demo data
-  const travelData = {
-    1: [
+  const travelData1 = {
+    "1": [
       {
         time: '08:00',
         duration: '2h',
@@ -77,7 +109,7 @@ export default function TabTwoScreen() {
         endLocation: '35.6544,139.7480', // 终点的经纬度 (Shiba Park)
       },
     ],
-    2: [
+    "2": [
       {
         time: '09:00',
         duration: '1.5h',

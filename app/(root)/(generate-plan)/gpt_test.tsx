@@ -1,10 +1,7 @@
 import React, { useState } from 'react'
 import { View, Text, Button, StyleSheet } from 'react-native'
-import {askAboutPlan, generatePlan, filterGoogleMapData, filterDestination, generatePlan_restaurant} from '@/lib/gpt-plan-generate'
-import { Link, router } from 'expo-router'
-import { Image, TouchableOpacity } from 'react-native'
-import { icons } from '@/constants'
-import jsonData from '../../../data/restaurants.json'
+import {generatePlan_restaurant} from '@/lib/gpt-plan-generate'
+import { router } from 'expo-router'
 const MyComponent = () => {
   const [text, setText] = useState('')
   const handleButtonPress = async () => {
