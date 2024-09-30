@@ -23,16 +23,16 @@ export default function Page() {
           <View style={styles.iconRow}>
             {/* Put each icon into a circular color box */}
             <View style={[styles.iconWrapper, { backgroundColor: '#FFCDD2' }]}>
-              <FontAwesome name="cutlery" size={30} color="black" onPress={() => router.push('/(root)/(generate-plan)/chat')} />
+              <FontAwesome name="cutlery" size={30} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "restaurant"}})} />
             </View>
             <View style={[styles.iconWrapper, { backgroundColor: '#C8E6C9' }]}>
-              <FontAwesome name="coffee" size={30} color="black" onPress={() => router.push('/(root)/(generate-plan)/problem1')} />
+              <FontAwesome name="coffee" size={30} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "cafe"}})} />
             </View>
             <View style={[styles.iconWrapper, { backgroundColor: '#BBDEFB' }]}>
-              <FontAwesome name="university" size={30} color="black" onPress={() => router.push('/(root)/(generate-plan)/chat')} />
+              <FontAwesome name="university" size={30} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "library"}})} />
             </View>
             <View style={[styles.iconWrapper, { backgroundColor: '#FFE082' }]}>
-              <FontAwesome name="film" size={30} color="black" onPress={() => router.push('/(root)/(generate-plan)/chat')} />
+              <FontAwesome name="film" size={30} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "theatre"}})} />
             </View>
           </View>
         </View>

@@ -8,6 +8,7 @@ import presetChats from './data/preset-chats.json'
 import presetOptions from './data/preset-options.json'
 import CustomButton from '@/components/CustomButton'
 import { ProgressBar } from 'react-native-paper';
+import { useLocalSearchParams } from 'expo-router'
 
 type Message = {
     content: string;
@@ -19,11 +20,17 @@ export type UserConfig = {
     maxPrice?: number;
     departureTime: string;
     transportation: string;
+    placeType?: string;
 }
 
-export default function Chat() {
+export type ChatProps = {
+    placeType: string;
+}
+
+const Chat = (props: ChatProps) => {
 
     const [messages, setMessages] = useState<Message[]>([])
+    const chatParams: ChatProps = useLocalSearchParams();
 
     // Initialize chats and options, use JSON.parse(JSON.stringify()) to deep copy the object
     const [chatsArray, setChatsArray] = useState<{content: string, keyword: string}[]>(JSON.parse(JSON.stringify(Object.values(presetChats))));
@@ -33,6 +40,7 @@ export default function Chat() {
     const [userConfig, setUserConfig] = useState<UserConfig>({
         departureTime: "",
         transportation: "",
+        placeType: chatParams.placeType,
     });
     const totalSteps = Object.values(presetOptions).find((options) => options.keyword === "init")?.options.length || 0;
 
@@ -172,6 +180,10 @@ export default function Chat() {
         </SafeAreaView>
     )
 }
+
+export default Chat;
+
+// Styles
 const styles = StyleSheet.create({
     message_container: {
         flex: 1,
