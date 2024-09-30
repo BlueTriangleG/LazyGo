@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text } from 'react-native'
+import { Text, View, StyleSheet } from 'react-native'
 import { commonStyles } from '@/styles/common-styles'
 import { FlashList } from '@shopify/flash-list'
 
@@ -10,7 +10,6 @@ import presetOptions from './data/preset-options.json'
 
 
 type Message = {
-    id: string;
     content: string;
     sender: string;
     timestamp: string;
@@ -18,19 +17,16 @@ type Message = {
 
 const mockMessages: Message[] = [
     {
-        id: '1',
         content: 'Hello, how can I help you?',
         sender: 'bot',
         timestamp: '2022-09-29T10:00:00Z',
     },
     {
-        id: '2',
         content: 'I want to know more about the plan.',
         sender: 'user',
         timestamp: '2022-09-29T10:01:00Z',
     },
     {
-        id: '3',
         content: 'Sure! What would you like to know?',
         sender: 'bot',
         timestamp: '2022-09-29T10:02:00Z',
@@ -47,7 +43,9 @@ export default function Chat() {
      
     const renderItem = ({ item }: { item: Message }) => {
         return (
-            <Text>{item.content}</Text>
+            <Text style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
+                {item.content}
+            </Text>
         );
     };
 
@@ -56,9 +54,36 @@ export default function Chat() {
     }, []);
 
     return (
-        <SafeAreaView>
-            <Text style={commonStyles.h1text}>This is a chat page.</Text>
-            <FlashList data={messages} renderItem={renderItem}/>
+        <SafeAreaView style={styles.contentWrapper}>
+            <Text style={commonStyles.h1text}>Chat</Text>
+            <View style={styles.message_container}>
+                <FlashList estimatedItemSize={35} data={messages} renderItem={renderItem}/>
+            </View>
         </SafeAreaView>
     )
 }
+
+const styles = StyleSheet.create({
+    message_container: {
+        flex: 1,
+        width: '100%',
+        height: '90%',
+        padding: 20,
+    },
+    text: {
+        fontSize: 18,
+        marginBottom: 20,
+        color: 'black',
+    },
+    contentWrapper: {
+        flex: 1,
+        width: '100%',
+        height: '100%',
+    },
+    messageItem: {
+        padding: 10,
+        marginVertical: 10,
+        borderRadius: 10,
+        backgroundColor: 'lightgrey',
+    },
+})
