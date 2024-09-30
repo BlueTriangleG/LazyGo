@@ -1,27 +1,32 @@
 import React, { useState } from 'react'
 import { View, Text, Button, StyleSheet } from 'react-native'
-import { generatePlan } from '@/lib/gpt-plan-generate'
+import {askAboutPlan, generatePlan, filterGoogleMapData, filterDestination} from '@/lib/gpt-plan-generate'
 import { Link, router } from 'expo-router'
 import { Image, TouchableOpacity } from 'react-native'
 import { icons } from '@/constants'
-
+import jsonData from '../../../data/restaurants.json'
 const MyComponent = () => {
   const [text, setText] = useState('')
   const handleButtonPress = async () => {
     try {
-      const result = await generatePlan(
-        'I want to eat something, there are Cafe A and Cafe B around me'
-      )
-      if (result) {
-        setText(result)
-      } else {
-        setText('No plan generated')
-      }
+        // TODO: write function for each use case to generate the request String
+        // const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",1)
+        // const resultString = JSON.stringify(result)
+        // console.log(resultString)
+
+        const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",2);
+        console.log(result);
+        // console.log(result)
+        // if (result) { 
+        //     setText(result);
+        // } else {
+        //     setText("No plan generated"); 
+        // }
     } catch (error) {
-      console.error('Error generating plan:', error)
-      setText('Failed to generate plan.')
+        console.error("Error generating plan:", error);
+        setText("Failed to generate plan.");
     }
-  }
+};
 
   return (
     <View style={styles.container}>
