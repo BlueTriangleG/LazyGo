@@ -14,7 +14,7 @@ type Message = {
     sender: string;
 }
 
-type UserConfig = {
+export type UserConfig = {
     minPrice?: number;
     maxPrice?: number;
     departureTime: string;
@@ -23,25 +23,21 @@ type UserConfig = {
 
 export default function Chat() {
 
-    const userConfig: UserConfig = {
-        departureTime: "",
-        transportation: "",
-    }
-
     const [messages, setMessages] = useState<Message[]>([])
 
-    const chatsArray = Object.values(presetChats);
-    const optionsArray = Object.values(presetOptions);
+    // Initialize chats and options, use JSON.parse(JSON.stringify()) to deep copy the object
+    const [chatsArray, setChatsArray] = useState<{content: string, keyword: string}[]>(JSON.parse(JSON.stringify(Object.values(presetChats))));
+    const [optionsArray, setOptionsArray] = useState<{options: {content: string, key: string}[], keyword: string}[]>(JSON.parse(JSON.stringify(Object.values(presetOptions))));
     const [currentChat, setCurrentChat] = useState<string>("");
-    
-    const renderItem = ({ item }: { item: Message }) => {
-        return (
-            <Text style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
-                {item.content}
-            </Text>
-        );
-    };
+    const [progress, setProgress] = useState<number>(0);
+    const [userConfig, setUserConfig] = useState<UserConfig>({
+        departureTime: "",
+        transportation: "",
+    });
+    const totalSteps = Object.values(presetOptions).find((options) => options.keyword === "init")?.options.length || 0;
 
+
+    // Initialize chat with the first message from preset chats
     useEffect(() => {
         let initMsgContent = chatsArray.find((chat) => chat.keyword === "init");
         if (initMsgContent) {
@@ -50,30 +46,129 @@ export default function Chat() {
                 content: initMsgContent.content,
                 sender: "bot",
             };
-            setMessages([...messages, initMsg]);
+            setMessages([initMsg]);
         }
     }, []);
+
+    // Handle reset button
+    const handleReset = () => {
+        console.log("userConfig", userConfig);  
+        let initMsgContent = chatsArray.find((chat) => chat.keyword === "init");
+        setUserConfig({
+            departureTime: "",
+            transportation: "",
+        });
+        setProgress(0);
+        setChatsArray(JSON.parse(JSON.stringify(Object.values(presetChats))));
+        setOptionsArray(JSON.parse(JSON.stringify(Object.values(presetOptions))));
+        if (initMsgContent) {
+            setCurrentChat(initMsgContent.keyword);
+            let initMsg: Message = {
+                content: initMsgContent.content,
+                sender: "bot",
+            };
+            setMessages([initMsg]);
+        }
+    }
+
+    // Handle user's choice
+    const handleButtonPress = (currentChat: string, key: string, content: string) => {
+        // If current chat is init, find next chat based on user's choice
+        if (currentChat === "init") {
+            let nextChat = chatsArray.find((chat) => chat.keyword === key);
+            if (nextChat) {
+                setCurrentChat(nextChat.keyword);
+                let nextMsg: Message = {
+                    content: nextChat.content,
+                    sender: "bot",
+                };
+                setMessages([...messages, nextMsg]);
+            }
+        } else {
+            updateUserConfig(currentChat, key);
+
+            // Find next chat based on user's choice
+            let nextChat = chatsArray.find((chat) => chat.keyword === "init");
+            if (nextChat) {
+                // Update options based on user's choice
+                optionsArray.forEach((chat) => {
+                    if (chat.keyword === "init") {
+                        chat.options.splice(chat.options.findIndex((option) => option.key === currentChat), 1);
+                    }
+                });
+                setCurrentChat(nextChat.keyword);
+                let nextMsg: Message = {
+                    content: content,
+                    sender: "user",
+                };
+                setMessages([...messages, nextMsg]);
+                setProgress(progress + 1);
+            }
+        }
+    }
+
+    // Update user config based on user's choice
+    function updateUserConfig(currentChat: string, key: string) {
+        switch (currentChat) {
+            case "price_level":
+                let minPrice = parseInt(key.split(",")[0]);
+                let maxPrice = parseInt(key.split(",")[1]);
+                userConfig.minPrice = minPrice === -1? undefined: minPrice;
+                userConfig.maxPrice = maxPrice === -1? undefined: maxPrice;
+                setUserConfig({...userConfig});
+                break;
+            case "departure_time":
+                userConfig.departureTime = key;
+                setUserConfig({...userConfig});
+                break;
+            case "travel_mode":
+                userConfig.transportation = key;
+                setUserConfig({...userConfig});
+                break;
+            default:
+                break;
+        }
+    }
+
+    // Render each message 
+    const renderItem = ({ item }: { item: Message }) => {
+        return (
+            <Text style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
+                {item.content}
+            </Text>
+        );
+    };
 
     return (
         <SafeAreaView style={styles.contentWrapper}>
             <ScrollView style={styles.contentWrapper}>
                 <ProgressBar 
                     style={{height: 10, width: '100%'}}
-                    progress = {1/3}
+                    progress = {progress/totalSteps}
                     />
                 <View style={styles.message_container}>
                     <FlashList estimatedItemSize={35} data={messages} renderItem={renderItem}/>
                 </View>
                 <View style={styles.options_container}>
-                    {optionsArray.find((options) => options.keyword === currentChat)?.options.map((option: { content: string }) => {
+                    {/* Render options based on current chat */}
+                    {optionsArray.find((options) => options.keyword === currentChat)?.options.map((option: { content: string, key: string }) => {
                         return (
                             <CustomButton
                                 title={option.content}
-                                className="mt-6 bg-red-300"/>
+                                className="mt-6 bg-red-300"
+                                onPress={() => handleButtonPress(currentChat, option.key, option.content)}
+                                />
                         );
                     })}
                 </View>
             </ScrollView>
+            <View style={{marginBottom: 50}}>
+                <CustomButton
+                    title="Reset"
+                    className="mt-6 bg-orange-300"
+                    onPress={handleReset}
+                    />
+            </View>
         </SafeAreaView>
     )
 }
