@@ -8,8 +8,8 @@ interface Activity {
     'time': string;
     'duration': string;
     'destination': string;
-    'destination describ': string;
-    'destination duration': string;
+    'destinationDescrib': string;
+    'destinationDuration': string;
     "transportation": string;
     "distance": string;
     "estimated price": string;
