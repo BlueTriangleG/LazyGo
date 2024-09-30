@@ -87,8 +87,8 @@ const TravelCard: React.FC<TravelCardProps> = ({
         {/* 内部卡片 */}
         <View style={styles.card}>
           <View style={styles.header}>
-            <Text style={styles.location}>{destination}</Text>
-            <Text style={styles.departureTime}>{time} 出發</Text>
+            <Text style={styles.location}>{destination}{'\n'}<Text style={styles.departureTime}>{time} 出發</Text></Text>
+
           </View>
 
           <Text style={styles.waitTime}>
