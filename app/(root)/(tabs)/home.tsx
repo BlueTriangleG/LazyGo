@@ -15,33 +15,31 @@ export default function Page() {
         <SignedIn>
         <Text style={commonStyles.h1text}>Welcome Lazy Go</Text>
 
-        {/* 分割线 */}
         <View style={styles.separator} />
 
-        {/* 搜索栏和图标导航部分 */}
+        {/* Search bar and icon navigation section */}
         <View style={styles.searchContainer}>
           <Text style={styles.searchText}>What you want?</Text>
           <View style={styles.iconRow}>
-            {/* 每个图标放入圆形颜色框中 */}
+            {/* Put each icon into a circular color box */}
             <View style={[styles.iconWrapper, { backgroundColor: '#FFCDD2' }]}>
-              <FontAwesome name="cutlery" size={30} color="black" onPress={() => router.push('/(root)/(generate-plan)/problem1')} />
+              <FontAwesome name="cutlery" size={30} color="black" onPress={() => router.push('/(root)/(generate-plan)/chat')} />
             </View>
             <View style={[styles.iconWrapper, { backgroundColor: '#C8E6C9' }]}>
-              <FontAwesome name="coffee" size={30} color="black" onPress={() => router.push('/(root)/(tabs)/coffee')} />
+              <FontAwesome name="coffee" size={30} color="black" onPress={() => router.push('/(root)/(generate-plan)/problem1')} />
             </View>
             <View style={[styles.iconWrapper, { backgroundColor: '#BBDEFB' }]}>
-              <FontAwesome name="university" size={30} color="black" onPress={() => router.push('/(root)/(tabs)/museum')} />
+              <FontAwesome name="university" size={30} color="black" onPress={() => router.push('/(root)/(generate-plan)/chat')} />
             </View>
             <View style={[styles.iconWrapper, { backgroundColor: '#FFE082' }]}>
-              <FontAwesome name="film" size={30} color="black" onPress={() => router.push('/(root)/(tabs)/entertainment')} />
+              <FontAwesome name="film" size={30} color="black" onPress={() => router.push('/(root)/(generate-plan)/chat')} />
             </View>
           </View>
         </View>
 
-        {/* 分割线 */}
         <View style={styles.separator} />
 
-        {/* 推荐部分 */}
+        {/* Recommendation section */}
         <View style={styles.recommendSection}>
           <Text style={commonStyles.h1text}>Recommend for you!</Text>
           <View style={styles.recommendBox}>
@@ -56,10 +54,9 @@ export default function Page() {
           </View>
         </View>
 
-        {/* 分割线 */}
         <View style={styles.separator} />
 
-        {/* Tips from Lazy Go 部分 */}
+        {/* Tips */}
         <View style={styles.tipsSection}>
           <Text style={commonStyles.h1text}>Tips from Lazy Go</Text>
           <Text>Hi! Good morning! Welcome to lazy go. Today is rainy, remember to bring your umbrella if you go out!</Text>
@@ -68,7 +65,6 @@ export default function Page() {
           <Text>3. Bring your ID card</Text>
         </View>
 
-        {/* 分割线 */}
         <View style={styles.separator} />
 
         <CustomButton
@@ -125,9 +121,9 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
   },
   iconWrapper: {
-    width: 60, // 图标框的宽度
-    height: 60, // 图标框的高度
-    borderRadius: 30, // 圆形框
+    width: 60, 
+    height: 60, 
+    borderRadius: 30, 
     justifyContent: 'center',
     alignItems: 'center',
   },
