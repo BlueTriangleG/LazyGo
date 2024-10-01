@@ -97,9 +97,9 @@ const TravelCard: React.FC<TravelCardProps> = ({
           <Text style={styles.destinationDescription}>
             {destinationDescrib}
           </Text>
-
+          
           <Text style={styles.destinationDuration}>
-            目的地停留時長: {destinationDuration}
+            目的地停留時長: {destinationDuration} min
           </Text>
 
           {/* 更多交通信息，点击后显示模态框 */}

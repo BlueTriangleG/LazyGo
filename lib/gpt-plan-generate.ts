@@ -12,7 +12,7 @@ interface Activity {
     'destinationDuration': string;
     "transportation": string;
     "distance": string;
-    "estimated price": string;
+    "estimatedPrice": string;
     "startLocation": string;
     "endLocation": string;
 }
@@ -36,7 +36,7 @@ const json_sample: Plan = {
                 'destinationDuration': "60",
                 "transportation": "Car",
                 "distance": "3km",
-                "estimatePrice": "15 AUD",
+                "estimatedPrice": "15 AUD",
                 "startLocation": "48.8566,2.3522",
                 "endLocation": "48.8606,2.3376"
             },
