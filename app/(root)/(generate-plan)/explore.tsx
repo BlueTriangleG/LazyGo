@@ -25,7 +25,7 @@ export default function TabTwoScreen() {
     useEffect(() => {
       const fetchRestaurantPlan = async () => {
         try {
-          const result = await generatePlan_restaurant("2024-09-30T23:00:00Z");
+          const result = await generatePlan_restaurant("-37.8136,144.9631","2024-09-29T23:00:00Z", "driving");
           console.log(JSON.stringify(result));
           
           // Directly store the result in travelData

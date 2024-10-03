@@ -1,6 +1,6 @@
 import React, { useState } from 'react'
 import { View, Text, Button, StyleSheet } from 'react-native'
-import {generatePlan_restaurant} from '@/lib/gpt-plan-generate'
+import {generatePlan_restaurant,generatePlan_cafe, generatePlan_attractions} from '@/lib/gpt-plan-generate'
 import { router } from 'expo-router'
 const MyComponent = () => {
   const [text, setText] = useState('')
@@ -11,7 +11,7 @@ const MyComponent = () => {
         // const resultString = JSON.stringify(result)
         // console.log(resultString)
 
-        const result = await generatePlan_restaurant("2024-09-29T23:00:00Z");
+        const result = await generatePlan_attractions("-37.8136,144.9631","2024-09-29T23:00:00Z", "driving");
         console.log(JSON.stringify(result));
         // console.log(result)
         // if (result) { 
