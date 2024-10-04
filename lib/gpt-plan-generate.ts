@@ -2,7 +2,6 @@ import { useState } from "react";
 import {getDistanceMatrix, getNearbyPlaces} from "./google-map-api"
 import { min } from "date-fns";
 const GPT_KEY= process.env.EXPO_PUBLIC_GPT_KEY;
-const restuarant_prompt= `You should reasonably manage only every day's the breakfast, lunch, dinner and one small meal eating in cafe. If the current time exceed the meal time (breakfast:5 am - 10 am, lunch: before 11 am - 2 pm, afternoon tea: 2 pm - 4 pm, dinner: 5 pm - 11 pm), please ignore that meal.In one day, it should not have more than 4 meals.Give me a reasonable plan for a human being according to the rating and price level.`
 interface Activity {
     "date": string;
     'time': string;
