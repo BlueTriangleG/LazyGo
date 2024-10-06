@@ -20,18 +20,40 @@ const MyComponent = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      const data = await getSensorData()
-      setSensorData(data)
-      console.log('Sensor Data:', JSON.stringify(data))
-      const result = await getRecommendsTips(JSON.stringify(data))
-      console.log(JSON.stringify(result))
-      const currentLocation = await getCurrentCoordinates()
-      console.log('Current Location:', currentLocation)
-      getWeatherData(currentLocation[0], currentLocation[1])
+      try {
+        // Fetch sensor data
+        const sensorData = await getSensorData()
+        setSensorData(sensorData)
+        console.log('Sensor Data:', JSON.stringify(sensorData))
+
+        // Fetch current location coordinates
+        const currentLocation = await getCurrentCoordinates()
+        console.log('Current Location:', currentLocation)
+
+        // Fetch weather data based on the current location
+        const weatherData = await getWeatherData(
+          currentLocation[0],
+          currentLocation[1]
+        )
+        console.log('Weather Data:', JSON.stringify(weatherData))
+
+        // Combine sensorData and weatherData into a single JSON object
+        const combinedData = {
+          sensorData,
+          weatherData,
+        }
+
+        // Pass the combined data as a JSON string to getRecommendsTips
+        const result = await getRecommendsTips(JSON.stringify(combinedData))
+        console.log('Recommendations:', JSON.stringify(result))
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
     }
 
     fetchData()
   }, [])
+
   // useShakeDetector();
   const handleButtonPress = async () => {
     try {
