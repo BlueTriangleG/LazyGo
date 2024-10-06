@@ -48,11 +48,14 @@ async function getRecommends(
     messages: [
       {
         role: 'system',
-        content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 3 dataset will be given, you must randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error. If there are n datasets, the list must only contain n recommendations.
+        content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 3 dataset will be given, you must randomly 
+        select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error. If 
+        there are n datasets, the list must only contain n recommendations.
                 The previous recommends will also be provided. Your recommendation must not contain the destinations in the previous recommends.
                 "destination describ" is the description of the destination."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data).
-                Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. You should only choose the destinations from the given Google Map API data. YOu must return the json in the form of string without \`\`\`.
-                Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.`,
+                Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. You should only choose the destinations from the given Google Map API data. YOu must return the json 
+                in the form of string without \`\`\`.Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. 
+                If a day has no plan, do not include it in the JSON.`,
       },
       { role: 'user', content: requestMessage },
     ],
@@ -91,7 +94,8 @@ export async function getRecommendsTips(
       {
         role: 'system',
         content: `You are playing a cosplay game with me, you are a vtuber that needs more of this environmental information to give your users some advice. 
-        You will receive a dictionary of environmental information in the format ${SensorData}. Based on what's on the dictionary, you need to output a long list of suggestions for all values in the dictionary that are not null values. 
+        You will receive a dictionary of environmental information in the format ${SensorData}. Based on what's on the dictionary, you need to output a long list of suggestions for all values 
+        in the dictionary that are not null values. 
         These suggestions need to be very useful in everyday life. Remember you are playing as a people, don't show you are a robot. Only use natural language, no text formate and emojis.`,
       },
       { role: 'user', content: requestMessage },

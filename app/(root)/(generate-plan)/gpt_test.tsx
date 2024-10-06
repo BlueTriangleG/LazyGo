@@ -12,7 +12,8 @@ import {
 } from '@/lib/gpt-daily-recommend'
 import ShakeDetector from '@/lib/shake'
 import { getSensorData, SensorData } from '@/lib/sensorReader'
-
+import { getWeatherData } from '@/lib/get-Weather'
+import { getCurrentCoordinates } from '@/lib/get-Location'
 const MyComponent = () => {
   const [text, setText] = useState('')
   const [sensorData, setSensorData] = useState<SensorData | null>(null)
@@ -24,6 +25,9 @@ const MyComponent = () => {
       console.log('Sensor Data:', JSON.stringify(data))
       const result = await getRecommendsTips(JSON.stringify(data))
       console.log(JSON.stringify(result))
+      const currentLocation = await getCurrentCoordinates()
+      console.log('Current Location:', currentLocation)
+      getWeatherData(currentLocation[0], currentLocation[1])
     }
 
     fetchData()
