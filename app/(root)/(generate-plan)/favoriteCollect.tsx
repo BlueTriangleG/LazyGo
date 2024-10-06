@@ -15,7 +15,7 @@ const FavoriteComponent = () => {
 
       console.log('获取到的 email:', email);
 
-      // get favorite
+      // 获取收藏数据
       const response = await fetch(`/(api)/favorite?email=${email}`, {
         method: 'GET',
         headers: {
@@ -48,15 +48,15 @@ const FavoriteComponent = () => {
   };
 
   useEffect(() => {
-    fetchFavoritesFromApi(); 
+    fetchFavoritesFromApi();
   }, []);
 
-  // press button to call
+  // 点击按钮的处理函数
   const handleAddFavorite = (item) => {
-    console.log('handdle detail button:', item);
+    console.log('handle detail button:', item);
   };
 
-  // card
+  // 渲染卡片
   const renderFavoriteCard = ({ item }) => (
     <View style={styles.card}>
       <Text style={styles.name}>{item.transportation}</Text>
@@ -73,8 +73,10 @@ const FavoriteComponent = () => {
       <FlatList
         data={favorites}
         renderItem={renderFavoriteCard}
-        keyExtractor={(item) => item.id.toString()} 
+        keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16 }}
+        showsVerticalScrollIndicator={false} // 隐藏滚动条
+        scrollEnabled={true} // 如果需要禁用滚动则设置为 false
       />
     </View>
   );
@@ -94,9 +96,9 @@ const styles = StyleSheet.create({
   },
   card: {
     height: 100,
-    width: 300, 
-    backgroundColor: '#ffffff', 
-    borderRadius: 12, 
+    width: 300,
+    backgroundColor: '#ffffff',
+    borderRadius: 12,
     padding: 16,
     marginBottom: 16,
     shadowColor: '#000',
@@ -106,7 +108,7 @@ const styles = StyleSheet.create({
     },
     shadowOpacity: 0.2,
     shadowRadius: 1.41,
-    elevation: 3, 
+    elevation: 3,
   },
   name: {
     fontSize: 18,
@@ -115,18 +117,18 @@ const styles = StyleSheet.create({
   description: {
     fontSize: 14,
     marginTop: 4,
-    color: '#555', 
+    color: '#555',
   },
   cardButton: {
-    marginTop: 0, 
-    backgroundColor: '#007BFF', 
+    marginTop: 0,
+    backgroundColor: '#007BFF',
     borderRadius: 30,
     paddingVertical: 4,
     paddingHorizontal: 12,
-    alignSelf: 'flex-end', 
+    alignSelf: 'flex-end',
   },
   cardButtonText: {
-    color: '#ffffff', 
+    color: '#ffffff',
     fontSize: 16,
     fontWeight: 'bold',
   },
