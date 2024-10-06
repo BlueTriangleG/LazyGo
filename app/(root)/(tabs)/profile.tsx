@@ -19,7 +19,7 @@ const Profile = () => {
   }
 
   const handleFavorite = () => {
-    router.push('/(root)/(generate-plan)/favoriteCollect') // 跳转到收藏页面（假设有个收藏页面）
+    router.push('/(root)/(generate-plan)/favoriteCollect') 
     console.log('Navigating to favorite page')
   }
 
