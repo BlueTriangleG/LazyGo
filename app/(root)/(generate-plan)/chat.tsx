@@ -334,6 +334,9 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     travelCardContainer: {
+        top:0,
+        marginTop: 0,
+        paddingTop: 0,
         backgroundColor: '#ffffff', // 使用白色背景，更显干净
         padding: 16, // 内边距
         borderRadius: 12, // 增加圆角
