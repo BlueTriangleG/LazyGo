@@ -345,6 +345,10 @@ const Chat = (props: ChatProps) => {
                     <FlashList estimatedItemSize={35} data={messages} renderItem={renderItem} />
                 </View>
 
+            </ScrollView>
+
+            <View style={{ marginBottom: 50 }}>
+                
                 <View style={styles.options_container}>
                     {/* Render options based on current chat */}
                     {optionsArray.find((options) => options.keyword === currentChat)?.options.map((option) => {
@@ -358,9 +362,6 @@ const Chat = (props: ChatProps) => {
                         );
                     })}
                 </View>
-            </ScrollView>
-
-            <View style={{ marginBottom: 50 }}>
                 <CustomButton
                     title={generating? "Generating...": "Generate Plan"}
                     disabled={generating}
