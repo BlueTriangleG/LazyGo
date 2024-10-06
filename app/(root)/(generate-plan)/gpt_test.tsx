@@ -1,43 +1,49 @@
-import React, { useState } from 'react'
-import { View, Text, Button, StyleSheet } from 'react-native'
-import {generatePlan_restaurant,generatePlan_cafe, generatePlan_attractions} from '@/lib/gpt-plan-generate'
-import { router } from 'expo-router'
-import { generateDailyRecommends } from '@/lib/gpt-daily-recommend'
-import ShakeDetector from '@/lib/shake'
+import React, { useState, useEffect } from 'react'; 
+import { View, Text, Button, StyleSheet } from 'react-native';
+import { generatePlan_restaurant, generatePlan_cafe, generatePlan_attractions } from '@/lib/gpt-plan-generate';
+import { router } from 'expo-router';
+import { generateDailyRecommends, RecommendDetail } from '@/lib/gpt-daily-recommend';
+import * as Location from 'expo-location';
+import ShakeDetector from '@/lib/shake';
 
 const MyComponent = () => {
-  const [text, setText] = useState('')
-  // useShakeDetector();
+  const [text, setText] = useState('');
+
   const handleButtonPress = async () => {
     try {
-        // TODO: write function for each use case to generate the request String
-        // const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",1)
-        // const resultString = JSON.stringify(result)
-        // console.log(resultString)
-        // const result = await generatePlan_attractions("-37.8136,144.9631","2024-09-29T23:00:00Z", "driving");
-        const previous = [{"destination":"La Camera, Italian Restaurant","destinationDescrib":"A popular Italian restaurant offering authentic cuisine in a cozy setting.","vicinity":"MR2/3 Southgate Avenue, Southbank","distance":"2.0 km","estimatedPrice":"20 AUD"},{"destination":"Brother Baba Budan","destinationDescrib":"A highly-rated café known for its excellent coffee and relaxed atmosphere.","vicinity":"359 Little Bourke Street, Melbourne","distance":"1.0 km","estimatedPrice":"10 AUD"},{"destination":"Queen Victoria Market","destinationDescrib":"A historic market featuring a variety of stalls selling fresh produce, food, and local goods.","vicinity":"Queen Street, Melbourne","distance":"1.2 km","estimatedPrice":"15 AUD"}]
+      let { status } = await Location.requestForegroundPermissionsAsync();
+      if (status !== 'granted') {
+        console.error('Permission to access location was denied');
+        return;
+      }
 
-        const result = await generateDailyRecommends("-37.8136,144.9631", previous);
-        console.log(JSON.stringify(result));
+      let loc = await Location.getCurrentPositionAsync({});
+      const location = `${loc.coords.latitude},${loc.coords.longitude}`;
 
+      const now = new Date();
+      const currentTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString();
+
+      console.log(currentTime)
+      const result = await generatePlan_restaurant(location, currentTime, "driving");
+      console.log(JSON.stringify(result));
     } catch (error) {
-        console.error("Error generating plan:", error);
-        setText("Failed to generate plan.");
+      console.error("Error generating recommends:", error);
+      setText("Failed to generate recommends.");
     }
-};
+  };
 
   return (
     <View style={styles.container}>
       <Button
-        title="generate graph"
+        title="Generate Graph"
         onPress={() => router.push('/(root)/(generate-plan)/explore')}
       />
       <Text style={styles.text}>{text}</Text>
       <Button title="Generate Plan" onPress={handleButtonPress} />
-      <ShakeDetector/>
+      <ShakeDetector />
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
@@ -51,6 +57,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: 'black',
   },
-})
+});
 
-export default MyComponent
+export default MyComponent;
