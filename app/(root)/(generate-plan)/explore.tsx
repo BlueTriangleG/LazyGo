@@ -6,12 +6,17 @@ import {
   View,
   TouchableOpacity,
   Alert,
+  ActivityIndicator,
+  ImageBackground,
+  Modal,
 } from 'react-native'
 import ParallaxScrollView from '@/components/TravelPlanComponent/ParallaxScrollView'
 import TravelCard from '@/components/TravelPlanComponent/TravelCard'
 import Map from '@/components/TravelPlanComponent/Map'
 import AddMoreRes from '@/components/TravelPlanComponent/AddMoreRes';
 import {generatePlan_restaurant} from '@/lib/gpt-plan-generate'
+import LottieView from 'lottie-react-native';
+
 // main page for travel plan
 export default function TabTwoScreen() {
   // store current day
@@ -21,6 +26,7 @@ export default function TabTwoScreen() {
     // Initialize TravelData as an empty array or your expected data structure
     const [travelData, setTravelData] = useState([]); 
     const [loading, setLoading] = useState(true); // Loading state
+    const [showSuccessAnimation, setShowSuccessAnimation] = useState(false); // Animation control state
 
     useEffect(() => {
       const fetchRestaurantPlan = async () => {
@@ -34,6 +40,7 @@ export default function TabTwoScreen() {
           console.error('Error fetching restaurant plan:', error);
         } finally {
           setLoading(false); // Set loading to false when done
+          setShowSuccessAnimation(true); // Trigger success animation after loading
         }
       };
   
@@ -45,15 +52,33 @@ export default function TabTwoScreen() {
   const handleAddDestination = () => {
     setModalVisible(true); // show dialog
   };
+
+  const handleAnimationFinish = () => {
+    setShowSuccessAnimation(false); // Hide animation after it finishes
+  };
+
   // Render loading indicator if still fetching data
   if (loading) {
     return (
-      <View style={styles.loadingContainer}>
-        {/* <ActivityIndicator size="large" color="#0000ff" /> */}
-        <Text>Loading...</Text>
+      <ImageBackground 
+        source={require('../../../assets/images/home.png')} // 确保这里是你图片的正确路径
+        style={styles.backgroundImage}
+        resizeMode="cover" // 设置图片的适应模式为cover
+      >
+        <View style={styles.loadingContainer}>
+        {/* Replace ActivityIndicator with LottieView */}
+        <LottieView
+          source={require('../../../assets/animation/animation2.json')} // Ensure this path is correct
+          autoPlay
+          loop
+          style={{ width: 150, height: 150 }} // You can adjust size
+        />
+        <Text style={styles.loadingText}>Loading...</Text>
       </View>
+    </ImageBackground>
     );
   }
+
   // demo data
   const travelData1 = {
     "1": [
@@ -188,63 +213,84 @@ export default function TabTwoScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
-      {/* 显示选择天数的选项 */}
-      <View style={styles.daySelector}>
-        <TouchableOpacity
-          style={[
-            styles.dayButton,
-            selectedDay === 1 && styles.selectedDayButton,
-          ]}
-          onPress={() => setSelectedDay(1)}>
-          <Text style={styles.dayButtonText}>Day 1</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          style={[
-            styles.dayButton,
-            selectedDay === 2 && styles.selectedDayButton,
-          ]}
-          onPress={() => setSelectedDay(2)}>
-          <Text style={styles.dayButtonText}>Day 2</Text>
-        </TouchableOpacity>
-      </View>
+    <View style={{ flex: 1 }}>
+      {/* Full-Screen Lottie Animation Modal */}
+      {showSuccessAnimation && (
+        <Modal transparent={false} animationType="fade" visible={showSuccessAnimation}>
+          <View style={styles.modalBackground}>
+            <LottieView
+              source={require('../../../assets/animation/success.json')} // Full-screen success animation path
+              autoPlay
+              loop={false} // Play the animation once
+              onAnimationFinish={handleAnimationFinish} // **Change 3: Hide animation when it finishes**
+              style={{ width: 300, height: 300 }} // Customize size
+            />
+          </View>
+        </Modal>
+      )}
 
-      {/* 在顶部添加 Map */}
-      <View style={styles.mapContainer}>
-        <Map coords={latData[selectedDay]} />
-      </View>
-
-      {/* 显示 Travel Cards */}
-      {travelData[selectedDay].map((data, index) => (
-        <React.Fragment key={index}>
-          <TravelCard
-            time={data.time}
-            duration={data.duration}
-            destination={data.destination}
-            destinationDescrib={data.destinationDescrib}
-            destinationDuration={data.destinationDuration}
-            transportation={data.transportation}
-            distance={data.distance}
-            estimatedPrice={data.estimatedPrice}
-            startLocation={data.startLocation}
-            endLocation={data.endLocation}
-            detailedInfo={''}
-          />
-          {/* add event at last card */}
-          {index === travelData[selectedDay].length - 1 && (
+      {/* Regular ScrollView content */}
+      {!showSuccessAnimation && ( // **Change 3: Only show content after animation finishes**
+        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+          <View style={styles.daySelector}>
             <TouchableOpacity
-              style={styles.addButton}
-              onPress={handleAddDestination}>
-              <Text style={styles.addButtonText}>Add More Destination</Text>
+              style={[
+                styles.dayButton,
+                selectedDay === 1 && styles.selectedDayButton,
+              ]}
+              onPress={() => setSelectedDay(1)}
+            >
+              <Text style={styles.dayButtonText}>Day 1</Text>
             </TouchableOpacity>
-          )}
-        </React.Fragment>
-      ))}
+            <TouchableOpacity
+              style={[
+                styles.dayButton,
+                selectedDay === 2 && styles.selectedDayButton,
+              ]}
+              onPress={() => setSelectedDay(2)}
+            >
+              <Text style={styles.dayButtonText}>Day 2</Text>
+            </TouchableOpacity>
+          </View>
 
-      {/* show dialog */}
-      <AddMoreRes visible={modalVisible} onClose={() => setModalVisible(false)} />
-    </ScrollView>
-  )
+          <View style={styles.mapContainer}>
+            <Map coords={latData[selectedDay]} />
+          </View>
+
+          {travelData[selectedDay].map((data, index) => (
+            <React.Fragment key={index}>
+              <TravelCard
+                time={data.time}
+                duration={data.duration}
+                destination={data.destination}
+                destinationDescrib={data.destinationDescrib}
+                destinationDuration={data.destinationDuration}
+                transportation={data.transportation}
+                distance={data.distance}
+                estimatedPrice={data.estimatedPrice}
+                startLocation={data.startLocation}
+                endLocation={data.endLocation}
+                detailedInfo={''}
+              />
+              {index === travelData[selectedDay].length - 1 && (
+                <TouchableOpacity
+                  style={styles.addButton}
+                  onPress={handleAddDestination}
+                >
+                  <Text style={styles.addButtonText}>Add More Destination</Text>
+                </TouchableOpacity>
+              )}
+            </React.Fragment>
+          ))}
+
+          <AddMoreRes
+            visible={modalVisible}
+            onClose={() => setModalVisible(false)}
+          />
+        </ScrollView>
+      )}
+    </View>
+  );
 }
 
 const styles = StyleSheet.create({
@@ -301,5 +347,26 @@ const styles = StyleSheet.create({
   addButtonText: {
     color: '#fff',
     fontSize: 16,
+  },
+  backgroundImage: {
+    flex: 1, // 背景图片填充整个屏幕
+    justifyContent: 'center', // 让内容居中
+    alignItems: 'center',
+  },
+  loadingContainer: {
+    justifyContent: 'center', 
+    alignItems: 'center',
+  },
+  loadingText: {
+    marginTop: 10,
+    fontSize: 18,
+    fontWeight: '500',
+    color: '#fff',
+  },
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#fff', // **Change 2: Set white background for modal**
   },
 })
