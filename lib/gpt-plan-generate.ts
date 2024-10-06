@@ -236,7 +236,7 @@ export async function generatePlan_restaurant(gps_location: string, currentTime:
     try{
         let planJson:Plan = {1:[]};
         for (let i =0; i< numMeals;i++){
-            const placesJson = await getNearbyPlaces(currentLocation, radius, "restaurant", minPrice, maxPrice);
+            const placesJson = await getNearbyPlaces(currentLocation, radius, "restaurant", undefined, maxPrice);
             let filteredPlacesJson = filterGoogleMapData(placesJson);
             // console.log(filteredPlacesJson);
             const locations: string[] = []

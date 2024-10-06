@@ -251,11 +251,16 @@ const Chat = (props: ChatProps) => {
 
     // Render each message 
     const renderItem = ({ item, index }: { item: Message, index: number }) => {
-        return (
-            <Text key={index} style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
-                {item.content}
-            </Text>
-        );
+        if (typeof item.content === "string") {
+            return (
+                <Text key={index} style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
+                    {item.content}
+                </Text>
+            );
+        } else {
+            return item.content;
+        }
+        
     };
 
     // Handle check details button
@@ -271,26 +276,44 @@ const Chat = (props: ChatProps) => {
             Alert.alert('Please enable location service');
             return;
         }
+        const now = new Date();
+        const futureTime = new Date(now.getTime() + (Number(userConfig.departureTime) * 60 * 1000)); // 加上20分钟
+        const departureTime = new Date(futureTime.getTime() - (futureTime.getTimezoneOffset() * 60000)).toISOString();
 
         // Call API to generate plan
-        const result: Plan|void = await generatePlan_restaurant(currentLocation, userConfig.departureTime, userConfig.transportation, userConfig.minPrice, userConfig.maxPrice);
+        const result: Plan|void = await generatePlan_restaurant(currentLocation, 
+                                                                departureTime, 
+                                                                userConfig.transportation, 
+                                                                userConfig.minPrice, 
+                                                                userConfig.maxPrice);
         if (!result) {
             Alert.alert('Failed to generate plan');
             return;
         }
-        console.log("result", Object.keys(result).map((key) => result[Number(key)].map((activity) => activity.destination)));
         const newMessages: Message[] = [];
         Object.keys(result).forEach((key) => {
             let activities: Activity[] = result[Number(key)];
             const newMessage: Message = {
                 content: (
                     <View>
+                        <View style={styles.separator} />
                         <Text>Day {key}</Text>
-                        {activities.map((activity) => {
+                        {activities.map((data, index) => {
                             return (
-                                <View>
-                                    <Text>{activity.time}: {activity.destination}</Text>
-                                    <Text>{activity.duration}</Text>
+                                <View  style={{width: '90%', marginLeft: 30}}>
+                                    <TravelCard
+                                        key={index}  // 确保每个 TravelCard 有唯一的 key
+                                        time={data.time}
+                                        duration={data.duration}
+                                        destination={data.destination}
+                                        destinationDescrib={data.destinationDescrib}
+                                        destinationDuration={data.destinationDuration}
+                                        transportation={data.transportation}
+                                        distance={data.distance}
+                                        estimatedPrice={data.estimatedPrice}
+                                        startLocation={data.startLocation}
+                                        endLocation={data.endLocation}
+                                    />
                                 </View>
                             );
                         })}
@@ -298,6 +321,7 @@ const Chat = (props: ChatProps) => {
                             className="mt-6 bg-orange-300"
                             onPress={() => {handleCheckDetails(key, result)}}
                         />
+                        <View style={styles.separator} />
                     </View>
                 ),
                 sender: "bot",
@@ -321,26 +345,6 @@ const Chat = (props: ChatProps) => {
                     <FlashList estimatedItemSize={35} data={messages} renderItem={renderItem} />
                 </View>
 
-                {/* 在这里添加 TravelCard */}
-                {progress === totalSteps && travelData["1"]?.length > 0 && (
-                <View style={styles.travelCardContainer}>
-                    {travelData["1"].map((data, index) => (
-                        <TravelCard
-                            key={index}  // 确保每个 TravelCard 有唯一的 key
-                            time={data.time}
-                            duration={data.duration}
-                            destination={data.destination}
-                            destinationDescrib={data.destinationDescrib}
-                            destinationDuration={data.destinationDuration}
-                            transportation={data.transportation}
-                            distance={data.distance}
-                            estimatedPrice={data.estimatedPrice}
-                            startLocation={data.startLocation}
-                            endLocation={data.endLocation}
-                        />
-                    ))}
-                </View>
-            )}
                 <View style={styles.options_container}>
                     {/* Render options based on current chat */}
                     {optionsArray.find((options) => options.keyword === currentChat)?.options.map((option) => {
@@ -426,5 +430,9 @@ const styles = StyleSheet.create({
         borderWidth: 1, // 添加边框
         borderColor: '#e0e0e0', // 边框颜色
     },
-    
+    separator: {
+        height: 1,
+        backgroundColor: '#ddd',
+        marginVertical: 30,
+    },
 })
