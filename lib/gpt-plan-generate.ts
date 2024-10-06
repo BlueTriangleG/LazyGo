@@ -2,7 +2,7 @@ import { useState } from "react";
 import {getDistanceMatrix, getNearbyPlaces} from "./google-map-api"
 import { min } from "date-fns";
 const GPT_KEY= process.env.EXPO_PUBLIC_GPT_KEY;
-interface Activity {
+export interface Activity {
     "date": string;
     'time': string;
     'duration': string;
@@ -16,7 +16,7 @@ interface Activity {
     "endLocation": string;
 }
 
-interface Plan {
+export interface Plan {
     [key: number]: Activity[];  
 }
 
@@ -236,7 +236,7 @@ export async function generatePlan_restaurant(gps_location: string, currentTime:
     try{
         let planJson:Plan = {1:[]};
         for (let i =0; i< numMeals;i++){
-            const placesJson = await getNearbyPlaces(currentLocation, radius, "restaurant", minPrice, maxPrice);
+            const placesJson = await getNearbyPlaces(currentLocation, radius, "restaurant", undefined, maxPrice);
             let filteredPlacesJson = filterGoogleMapData(placesJson);
             // console.log(filteredPlacesJson);
             const locations: string[] = []
