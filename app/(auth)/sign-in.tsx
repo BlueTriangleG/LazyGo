@@ -8,6 +8,8 @@ import CustomButton from '@/components/CustomButton'
 import InputField from '@/components/InputField'
 import { icons, images } from '@/constants'
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const SignIn = () => {
   const [form, setForm] = useState({
     email: '',
@@ -29,6 +31,10 @@ const SignIn = () => {
 
       if (signInAttempt.status === 'complete') {
         await setActive({ session: signInAttempt.createdSessionId })
+
+        // store email here
+        await AsyncStorage.setItem('userEmail', form.email);
+
         router.replace('/')
       } else {
         // See https://clerk.com/docs/custom-flows/error-handling
