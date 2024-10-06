@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text, View, StyleSheet, ScrollView } from 'react-native'
+import { Text, View, StyleSheet, ScrollView, Alert } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 
 import { useEffect, useState } from 'react'
@@ -9,9 +9,13 @@ import presetOptions from './data/preset-options.json'
 import CustomButton from '@/components/CustomButton'
 import { ProgressBar } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router'
+import { getCurrentLocation } from '@/lib/location'
+import { Activity, generatePlan_restaurant, Plan } from '@/lib/gpt-plan-generate'
+import { router } from 'expo-router'
+import { set } from 'date-fns'
 
 type Message = {
-    content: string;
+    content: string | React.JSX.Element;
     sender: string;
 }
 
@@ -31,6 +35,8 @@ const Chat = (props: ChatProps) => {
 
     const [messages, setMessages] = useState<Message[]>([])
     const chatParams: ChatProps = useLocalSearchParams();
+    const [currentLocation, setCurrentLocation] = useState<string>("");
+    const [generating, setGenerating] = useState<boolean>(false);
 
     // Initialize chats and options, use JSON.parse(JSON.stringify()) to deep copy the object
     const [chatsArray, setChatsArray] = useState<{content: string, keyword: string}[]>(JSON.parse(JSON.stringify(Object.values(presetChats))));
@@ -44,6 +50,14 @@ const Chat = (props: ChatProps) => {
     });
     const totalSteps = Object.values(presetOptions).find((options) => options.keyword === "init")?.options.length || 0;
 
+    const initializeLocation = async () => {
+        const curLocation = await getCurrentLocation();
+        if (!curLocation) {
+            Alert.alert('Please enable location service');
+            return;
+        }
+        setCurrentLocation(curLocation);
+    };
 
     // Initialize chat with the first message from preset chats
     useEffect(() => {
@@ -56,6 +70,7 @@ const Chat = (props: ChatProps) => {
             };
             setMessages([initMsg]);
         }
+        initializeLocation();
     }, []);
 
     // Handle reset button
@@ -139,13 +154,63 @@ const Chat = (props: ChatProps) => {
     }
 
     // Render each message 
-    const renderItem = ({ item }: { item: Message }) => {
+    const renderItem = ({ item, index }: { item: Message, index: number }) => {
         return (
-            <Text style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
+            <Text key={index} style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
                 {item.content}
             </Text>
         );
     };
+
+    // Handle check details button
+    const handleCheckDetails = (key: string, plan: Plan) => {
+        router.push({pathname: '/(root)/(generate-plan)/explore', params: {date: key, plan: JSON.stringify(plan)}});
+    }
+
+    // Handle generate plan button
+    const handleGeneratePlan = async () => {
+        setGenerating(true);
+        console.log("userConfig", userConfig);
+        if (!currentLocation) {
+            Alert.alert('Please enable location service');
+            return;
+        }
+
+        // Call API to generate plan
+        const result: Plan|void = await generatePlan_restaurant(currentLocation, userConfig.departureTime, userConfig.transportation, userConfig.minPrice, userConfig.maxPrice);
+        if (!result) {
+            Alert.alert('Failed to generate plan');
+            return;
+        }
+        console.log("result", Object.keys(result).map((key) => result[Number(key)].map((activity) => activity.destination)));
+        const newMessages: Message[] = [];
+        Object.keys(result).forEach((key) => {
+            let activities: Activity[] = result[Number(key)];
+            const newMessage: Message = {
+                content: (
+                    <View>
+                        <Text>Day {key}</Text>
+                        {activities.map((activity) => {
+                            return (
+                                <View>
+                                    <Text>{activity.time}: {activity.destination}</Text>
+                                    <Text>{activity.duration}</Text>
+                                </View>
+                            );
+                        })}
+                        <CustomButton title={"Check Details"} 
+                            className="mt-6 bg-orange-300"
+                            onPress={() => {handleCheckDetails(key, result)}}
+                        />
+                    </View>
+                ),
+                sender: "bot",
+            };
+            newMessages.push(newMessage);
+        });
+        setMessages([...messages, ...newMessages]);
+        setGenerating(false);
+    }
 
     return (
         <SafeAreaView style={styles.contentWrapper}>
@@ -171,6 +236,13 @@ const Chat = (props: ChatProps) => {
                 </View>
             </ScrollView>
             <View style={{marginBottom: 50}}>
+                <CustomButton
+                    title={generating? "Generating...": "Generate Plan"}
+                    disabled={generating}
+                    style={{ display: progress !== totalSteps ? 'none' : 'flex' }}
+                    className="mt-6 bg-orange-300"
+                    onPress={handleGeneratePlan}
+                    />
                 <CustomButton
                     title="Reset"
                     className="mt-6 bg-orange-300"

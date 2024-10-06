@@ -2,7 +2,7 @@ import { useState } from "react";
 import {getDistanceMatrix, getNearbyPlaces} from "./google-map-api"
 import { min } from "date-fns";
 const GPT_KEY= process.env.EXPO_PUBLIC_GPT_KEY;
-interface Activity {
+export interface Activity {
     "date": string;
     'time': string;
     'duration': string;
@@ -16,7 +16,7 @@ interface Activity {
     "endLocation": string;
 }
 
-interface Plan {
+export interface Plan {
     [key: number]: Activity[];  
 }
 

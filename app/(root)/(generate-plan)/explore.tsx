@@ -12,20 +12,42 @@ import TravelCard from '@/components/TravelPlanComponent/TravelCard'
 import Map from '@/components/TravelPlanComponent/Map'
 import AddMoreRes from '@/components/TravelPlanComponent/AddMoreRes';
 import {generatePlan_restaurant} from '@/lib/gpt-plan-generate'
+import { getCurrentLocation } from '@/lib/location'
+import { useLocalSearchParams } from 'expo-router'
+
+export type ExploreProps = {
+  date: string
+  plan: string
+}
+
 // main page for travel plan
-export default function TabTwoScreen() {
+export default function TabTwoScreen(props: ExploreProps) {
+
+  const exploreParams: ExploreProps = useLocalSearchParams();
+
   // store current day
   const [selectedDay, setSelectedDay] = useState(1)
   const [modalVisible, setModalVisible] = useState(false);
+  const [currentLocation, setCurrentLocation] = useState<string>("");
   
     // Initialize TravelData as an empty array or your expected data structure
     const [travelData, setTravelData] = useState([]); 
     const [loading, setLoading] = useState(true); // Loading state
 
     useEffect(() => {
+      console.log("Explore page params: date: [", exploreParams.date,"], plan: [", exploreParams.plan, "]");
+      setTravelData(JSON.parse(exploreParams.plan));
+      setLoading(false);
       const fetchRestaurantPlan = async () => {
         try {
-          const result = await generatePlan_restaurant("-37.8136,144.9631","2024-09-29T23:00:00Z", "driving");
+          let curLocation = await getCurrentLocation();
+          if (!curLocation) {
+            Alert.alert('Please enable location service');
+            return;
+          }
+          setCurrentLocation(curLocation);
+          console.log("current location: ", curLocation);
+          const result = await generatePlan_restaurant(curLocation,"2024-09-29T23:00:00Z", "driving");
           console.log(JSON.stringify(result));
           
           // Directly store the result in travelData
@@ -37,7 +59,7 @@ export default function TabTwoScreen() {
         }
       };
   
-      fetchRestaurantPlan();
+      // fetchRestaurantPlan();
     }, []); // Empty dependency array to run once on mount
 
 
