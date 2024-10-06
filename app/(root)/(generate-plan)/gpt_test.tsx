@@ -1,14 +1,61 @@
-import React, { useState, useEffect } from 'react'; 
-import { View, Text, Button, StyleSheet } from 'react-native';
-import { generatePlan_restaurant, generatePlan_cafe, generatePlan_attractions } from '@/lib/gpt-plan-generate';
-import { router } from 'expo-router';
-import { generateDailyRecommends, RecommendDetail } from '@/lib/gpt-daily-recommend';
-import * as Location from 'expo-location';
-import ShakeDetector from '@/lib/shake';
-
+import React, { useState, useEffect } from 'react'
+import { View, Text, Button, StyleSheet } from 'react-native'
+import {
+  generatePlan_restaurant,
+  generatePlan_cafe,
+  generatePlan_attractions,
+} from '@/lib/gpt-plan-generate'
+import { router } from 'expo-router'
+import {
+  generateDailyRecommends,
+  getRecommendsTips,
+} from '@/lib/gpt-daily-recommend'
+import ShakeDetector from '@/lib/shake'
+import { getSensorData, SensorData } from '@/lib/sensorReader'
+import { getWeatherData } from '@/lib/get-Weather'
+import { getCurrentCoordinates } from '@/lib/get-Location'
+import * as Location from 'expo-location'
 const MyComponent = () => {
-  const [text, setText] = useState('');
+  const [text, setText] = useState('')
+  const [sensorData, setSensorData] = useState<SensorData | null>(null)
 
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        // Fetch sensor data
+        const sensorData = await getSensorData()
+        setSensorData(sensorData)
+        console.log('Sensor Data:', JSON.stringify(sensorData))
+
+        // Fetch current location coordinates
+        const currentLocation = await getCurrentCoordinates()
+        console.log('Current Location:', currentLocation)
+
+        // Fetch weather data based on the current location
+        const weatherData = await getWeatherData(
+          currentLocation[0],
+          currentLocation[1]
+        )
+        console.log('Weather Data:', JSON.stringify(weatherData))
+
+        // Combine sensorData and weatherData into a single JSON object
+        const combinedData = {
+          sensorData,
+          weatherData,
+        }
+
+        // Pass the combined data as a JSON string to getRecommendsTips
+        const result = await getRecommendsTips(JSON.stringify(combinedData))
+        console.log('Recommendations:', JSON.stringify(result))
+      } catch (error) {
+        console.error('Error fetching data:', error)
+      }
+    }
+
+    fetchData()
+  }, [])
+
+  // useShakeDetector();
   const handleButtonPress = async () => {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -31,6 +78,20 @@ const MyComponent = () => {
       setText("Failed to generate recommends.");
     }
   };
+  const handleGetSensor = async () => {
+    try {
+      // TODO: write function for each use case to generate the request String
+      // const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",1)
+      // const resultString = JSON.stringify(result)
+      // console.log(resultString)
+      // const result = await generatePlan_attractions("-37.8136,144.9631","2024-09-29T23:00:00Z", "driving");
+      console.log('Sensor Data:', sensorData)
+    } catch (error) {
+      console.error('Error generating plan:', error)
+      setText('Failed to generate plan.')
+    }
+  }
+
 
   return (
     <View style={styles.container}>
@@ -40,6 +101,7 @@ const MyComponent = () => {
       />
       <Text style={styles.text}>{text}</Text>
       <Button title="Generate Plan" onPress={handleButtonPress} />
+      <Button title="get sensor" onPress={handleGetSensor} />
       <ShakeDetector />
     </View>
   );
