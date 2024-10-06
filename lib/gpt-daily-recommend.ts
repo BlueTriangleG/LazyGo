@@ -49,7 +49,7 @@ async function getRecommends(
             {
                 role: "system",
                 content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 3 dataset will be given, you must completely randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error. If there are n datasets, the list must only contain n recommendations.
-                "destination describ" is the description of the destination."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data).
+                "destination" is the true name of the destination in the data given."destination describ" is the description of the destination."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data).
                 Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. You should only choose the destinations from the given Google Map API data. YOu must return the json 
                 in the form of string without \`\`\`.Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. 
                 If a day has no plan, do not include it in the JSON.`,

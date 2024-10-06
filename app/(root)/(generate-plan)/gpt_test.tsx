@@ -55,7 +55,7 @@ const MyComponent = () => {
     fetchData()
   }, [])
 
-  // useShakeDetector();
+
   const handleButtonPress = async () => {
     try {
       let { status } = await Location.requestForegroundPermissionsAsync();
@@ -78,13 +78,9 @@ const MyComponent = () => {
       setText("Failed to generate recommends.");
     }
   };
+  
   const handleGetSensor = async () => {
     try {
-      // TODO: write function for each use case to generate the request String
-      // const result = await generatePlan("restaurant", "2024-9-29T10:00:00Z",1)
-      // const resultString = JSON.stringify(result)
-      // console.log(resultString)
-      // const result = await generatePlan_attractions("-37.8136,144.9631","2024-09-29T23:00:00Z", "driving");
       console.log('Sensor Data:', sensorData)
     } catch (error) {
       console.error('Error generating plan:', error)
