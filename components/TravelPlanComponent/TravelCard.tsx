@@ -102,10 +102,10 @@ const TravelCard: React.FC<TravelCardProps> = ({
             目的地停留時長: {destinationDuration} min
           </Text>
 
-          {/* 更多交通信息，点击后显示模态框 */}
+          {/* click show more */}
           <View style={styles.transportInfoContainer}>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
-              <Text style={styles.transportInfo}>更多交通信息...</Text>
+              <Text style={styles.transportInfo}>More Detail...</Text>
             </TouchableOpacity>
           </View>
         </View>

@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text, View, StyleSheet, ScrollView, Alert } from 'react-native'
+import { Text, View, StyleSheet, ScrollView } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 
 import { useEffect, useState } from 'react'
@@ -9,10 +9,6 @@ import presetOptions from './data/preset-options.json'
 import CustomButton from '@/components/CustomButton'
 import { ProgressBar } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router'
-import { getCurrentLocation } from '@/lib/location'
-import { Activity, generatePlan_restaurant, Plan } from '@/lib/gpt-plan-generate'
-import { router } from 'expo-router'
-import { set } from 'date-fns'
 
 import TravelCard from '@/components/TravelPlanComponent/TravelCard';
 
@@ -111,7 +107,7 @@ const travelData = {
   }
 
 type Message = {
-    content: string | React.JSX.Element;
+    content: string;
     sender: string;
 }
 
@@ -131,8 +127,6 @@ const Chat = (props: ChatProps) => {
 
     const [messages, setMessages] = useState<Message[]>([])
     const chatParams: ChatProps = useLocalSearchParams();
-    const [currentLocation, setCurrentLocation] = useState<string>("");
-    const [generating, setGenerating] = useState<boolean>(false);
 
     // Initialize chats and options, use JSON.parse(JSON.stringify()) to deep copy the object
     const [chatsArray, setChatsArray] = useState<{content: string, keyword: string}[]>(JSON.parse(JSON.stringify(Object.values(presetChats))));
@@ -146,14 +140,6 @@ const Chat = (props: ChatProps) => {
     });
     const totalSteps = Object.values(presetOptions).find((options) => options.keyword === "init")?.options.length || 0;
 
-    const initializeLocation = async () => {
-        const curLocation = await getCurrentLocation();
-        if (!curLocation) {
-            Alert.alert('Please enable location service');
-            return;
-        }
-        setCurrentLocation(curLocation);
-    };
 
     // Initialize chat with the first message from preset chats
     useEffect(() => {
@@ -166,7 +152,6 @@ const Chat = (props: ChatProps) => {
             };
             setMessages([initMsg]);
         }
-        initializeLocation();
     }, []);
 
     // Handle reset button
@@ -250,87 +235,13 @@ const Chat = (props: ChatProps) => {
     }
 
     // Render each message 
-    const renderItem = ({ item, index }: { item: Message, index: number }) => {
-        if (typeof item.content === "string") {
-            return (
-                <Text key={index} style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
-                    {item.content}
-                </Text>
-            );
-        } else {
-            return item.content;
-        }
-        
+    const renderItem = ({ item }: { item: Message }) => {
+        return (
+            <Text style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
+                {item.content}
+            </Text>
+        );
     };
-
-    // Handle check details button
-    const handleCheckDetails = (key: string, plan: Plan) => {
-        router.push({pathname: '/(root)/(generate-plan)/explore', params: {date: key, plan: JSON.stringify(plan)}});
-    }
-
-    // Handle generate plan button
-    const handleGeneratePlan = async () => {
-        setGenerating(true);
-        console.log("userConfig", userConfig);
-        if (!currentLocation) {
-            Alert.alert('Please enable location service');
-            return;
-        }
-        const now = new Date();
-        const futureTime = new Date(now.getTime() + (Number(userConfig.departureTime) * 60 * 1000)); // 加上20分钟
-        const departureTime = new Date(futureTime.getTime() - (futureTime.getTimezoneOffset() * 60000)).toISOString();
-
-        // Call API to generate plan
-        const result: Plan|void = await generatePlan_restaurant(currentLocation, 
-                                                                departureTime, 
-                                                                userConfig.transportation, 
-                                                                userConfig.minPrice, 
-                                                                userConfig.maxPrice);
-        if (!result) {
-            Alert.alert('Failed to generate plan');
-            return;
-        }
-        const newMessages: Message[] = [];
-        Object.keys(result).forEach((key) => {
-            let activities: Activity[] = result[Number(key)];
-            const newMessage: Message = {
-                content: (
-                    <View>
-                        <View style={styles.separator} />
-                        <Text>Day {key}</Text>
-                        {activities.map((data, index) => {
-                            return (
-                                <View  style={{width: '90%', marginLeft: 30}}>
-                                    <TravelCard
-                                        key={index}  // 确保每个 TravelCard 有唯一的 key
-                                        time={data.time}
-                                        duration={data.duration}
-                                        destination={data.destination}
-                                        destinationDescrib={data.destinationDescrib}
-                                        destinationDuration={data.destinationDuration}
-                                        transportation={data.transportation}
-                                        distance={data.distance}
-                                        estimatedPrice={data.estimatedPrice}
-                                        startLocation={data.startLocation}
-                                        endLocation={data.endLocation}
-                                    />
-                                </View>
-                            );
-                        })}
-                        <CustomButton title={"Check Details"} 
-                            className="mt-6 bg-orange-300"
-                            onPress={() => {handleCheckDetails(key, result)}}
-                        />
-                        <View style={styles.separator} />
-                    </View>
-                ),
-                sender: "bot",
-            };
-            newMessages.push(newMessage);
-        });
-        setMessages([...messages, ...newMessages]);
-        setGenerating(false);
-    }
 
     return (
         <SafeAreaView style={styles.contentWrapper}>
@@ -345,6 +256,26 @@ const Chat = (props: ChatProps) => {
                     <FlashList estimatedItemSize={35} data={messages} renderItem={renderItem} />
                 </View>
 
+                {/* 在这里添加 TravelCard */}
+                {progress === totalSteps && travelData["1"]?.length > 0 && (
+                <View style={styles.travelCardContainer}>
+                    {travelData["1"].map((data, index) => (
+                        <TravelCard
+                            key={index}  // 确保每个 TravelCard 有唯一的 key
+                            time={data.time}
+                            duration={data.duration}
+                            destination={data.destination}
+                            destinationDescrib={data.destinationDescrib}
+                            destinationDuration={data.destinationDuration}
+                            transportation={data.transportation}
+                            distance={data.distance}
+                            estimatedPrice={data.estimatedPrice}
+                            startLocation={data.startLocation}
+                            endLocation={data.endLocation}
+                        />
+                    ))}
+                </View>
+            )}
                 <View style={styles.options_container}>
                     {/* Render options based on current chat */}
                     {optionsArray.find((options) => options.keyword === currentChat)?.options.map((option) => {
@@ -361,13 +292,6 @@ const Chat = (props: ChatProps) => {
             </ScrollView>
 
             <View style={{ marginBottom: 50 }}>
-                <CustomButton
-                    title={generating? "Generating...": "Generate Plan"}
-                    disabled={generating}
-                    style={{ display: progress !== totalSteps ? 'none' : 'flex' }}
-                    className="mt-6 bg-orange-300"
-                    onPress={handleGeneratePlan}
-                    />
                 <CustomButton
                     title="Reset"
                     className="mt-6 bg-orange-300"
@@ -410,9 +334,6 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     travelCardContainer: {
-        top:0,
-        marginTop: 0,
-        paddingTop: 0,
         backgroundColor: '#ffffff', // 使用白色背景，更显干净
         padding: 16, // 内边距
         borderRadius: 12, // 增加圆角
@@ -430,9 +351,5 @@ const styles = StyleSheet.create({
         borderWidth: 1, // 添加边框
         borderColor: '#e0e0e0', // 边框颜色
     },
-    separator: {
-        height: 1,
-        backgroundColor: '#ddd',
-        marginVertical: 30,
-    },
+    
 })

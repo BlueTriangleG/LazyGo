@@ -21,6 +21,10 @@ const Profile = () => {
       <Text>Are you sure you want to sign out?</Text>
       <Button title="Sign Out" onPress={handleSignOut} />
     </View>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <Text>Are you sure you want to sign out?</Text>
+        <Button title="Sign Out" onPress={handleSignOut} />
+      </View>
   )
 }
 export default Profile
