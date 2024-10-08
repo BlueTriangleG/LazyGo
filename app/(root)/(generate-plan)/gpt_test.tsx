@@ -66,7 +66,7 @@ const MyComponent = () => {
 
       let loc = await Location.getCurrentPositionAsync({});
       const location = `${loc.coords.latitude},${loc.coords.longitude}`;
-
+      console.log(location);
       const now = new Date();
       const currentTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString();
 
