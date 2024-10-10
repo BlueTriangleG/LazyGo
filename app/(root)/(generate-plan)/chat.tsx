@@ -4,8 +4,15 @@ import { FlashList } from '@shopify/flash-list'
 
 import { useEffect, useState } from 'react'
 
-import presetChats from './data/preset-chats.json'
-import presetOptions from './data/preset-options.json'
+import presetChats_res from './data/preset-chats-restaurant.json'
+import presetOptions_res from './data/preset-options-restuarant.json'
+import presetChats_caf from './data/preset-chats-cafe.json'
+import presetOptions_caf from './data/preset-options-cafe.json'
+import presetChats_ent from './data/preset-chats-entertainment.json'
+import presetOptions_ent from './data/preset-options-entertainment.json'
+import presetChats_att from './data/preset-chats-attractions.json'
+import presetOptions_att from './data/preset-options-attractions.json'
+
 import CustomButton from '@/components/CustomButton'
 import { ProgressBar } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router'
@@ -117,6 +124,7 @@ export type UserConfig = {
     departureTime: string;
     transportation: string;
     placeType?: string;
+    people?: string;
 }
 
 export type ChatProps = {
@@ -127,7 +135,21 @@ const Chat = (props: ChatProps) => {
 
     const [messages, setMessages] = useState<Message[]>([])
     const chatParams: ChatProps = useLocalSearchParams();
-
+    let presetChats = undefined;
+    let presetOptions = undefined
+    if (chatParams.placeType === "restaurant") {
+       presetChats = presetChats_res;
+       presetOptions = presetOptions_res;
+    } else if (chatParams.placeType === "entertainment") {
+        presetChats = presetChats_ent;
+        presetOptions = presetOptions_ent;
+    } else if (chatParams.placeType === "attraction") {
+        presetChats = presetChats_att;
+        presetOptions = presetOptions_att;
+    } else if (chatParams.placeType === "cafe") {
+        presetChats = presetChats_caf;
+        presetOptions = presetOptions_caf;
+    } 
     // Initialize chats and options, use JSON.parse(JSON.stringify()) to deep copy the object
     const [chatsArray, setChatsArray] = useState<{content: string, keyword: string}[]>(JSON.parse(JSON.stringify(Object.values(presetChats))));
     const [optionsArray, setOptionsArray] = useState<{options: {content: string, key: string}[], keyword: string}[]>(JSON.parse(JSON.stringify(Object.values(presetOptions))));
@@ -139,7 +161,6 @@ const Chat = (props: ChatProps) => {
         placeType: chatParams.placeType,
     });
     const totalSteps = Object.values(presetOptions).find((options) => options.keyword === "init")?.options.length || 0;
-
 
     // Initialize chat with the first message from preset chats
     useEffect(() => {
@@ -163,8 +184,13 @@ const Chat = (props: ChatProps) => {
             transportation: "",
         });
         setProgress(0);
-        setChatsArray(JSON.parse(JSON.stringify(Object.values(presetChats))));
-        setOptionsArray(JSON.parse(JSON.stringify(Object.values(presetOptions))));
+        if (chatParams.placeType === "restaurant") {
+            setChatsArray(JSON.parse(JSON.stringify(Object.values(presetChats_res))))
+            setOptionsArray(JSON.parse(JSON.stringify(Object.values(presetOptions_res))))
+          } else if (chatParams.placeType === "entertainment") {
+            setChatsArray(JSON.parse(JSON.stringify(Object.values(presetChats_ent))))
+            setOptionsArray(JSON.parse(JSON.stringify(Object.values(presetOptions_ent))))
+          }
         if (initMsgContent) {
             setCurrentChat(initMsgContent.keyword);
             let initMsg: Message = {
@@ -212,7 +238,7 @@ const Chat = (props: ChatProps) => {
     }
 
     // Update user config based on user's choice
-    function updateUserConfig(currentChat: string, key: string) {
+    function updateUserConfig(currentChat: string, key:string) {
         switch (currentChat) {
             case "price_level":
                 let minPrice = parseInt(key.split(",")[0]);
@@ -227,6 +253,10 @@ const Chat = (props: ChatProps) => {
                 break;
             case "travel_mode":
                 userConfig.transportation = key;
+                setUserConfig({...userConfig});
+                break;
+            case "peaople":
+                userConfig.keywords = key;
                 setUserConfig({...userConfig});
                 break;
             default:
@@ -248,7 +278,7 @@ const Chat = (props: ChatProps) => {
             <ScrollView style={styles.contentWrapper}>
                 <ProgressBar 
                     style={{ height: 10, width: '100%' }}
-                    progress={progress / totalSteps}
+                    progress={totalSteps > 0 ? progress / totalSteps : 3}
                 />
 
 
