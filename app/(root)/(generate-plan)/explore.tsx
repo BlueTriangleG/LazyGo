@@ -46,7 +46,7 @@ export default function TabTwoScreen(props: ExploreProps) {
   const [email, setEmail] = useState<string | null>(null);
   
   useEffect(() => {
-    console.log("Explore page params: date: [", exploreParams.date, "], plan: [", exploreParams.plan, "]");
+    // console.log("Explore page params: date: [", exploreParams.date, "], plan: [", exploreParams.plan, "]");
     const fetchEmail = async () => {
       const storedEmail = await AsyncStorage.getItem('userEmail');
       if (storedEmail) {
