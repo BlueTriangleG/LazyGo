@@ -66,7 +66,7 @@ const Profile = () => {
       >
         <TouchableOpacity
           onPress={handleSignOut}
-          className="absolute top-14 right-5">
+          className="absolute top-14 left-5">
           <Image source={icons.logOut} className="w-10 h-10" />
         </TouchableOpacity>
         <Image
