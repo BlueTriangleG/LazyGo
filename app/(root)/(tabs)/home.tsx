@@ -1,6 +1,6 @@
 import CustomButton from '@/components/CustomButton'
 import { Link, router } from 'expo-router'
-import { StyleSheet, Text, View, ScrollView, ImageBackground} from 'react-native'
+import { StyleSheet, Text, View, ScrollView, Image, ImageBackground} from 'react-native'
 import { commonStyles } from '@/styles/common-styles'
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -15,18 +15,16 @@ export default function Page() {
       style={styles.background} 
       resizeMode="cover"
     >
-      <SafeAreaView>
+      <SafeAreaView style={styles.safeArea}>
         <ScrollView style={styles.contentWrapper}>
           <SignedIn>
-            <Text style={commonStyles.h1text}>Welcome Lazy Go!</Text>
-
+            
+            <Text style={styles.topText}>Address</Text>
             <View style={styles.separator} />
 
-            {/* Search bar and icon navigation section */}
+            {/* 第一部分：图标部分 */}
             <View style={styles.searchContainer}>
-              <Text style={styles.searchText}>What you want?</Text>
               <View style={styles.iconRow}>
-                {/* 图标和标签 */}
                 <View style={styles.iconContainer}>
                   <View style={[styles.iconWrapper, { backgroundColor: '#FFCDD2' }]}>
                     <FontAwesome name="cutlery" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "restaurant"}})} />
@@ -41,48 +39,58 @@ export default function Page() {
                 </View>
                 <View style={styles.iconContainer}>
                   <View style={[styles.iconWrapper, { backgroundColor: '#BBDEFB' }]}>
-                    <FontAwesome name="university" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "library"}})} />
+                    <FontAwesome name="university" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "entertainment"}})} />
                   </View>
-                  <Text style={styles.iconLabel}>Museum</Text> 
+                  <Text style={styles.iconLabel}>Entertainment</Text> 
                 </View>
                 <View style={styles.iconContainer}>
                   <View style={[styles.iconWrapper, { backgroundColor: '#FFE082' }]}>
-                    <FontAwesome name="film" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "theatre"}})} />
+                    <FontAwesome name="film" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "attraction"}})} />
                   </View>
-                  <Text style={styles.iconLabel}>Movie</Text> 
+                  <Text style={styles.iconLabel}>Tour</Text> 
                 </View>
               </View>
             </View>
 
             <View style={styles.separator} />
 
-            {/* Recommendation section */}
+            {/* 第二部分：推荐部分 */}
             <View style={styles.recommendSection}>
-              <Text style={commonStyles.h1text}>Recommend for you</Text>
-              {/* 修改为横向布局 */}
-              <View style={styles.recommendRow}>
-                <View style={styles.recommendBox}>
-                  <Text>ABC restaurant</Text>
-                  <Text>332 abc street - 517m</Text>
-                  <Text>A great restaurant with over 1000 people rank 5 star for them. Close to you and have a coffee to begin your wonderful new day</Text>
+              <Text style={styles.leftAlignedText}>Recommend for you</Text>
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScrollView}>
+                {/* 第一张和第二张部分可见 */}
+                <View style={styles.card}>
+                  <Image source={require('../../../assets/images/home.png')} style={styles.cardImage} />
+                  <Text style={styles.cardTitle}>ABC Restaurant</Text>
+                  <Text style={styles.cardSubtitle}>517m - A great restaurant near you</Text>
                 </View>
-                <View style={styles.recommendBox}>
-                  <Text>NFC museum</Text>
-                  <Text>4421 abc street - 5km</Text>
-                  <Text>A great museum with over 1000 people rank 5 star for them. Close to you</Text>
+                <View style={styles.card}>
+                  <Image source={require('../../../assets/images/yellow.png')} style={styles.cardImage} />
+                  <Text style={styles.cardTitle}>NFC Museum</Text>
+                  <Text style={styles.cardSubtitle}>5km - Famous museum in the area</Text>
                 </View>
-              </View>
+                <View style={styles.card}>
+                  <Image source={require('../../../assets/images/background.png')} style={styles.cardImage} />
+                  <Text style={styles.cardTitle}>XYZ Cafe</Text>
+                  <Text style={styles.cardSubtitle}>1.2km - Cozy place for coffee</Text>
+                </View>
+                <View style={styles.card}>
+                  <Image source={require('../../../assets/images/background.png')} style={styles.cardImage} />
+                  <Text style={styles.cardTitle}>City Theatre</Text>
+                  <Text style={styles.cardSubtitle}>2km - Popular movie spot</Text>
+                </View>
+              </ScrollView>
             </View>
 
             <View style={styles.separator} />
 
-            {/* Tips */}
+            {/* 第三部分：Tips部分，需要下滑才能看到 */}
             <View style={styles.tipsSection}>
-              <Text style={commonStyles.h1text}>Tips from Lazy Go</Text>
-              <Text>Hi! Good morning! Welcome to lazy go. Today is rainy, remember to bring your umbrella if you go out!</Text>
-              <Text>1. Bring umbrella</Text>
-              <Text>2. Go to ABC restaurant</Text>
-              <Text>3. Bring your ID card</Text>
+              <Text style={styles.leftAlignedText}>Tips from Lazy Go</Text>
+              <Text style={styles.tipsText}>Hi! Good morning! Welcome to lazy go. Today is rainy, remember to bring your umbrella if you go out!</Text>
+              <Text style={styles.tipsText}>1. Bring umbrella</Text>
+              <Text style={styles.tipsText}>2. Go to ABC restaurant</Text>
+              <Text style={styles.tipsText}>3. Bring your ID card</Text>
             </View>
 
             <View style={styles.separator} />
@@ -128,22 +136,69 @@ export default function Page() {
 }
 
 const styles = StyleSheet.create({
-  searchContainer: {
-    padding: 16,
-    flexDirection: 'column',
-    alignItems: 'center',
+  safeArea: {
+    flex: 1,
   },
-  searchText: {
-    marginBottom: 10,
-    fontSize: 24,
-    fontWeight: 'bold',
+  contentWrapper: {
+    flex: 1,
+  },
+  searchContainer: {
+    flex: 1, // 占据三分之一
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 5, // 统一上下间距
   },
   iconRow: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginTop: 10,
+    justifyContent: 'space-around',
     width: '100%',
     paddingHorizontal: 20,
+    marginVertical: 5, // 统一上下间距
+  },
+  recommendSection: {
+    flex: 2, // 占据三分之二
+    paddingHorizontal: 16,
+    marginVertical: 5, // 统一上下间距
+  },
+  horizontalScrollView: {
+    flexDirection: 'row',
+    paddingLeft: 8,
+    marginVertical: 5, // 统一上下间距
+  },
+  card: {
+    width: 350, // 加大卡片宽度
+    marginRight: 16,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    overflow: 'hidden',
+    elevation: 4,
+    marginVertical: 5, // 统一上下间距
+  },
+  cardImage: {
+    width: '100%',
+    height: 350, // 调整图片高度
+    resizeMode: 'cover',
+  },
+  tipsSection: {
+    flex: 1, // 占据三分之一，需下滑才能看到
+    paddingHorizontal: 16,
+    marginVertical: 5, // 统一上下间距
+  },
+  background: {
+    flex: 1,
+    width: '100%',
+    height: '100%',
+  },
+  cardTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    padding: 8,
+  },
+  cardSubtitle: {
+    fontSize: 16,
+    color: '#555',
+    paddingHorizontal: 8,
+    paddingBottom: 8,
   },
   iconWrapper: {
     width: 60, 
@@ -154,8 +209,8 @@ const styles = StyleSheet.create({
   },
   iconLabel: {
     textAlign: 'center',
-    marginTop: 5,
-    fontSize: 16, // 标签字体大小
+    marginVertical: 5,
+    fontSize: 20, // 标签字体大小
   },
   iconContainer: {
     alignItems: 'center',
@@ -163,58 +218,31 @@ const styles = StyleSheet.create({
   separator: {
     height: 1,
     backgroundColor: '#ddd',
-    marginVertical: 20,
+    marginVertical: 5,         // 统一上下间距
   },
-  recommendSection: {
-    paddingHorizontal: 16,
+  leftAlignedText: {
+    textAlign: 'left',          // 左对齐文本
+    fontSize: 24,               // 标题大小，可以根据需要调整
+    fontWeight: 'bold',         // 加粗字体
+    marginVertical: 5,          // 下方与内容的距离（图片或文本）
+    paddingHorizontal: 8,        // 设置与水平滚动区域相同的左右间距
+    alignSelf: 'flex-start',     // 确保文本左对齐且与父容器左侧对齐
+    color: '#000',              // 设置文本颜色
   },
-  recommendRow: {
-    flexDirection: 'row', // 设置为横向布局
-    justifyContent: 'space-between',
-  },
-  recommendBox: {
-    flex: 1, // 确保两个盒子均匀分布
-    marginHorizontal: 5, // 设置盒子之间的间距
-    padding: 16,
-    borderColor: 'transparent',
-    borderWidth: 1,
-    borderRadius: 8,
-    backgroundColor: 'transparent',
-    shadowColor: 'transparent',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.2,
-    shadowRadius: 1.41,
-    elevation: 2,
-  },
-  recommendTitle: {
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 5,
-  },
-  recommendDescription: {
-    color: '#555',
-  },
-  tipsSection: {
-    paddingHorizontal: 16,
+  topText: {
+    textAlign: 'left',          // 左对齐文本
+    fontSize: 20,               // 文字大小
+    fontWeight: 'bold',         // 加粗字体
+    marginVertical: 5,         // 统一上下间距        
+    paddingHorizontal: 32,       // 设置与水平滚动区域相同的左右间距
+    color: '#000',
   },
   tipsText: {
-    fontStyle: 'italic',
-    marginBottom: 10,
+    textAlign: 'left',          // 左对齐文本
+    fontSize: 16,               // 文字大小
+    marginVertical: 5,         // 统一上下间距        
+    paddingHorizontal: 16,       // 设置与水平滚动区域相同的左右间距
+    color: '#000',
   },
-  tipItem: {
-    marginBottom: 5,
-    color: '#333',
-  },
-  buttonSection: {
-    paddingHorizontal: 16,
-    paddingBottom: 30,
-  },
-  contentWrapper: {
-    marginBottom: 100,
-  },
-  background: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
+  
 })

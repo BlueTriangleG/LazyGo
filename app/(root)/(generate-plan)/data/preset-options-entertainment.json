@@ -1,0 +1,66 @@
+[
+    {
+        "keyword": "init",
+        "options": [
+            {
+                "content": "People",
+                "key": "people"
+            }, 
+            {
+                "content": "Transportation",
+                "key": "travel_mode"
+            }, 
+            {
+                "content": "Departure Time",
+                "key": "departure_time"
+            }
+        ]
+    },
+    {
+        "keyword": "people",
+        "options": [
+            {
+                "content": "Alone",
+                "key": "alone"
+            }, 
+            {
+                "content": "With a group",
+                "key": "group"
+            }
+        ]
+    },
+    {
+        "keyword": "travel_mode",
+        "options": [
+            {
+                "content": "Walking",
+                "key": "walking"
+            }, 
+            {
+                "content": "Transit",
+                "key": "transit"
+            }, 
+            {
+                "content": "Driving",
+                "key": "driving"
+            }
+        ]
+    },
+    {
+        "keyword": "departure_time",
+        "options": [
+            {
+                "content": "20 minutes",
+                "key": "20"
+            }, 
+            {
+                "content": "40 minutes",
+                "key": "40"
+            }, 
+            {
+                "content": "60 minutes",
+                "key": "60"
+            }
+        ]
+    }
+]

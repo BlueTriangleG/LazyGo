@@ -1,0 +1,18 @@
+[
+    {
+        "content": "Hi there! We got several recommendations about restaurant! Choose a option to continue your process, we will help you find the best answer!",
+        "keyword": "init"
+    },
+    {
+        "content": "What is your budget for this trip?",
+        "keyword": "price_level"
+    },
+    {
+        "content": "What kind of transportation do you prefer?",
+        "keyword": "travel_mode"
+    },
+    {
+        "content": "When do you want to start your trip?", 
+        "keyword": "departure_time"
+    }
+]
