@@ -39,13 +39,13 @@ export default function Page() {
                 </View>
                 <View style={styles.iconContainer}>
                   <View style={[styles.iconWrapper, { backgroundColor: '#BBDEFB' }]}>
-                    <FontAwesome name="university" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "library"}})} />
+                    <FontAwesome name="university" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "entertainment"}})} />
                   </View>
                   <Text style={styles.iconLabel}>Entertainment</Text> 
                 </View>
                 <View style={styles.iconContainer}>
                   <View style={[styles.iconWrapper, { backgroundColor: '#FFE082' }]}>
-                    <FontAwesome name="film" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "theatre"}})} />
+                    <FontAwesome name="film" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "attraction"}})} />
                   </View>
                   <Text style={styles.iconLabel}>Tour</Text> 
                 </View>

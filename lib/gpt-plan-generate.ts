@@ -1,5 +1,5 @@
 import { useState } from "react";
-import {getDistanceMatrix, getNearbyPlaces} from "./google-map-api"
+import {getDistanceMatrix, getNearbyEntertainment, getNearbyPlaces} from "./google-map-api"
 import { min } from "date-fns";
 const GPT_KEY= process.env.EXPO_PUBLIC_GPT_KEY;
 export interface Activity {
@@ -207,20 +207,21 @@ const json_sample: Plan = {
 
 // Function to generate meal plan for the day or the next day, including breakfast, lunch, dinner
 export async function generatePlan_restaurant(gps_location: string, currentTime: string, travel_mode: string,  minPrice?: number, maxPrice?: number): Promise<Plan | void>{
+    console.log(currentTime);
     let currentLocation = gps_location;
     const time = currentTime.slice(11, 19); 
     const hours = parseInt(time.slice(0, 2));
     const minutes = parseInt(time.slice(3, 5)); 
-    let numMeals= 0;
-    if (hours >= 5 && hours < 9) {
-        numMeals = 3; // 5 am - 9 am
-    } else if (hours >= 9 && hours < 14) {
-        numMeals = 2; // 9 am - 2 pm
-    } else if (hours >= 14 && hours < 21) {
-        numMeals = 1; // 2 pm - 9 pm
-    } else {
-        numMeals =3; // 9 pm - 5 am
-    }
+    let numMeals= 1;
+    // if (hours >= 5 && hours < 9) {
+    //     numMeals = 3; // 5 am - 9 am
+    // } else if (hours >= 9 && hours < 14) {
+    //     numMeals = 2; // 9 am - 2 pm
+    // } else if (hours >= 14 && hours < 21) {
+    //     numMeals = 1; // 2 pm - 9 pm
+    // } else {
+    //     numMeals =3; // 9 pm - 5 am
+    // }
     let radius = 0;
     switch (travel_mode){
         case "driving":
@@ -238,6 +239,7 @@ export async function generatePlan_restaurant(gps_location: string, currentTime:
         for (let i =0; i< numMeals;i++){
             const placesJson = await getNearbyPlaces(currentLocation, radius, "restaurant", undefined, maxPrice);
             let filteredPlacesJson = filterGoogleMapData(placesJson);
+            console.log(filteredPlacesJson);
             // console.log(filteredPlacesJson);
             const locations: string[] = []
             filteredPlacesJson.forEach(place => {
@@ -255,8 +257,11 @@ export async function generatePlan_restaurant(gps_location: string, currentTime:
             }
             
             const url = 'https://api.openai.com/v1/chat/completions';
-            const requestMessage = `It's ${currentTime} now. If the current time exceed 9 pm, Give me the meal plan for next day. Please fill in the "transportation" with ${travel_mode || "driving"} (Capitalize the first letter).There are ${numMeals-i} meals remaining.
-            If 3 meals remaining, give me the breakfast plan, "time" must be a reasonable breakfast time. If 2 meals remaining, give me the lunch plan, "time" must be a reasonable lunch time. If 1 meal remaining, give me dinner plan,"time" must be a reasonable dinner time.
+            // const requestMessage = `It's ${currentTime} now. If the current time exceed 9 pm, Give me the meal plan for next day. Please fill in the "transportation" with ${travel_mode || "driving"} (Capitalize the first letter).There are ${numMeals-i} meals remaining.
+            // If 3 meals remaining, give me the breakfast plan, "time" must be a reasonable breakfast time. If 2 meals remaining, give me the lunch plan, "time" must be a reasonable lunch time. If 1 meal remaining, give me dinner plan,"time" must be a reasonable dinner time.
+            // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
+            // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
+            const requestMessage = `It's ${currentTime} now. Please fill in the "transportation" with ${travel_mode || "driving"} (Capitalize the first letter). Let the "time" of the plan be the current time.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
             The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
             const requestBody = {
@@ -267,7 +272,7 @@ export async function generatePlan_restaurant(gps_location: string, currentTime:
                         content: `You are a robot to decide which restuarant to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
                         "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
                         Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
-                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.`
+                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON. If the given data of places around is empty, you must return {} (empty json)`
                     },
                     { role: "user", content: requestMessage }
                 ],
@@ -285,10 +290,12 @@ export async function generatePlan_restaurant(gps_location: string, currentTime:
     
             const data = await response.json();
             const activity= data.choices[0].message.content;
-            // console.log(activity);
-            const activity_json : Activity= JSON.parse(activity);
-            planJson[1].push(activity_json);
-            currentLocation = activity_json.endLocation;
+            if (activity !== JSON.stringify({})) {
+                const activity_json : Activity= JSON.parse(activity);
+                planJson[1].push(activity_json);
+                currentLocation = activity_json.endLocation;
+            }
+            
         }
         return planJson;
     }catch(error){
@@ -298,19 +305,18 @@ export async function generatePlan_restaurant(gps_location: string, currentTime:
 }
 
 // Function to generate cafe plan
-// Function to generate meal plan for the day or the next day, including breakfast, lunch, dinner
 export async function generatePlan_cafe(gps_location: string, currentTime: string, travel_mode: string,  minPrice?: number, maxPrice?: number): Promise<Plan | void>{
     let currentLocation = gps_location;
-    let numMeals= 0;
+    let numMeals= 1;
     const time = currentTime.slice(11, 19); 
     const hours = parseInt(time.slice(0, 2));
-    if (hours >= 5 && hours < 10) {
-        numMeals = 2; 
-    } else if (hours >= 9 && hours < 17) {
-        numMeals = 1; 
-    } else {
-        numMeals =2; 
-    }
+    // if (hours >= 5 && hours < 10) {
+    //     numMeals = 2; 
+    // } else if (hours >= 9 && hours < 17) {
+    //     numMeals = 1; 
+    // } else {
+    //     numMeals =2; 
+    // }
     let radius = 0;
     switch (travel_mode){
         case "driving":
@@ -345,8 +351,11 @@ export async function generatePlan_cafe(gps_location: string, currentTime: strin
             }
             
             const url = 'https://api.openai.com/v1/chat/completions';
-            const requestMessage = `It's ${currentTime} now. If the current time exceed 5 pm, Give me the plan to go to a cafe next day.  Please fill in the "transportation" with ${travel_mode || "driving"} (Capitalize the first letter).There are ${numMeals-i} cafe remaining to go.
-            If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
+            // const requestMessage = `It's ${currentTime} now. If the current time exceed 5 pm, Give me the plan to go to a cafe next day.  Please fill in the "transportation" with ${travel_mode || "driving"} (Capitalize the first letter).There are ${numMeals-i} cafe remaining to go.
+            // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
+            // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
+            // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
+            const requestMessage = `It's ${currentTime} now. Please fill in the "transportation" with ${travel_mode || "driving"} (Capitalize the first letter).Let the "time" of the plan be the current time.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
             The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
             const requestBody = {
@@ -357,7 +366,7 @@ export async function generatePlan_cafe(gps_location: string, currentTime: strin
                         content: `You are a robot to decide which cafe to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
                         "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
                         Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
-                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.`
+                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json)`
                     },
                     { role: "user", content: requestMessage }
                 ],
@@ -375,10 +384,105 @@ export async function generatePlan_cafe(gps_location: string, currentTime: strin
     
             const data = await response.json();
             const activity= data.choices[0].message.content;
-            // console.log(activity);
-            const activity_json : Activity= JSON.parse(activity);
-            planJson[1].push(activity_json);
-            currentLocation = activity_json.endLocation;
+            if (activity !== JSON.stringify({})) {
+                const activity_json : Activity= JSON.parse(activity);
+                planJson[1].push(activity_json);
+                currentLocation = activity_json.endLocation;
+            }
+        }
+        return planJson;
+    }catch(error){
+        console.error("Error generating plan:", error);
+        return;
+    }
+}
+
+// Function to generate the plan for entertainment
+// keywords can be : party: ["bar", "karaoke", "escaperoom","boardgame","bowling"], single:["spa","arcade","cinema","museum","park"]
+export async function generatePlan_entertainment(gps_location: string, currentTime: string, travel_mode: string, keywords: string[]): Promise<Plan | void>{
+    let currentLocation = gps_location;
+    let numMeals= 1;
+    const time = currentTime.slice(11, 19); 
+    const hours = parseInt(time.slice(0, 2));
+    // if (hours >= 5 && hours < 10) {
+    //     numMeals = 2; 
+    // } else if (hours >= 9 && hours < 17) {
+    //     numMeals = 1; 
+    // } else {
+    //     numMeals =2; 
+    // }
+    let radius = 0;
+    switch (travel_mode){
+        case "driving":
+            radius = 5000;
+            break;
+        case "walking":
+            radius = 1000;
+            break;
+        case "transit":
+            radius = 2500;
+            break;
+    }
+    try{
+        let planJson:Plan = {1:[]};
+        for (let i =0; i< numMeals;i++){
+            const placesJson = await getNearbyEntertainment(currentLocation, radius, keywords)
+            let filteredPlacesJson = filterGoogleMapData(placesJson);
+            // console.log(filteredPlacesJson);
+            const locations: string[] = []
+            filteredPlacesJson.forEach(place => {
+                const location = place.vicinity;
+                locations.push(location);
+            });
+
+            const distanceMatrix = await getDistanceMatrix([currentLocation], locations, travel_mode);
+            const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix);
+            // console.log(JSON.stringify(filteredDistanceMatrix))
+            // Let GPT to generate the next activity
+            if (!GPT_KEY) {
+                console.error("GPT_KEY is not defined.");
+                return;
+            }
+            
+            const url = 'https://api.openai.com/v1/chat/completions';
+            // const requestMessage = `It's ${currentTime} now. If the current time exceed 5 pm, Give me the plan to go to a cafe next day.  Please fill in the "transportation" with ${travel_mode || "driving"} (Capitalize the first letter).There are ${numMeals-i} cafe remaining to go.
+            // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
+            // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
+            // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
+            const requestMessage = `It's ${currentTime} now. Please fill in the "transportation" with ${travel_mode || "driving"} (Capitalize the first letter).Let the "time" of the plan be the current time.
+            All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
+            The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
+            const requestBody = {
+                model: "gpt-4o-mini",
+                messages: [
+                    {
+                        role: "system",
+                        content: `You are a robot to decide which place to go for entertainment based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
+                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                        Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
+                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json)`
+                    },
+                    { role: "user", content: requestMessage }
+                ],
+                max_tokens: 1000
+            };
+            
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${GPT_KEY}`
+                },
+                body: JSON.stringify(requestBody)
+            });
+    
+            const data = await response.json();
+            const activity= data.choices[0].message.content;
+            if (activity !== JSON.stringify({})) {
+                const activity_json : Activity= JSON.parse(activity);
+                planJson[1].push(activity_json);
+                currentLocation = activity_json.endLocation;
+            }
         }
         return planJson;
     }catch(error){
@@ -446,7 +550,7 @@ export async function generatePlan_attractions(gps_location: string, currentTime
                         Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
                         You must follow the rules :1. If there 5 or 4 tourist attractions remaining to go, please give me a plan to go to an attraction in the morning and "time" must be a reasonable time from 9 am to 12 am. 2.If there are 3 or 2 tourist attractions remaining to go, please give me a plan to go to an attraction in the afternoon and "time" must be a reasonable time from 1pm to 6pm.
                         3.If there is only 1 tourist attraction remaining to go, please give me a plan to go to an attraction at night and "time" must be a reasonable time from 7 pm to 22 pm. 4.You must filter the places given and decide the most appropriate tourist attraction at the "time".
-                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.`
+                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json)`
                     },
                     { role: "user", content: requestMessage }
                 ],
@@ -464,10 +568,11 @@ export async function generatePlan_attractions(gps_location: string, currentTime
     
             const data = await response.json();
             const activity= data.choices[0].message.content;
-            // console.log(activity);
-            const activity_json : Activity= JSON.parse(activity);
-            planJson[1].push(activity_json);
-            currentLocation = activity_json.endLocation;
+            if (activity !== JSON.stringify({})) {
+                const activity_json : Activity= JSON.parse(activity);
+                planJson[1].push(activity_json);
+                currentLocation = activity_json.endLocation;
+            }
         }
         return planJson;
     }catch(error){
@@ -480,43 +585,45 @@ export async function generatePlan_attractions(gps_location: string, currentTime
 
 
 
-// // TODO: update the prompt
-// export async function askAboutPlan(requestMessage: string): Promise<string | void> {
-//     if (!GPT_KEY) {
-//         console.error("GPT_KEY is not defined.");
-//         return;
-//     }
 
-//     const url = 'https://api.openai.com/v1/chat/completions';
+export async function askAboutPlan(question:string, plan: Plan): Promise<string | void> {
+    if (!GPT_KEY) {
+        console.error("GPT_KEY is not defined.");
+        return;
+    }
 
-//     const requestBody = {
-//         model: "gpt-4o-mini",
-//         messages: [
-//             {
-//                 role: "system",
-//                 content: `You are a robot to answer questions about the plan in the form of ${JSON.stringify(json_sample)}. You only need to reply in one or two sentences in text not in json.
-//                 "plan" can contain multiple days. Each day can have multiple activities. "time" is the start UTC time in the form of ISO 8601 to do the activity. "date" is the date of the activity.  "duration" is the time to get to the destination in minutes. "destination describ" is the description of the destination. "destination duration" is the time staying at the destination in minutes. 
-//                 Do not return anything beyond the given data.`
-//             },
-//             { role: "user", content: requestMessage }
-//         ],
-//         max_tokens: 1000
-//     };
+    const url = 'https://api.openai.com/v1/chat/completions';
 
-//     try {
-//         const response = await fetch(url, {
-//             method: 'POST',
-//             headers: {
-//                 'Content-Type': 'application/json',
-//                 'Authorization': `Bearer ${GPT_KEY}`
-//             },
-//             body: JSON.stringify(requestBody)
-//         });
+    const requestMessage = `User Question: ${question}. The current plan: ${plan}`;
+    const requestBody = {
+        model: "gpt-4o-mini",
+        messages: [
+            {
+                role: "system",
+                content: `You are a robot to answer questions about the plan. You only need to reply in one or two sentences in text not in json.
+                "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. 
+                "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.
+                Do not return anything beyond the given plan data.`
+            },
+            { role: "user", content: requestMessage }
+        ],
+        max_tokens: 1000
+    };
 
-//         const data = await response.json();
-//         console.log(data.choices[0].message.content);
-//         return data.choices[0].message.content;
-//     } catch (error) {
-//         console.error("Error calling GPT API:", error);
-//     }
-// }
+    try {
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${GPT_KEY}`
+            },
+            body: JSON.stringify(requestBody)
+        });
+
+        const data = await response.json();
+        console.log(data.choices[0].message.content);
+        return data.choices[0].message.content;
+    } catch (error) {
+        console.error("Error calling GPT API:", error);
+    }
+}
