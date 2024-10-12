@@ -136,10 +136,9 @@ const TravelCard: React.FC<TravelCardProps> = ({
       >
       <ResDetail
         onClose={() => setModalVisible(false)}
-        transportation="地铁"
-        distance="500米"
-        estimatedPrice="¥30"
-        description="这是一个很棒的地方。"
+        title = {destination}
+        description = {destinationDescrib}
+        coords = {endLocation}
         tips="尝试这里的街头小吃！"
       />
       </Modal>

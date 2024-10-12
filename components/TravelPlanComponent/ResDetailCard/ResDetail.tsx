@@ -5,12 +5,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // 定义组件的 Props 类型
 type ResDetailProps = {
   onClose: () => void;
-  onFavorite: () => void; // 新增收藏按钮的回调函数
-  transportation: string;
-  distance: string;
-  estimatedPrice: string;
+  onFavorite: () => void;
+  title: string;
   description: string;
-  tips: string; // 新增小贴士属性
+  coords: string;
+  tips: string;
 };
 
 // 获取屏幕高度
@@ -19,13 +18,15 @@ const screenHeight = Dimensions.get('window').height;
 const ResDetail: React.FC<ResDetailProps> = ({
   onClose,
   onFavorite,
-  transportation,
-  distance,
-  estimatedPrice,
+  title,
   description,
+  coords,
   tips,
 }) => {
   const [email, setEmail] = useState<string | null>(null);
+  const [tempLat, tempLong] = coords.split(',').map(Number);
+  console.log(tempLat);
+  console.log(tempLong);
 
   // 获取本地存储的 email
   useEffect(() => {
@@ -46,11 +47,10 @@ const ResDetail: React.FC<ResDetailProps> = ({
     }
 
     const favoriteData = {
-      transportation,
-      distance,
-      estimatedPrice,
+      title,
       description,
-      tips,
+      tempLat,
+      tempLong,
       email, // 使用本地存储的 email
     };
 
@@ -69,6 +69,39 @@ const ResDetail: React.FC<ResDetailProps> = ({
         console.log('favorite added:', result);
       } else {
         console.error('favorite failed:', result);
+      }
+    } catch (error) {
+      console.error('Wrong request:', error);
+    }
+  };
+
+  const handleVisited = async () => {
+    if (!email) {
+      console.error('用户未登录或未获取到 email');
+      return;
+    }
+
+    const visitedData = {
+      email,
+      title,
+      visit_count: 1, // 永远设置为 1
+    };
+
+    // 调用 API 将数据发送到数据库
+    try {
+      const response = await fetch('/(api)/VisitedPlaces', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(visitedData),
+      });
+
+      const result = await response.json();
+      if (response.ok) {
+        console.log('Visited added:', result);
+      } else {
+        console.error('Visited failed:', result);
       }
     } catch (error) {
       console.error('Wrong request:', error);
@@ -109,10 +142,13 @@ const ResDetail: React.FC<ResDetailProps> = ({
                 onPress={handleFavorite} // 点击收藏时调用 handleFavorite
                 className="flex-1 bg-yellow-500 rounded-full py-2"
               >
-                <Text className="text-white text-center text-sm font-semibold">收藏</Text>
+                <Text className="text-white text-center text-sm font-semibold">Favorite</Text>
               </TouchableOpacity>
-              <TouchableOpacity className="flex-1 bg-blue-100 rounded-full py-2">
-                <Text className="text-blue-500 text-center text-sm font-semibold">替换</Text>
+              <TouchableOpacity
+                onPress={handleVisited} // 点击“Mark as Visited”时调用 handleVisited
+                className="flex-1 bg-blue-100 rounded-full py-2"
+              >
+                <Text className="text-blue-500 text-center text-sm font-semibold">Mark as Visited</Text>
               </TouchableOpacity>
             </View>
 
@@ -129,13 +165,13 @@ const ResDetail: React.FC<ResDetailProps> = ({
 
             {/* 交通信息 */}
             <Text className="text-sm font-bold text-gray-700 mb-2">交通方式</Text>
-            <Text className="text-sm text-gray-600 mb-4">{transportation}</Text>
+            <Text className="text-sm text-gray-600 mb-4">{title}</Text>
 
             <Text className="text-sm font-bold text-gray-700 mb-2">距离</Text>
-            <Text className="text-sm text-gray-600 mb-4">{distance}</Text>
+            <Text className="text-sm text-gray-600 mb-4">{description}</Text>
 
             <Text className="text-sm font-bold text-gray-700 mb-2">预估价格</Text>
-            <Text className="text-sm text-gray-600 mb-4">{estimatedPrice}</Text>
+            <Text className="text-sm text-gray-600 mb-4">{description}</Text>
 
             {/* 简介 */}
             <Text className="text-sm font-bold text-gray-700 mb-2">简介</Text>

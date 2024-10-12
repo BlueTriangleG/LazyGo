@@ -1,43 +1,45 @@
-import React from 'react'
-import { StyleSheet, View, Text, Image } from 'react-native'
-import MapView, { Marker, Polyline } from 'react-native-maps'
+import React, { useEffect } from 'react';
+import { StyleSheet, View, Text, Image } from 'react-native';
+import MapView, { Marker, Polyline } from 'react-native-maps';
 
-// 定义 latDataCoords 类型
+// Define latDataCoords type
 type latDataCoords = {
-  lat: number
-  long: number
-  title: string
-  description: string
+  lat: number;
+  long: number;
+  title: string;
+  description: string;
 }
 
-// 通过 props 传递 latDataCoords 数据
+// Props to pass both latData and latData1
 interface MapProps {
-  coords: latDataCoords[] // 接收的经纬度数据数组
+  coords: latDataCoords[]; // latData
+
 }
 
 const Map: React.FC<MapProps> = ({ coords }) => {
+  
   return (
     <View style={styles.container}>
       <MapView
         style={styles.map}
         initialRegion={{
-          latitude: coords.length > 0 ? coords[0].lat : 35.6586, // 默认显示第一个位置
+          latitude: coords.length > 0 ? coords[0].lat : 35.6586, // Default position
           longitude: coords.length > 0 ? coords[0].long : 139.7454,
           latitudeDelta: 0.05,
           longitudeDelta: 0.05,
         }}>
-        {/* 动态生成 Marker */}
+        {/* Render Markers for latData */}
         {coords.map((location, index) => (
           <Marker
-            key={index}
+            key={`latData-${index}`}
             coordinate={{ latitude: location.lat, longitude: location.long }}
             title={location.title}
             description={location.description}
-            anchor={{ x: 0.5, y: 1 }} // 将锚点设置为底部中央
+            anchor={{ x: 0.5, y: 1 }} // Set anchor point to bottom center
           >
             <View style={styles.markerContainer}>
               <Image
-                source={require('@/assets/images/pin.png')} // 自定义标记图像
+                source={require('@/assets/images/pin.png')} // Custom marker image
                 style={styles.markerImage}
               />
               <Text style={styles.markerText}>{index + 1}</Text>
@@ -45,47 +47,47 @@ const Map: React.FC<MapProps> = ({ coords }) => {
           </Marker>
         ))}
 
-        {/* 根据传递的坐标连线 */}
+        {/* Polyline for latData */}
         {coords.length > 1 && (
           <Polyline
             coordinates={coords.map((location) => ({
               latitude: location.lat,
               longitude: location.long,
             }))}
-            strokeColor="#76c893" // 线的颜色
-            strokeWidth={3} // 线的宽度
+            strokeColor="#76c893" // Line color
+            strokeWidth={3} // Line width
           />
         )}
       </MapView>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   container: {
-    height: 300, 
+    height: 300,
     width: '100%',
   },
   map: {
     ...StyleSheet.absoluteFillObject,
   },
   markerContainer: {
-    position: 'relative', 
+    position: 'relative',
     alignItems: 'center',
     justifyContent: 'center',
   },
   markerImage: {
-    width: 20, 
-    height: 20, 
+    width: 20,
+    height: 20,
   },
   markerText: {
-    position: 'absolute', 
+    position: 'absolute',
     fontWeight: 'bold',
-    fontSize: 10, 
-    color: '#FFFFFF', 
+    fontSize: 10,
+    color: '#FFFFFF',
     textAlign: 'center',
-    bottom: 5, 
+    bottom: 5,
   },
-})
+});
 
-export default Map
+export default Map;
