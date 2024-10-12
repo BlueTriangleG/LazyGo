@@ -1,99 +1,198 @@
 import CustomButton from '@/components/CustomButton'
 import { Link, router } from 'expo-router'
-import { StyleSheet, Text, View, ScrollView, Image, ImageBackground} from 'react-native'
-import { commonStyles } from '@/styles/common-styles'
+import {
+  Text,
+  View,
+  ScrollView,
+  Image,
+  ImageBackground,
+  TouchableOpacity,
+} from 'react-native'
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { FontAwesome } from '@expo/vector-icons'
+import { icons, images } from '@/constants'
 
 export default function Page() {
   const { user } = useUser()
 
   return (
-    <ImageBackground 
+    <ImageBackground
       source={require('../../../assets/images/background.png')}
-      style={styles.background} 
-      resizeMode="cover"
-    >
-      <SafeAreaView style={styles.safeArea}>
-        <ScrollView style={styles.contentWrapper}>
+      className="flex-1 w-full h-full"
+      resizeMode="cover">
+      <SafeAreaView className="flex-1">
+        <ScrollView className="flex-1">
           <SignedIn>
-            
-            <Text style={styles.topText}>Address</Text>
-            <View style={styles.separator} />
+            <Text className="font-JakartaBold text-left font-light my-1 px-2 self-start text-black">
+              Address
+            </Text>
+            <View className="h-px bg-gray-300 my-1" />
 
             {/* 第一部分：图标部分 */}
-            <View style={styles.searchContainer}>
-              <View style={styles.iconRow}>
-                <View style={styles.iconContainer}>
-                  <View style={[styles.iconWrapper, { backgroundColor: '#FFCDD2' }]}>
-                    <FontAwesome name="cutlery" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "restaurant"}})} />
-                  </View>
-                  <Text style={styles.iconLabel}>Restaurant</Text> 
+            <View className="flex-1 justify-center items-center my-1">
+              <View className="flex-row justify-around w-full px-5 ">
+                {/* 图标容器 */}
+                <View className="items-center">
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(root)/(generate-plan)/chat',
+                        params: { placeType: 'restaurant' },
+                      })
+                    }>
+                    <Image source={icons.restaurant} className="w-11 h-11" />
+                  </TouchableOpacity>
+                  <Text className="font-Jakarta font-light text-center my-1 text-xs">
+                    Cafe
+                  </Text>
                 </View>
-                <View style={styles.iconContainer}>
-                  <View style={[styles.iconWrapper, { backgroundColor: '#C8E6C9' }]}>
-                    <FontAwesome name="coffee" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "cafe"}})} />
-                  </View>
-                  <Text style={styles.iconLabel}>Cafe</Text> 
+                <View className="items-center">
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(root)/(generate-plan)/chat',
+                        params: { placeType: 'restaurant' },
+                      })
+                    }>
+                    <Image source={icons.milkTea} className="w-11 h-11" />
+                  </TouchableOpacity>
+                  <Text className="font-Jakarta font-light text-center my-1 text-xs">
+                    Milk tea
+                  </Text>
                 </View>
-                <View style={styles.iconContainer}>
-                  <View style={[styles.iconWrapper, { backgroundColor: '#BBDEFB' }]}>
-                    <FontAwesome name="university" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "entertainment"}})} />
-                  </View>
-                  <Text style={styles.iconLabel}>Entertainment</Text> 
+
+                <View className="items-center">
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(root)/(generate-plan)/chat',
+                        params: { placeType: 'cafe' },
+                      })
+                    }>
+                    <Image source={icons.coffee} className="w-11 h-11" />
+                  </TouchableOpacity>
+                  <Text className="font-Jakarta font-light text-center my-1 text-xs">
+                    Cafe
+                  </Text>
                 </View>
-                <View style={styles.iconContainer}>
-                  <View style={[styles.iconWrapper, { backgroundColor: '#FFE082' }]}>
-                    <FontAwesome name="film" size={40} color="black" onPress={() => router.push({pathname: '/(root)/(generate-plan)/chat', params: {placeType: "attraction"}})} />
-                  </View>
-                  <Text style={styles.iconLabel}>Tour</Text> 
+
+                <View className="items-center">
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(root)/(generate-plan)/chat',
+                        params: { placeType: 'entertainment' },
+                      })
+                    }>
+                    <Image source={icons.entertainment} className="w-11 h-11" />
+                  </TouchableOpacity>
+                  <Text className="font-Jakarta font-light text-center my-1 text-xs">
+                    Fun
+                  </Text>
+                </View>
+
+                <View className="items-center">
+                  <TouchableOpacity
+                    onPress={() =>
+                      router.push({
+                        pathname: '/(root)/(generate-plan)/chat',
+                        params: { placeType: 'attraction' },
+                      })
+                    }>
+                    <Image source={icons.tour} className="w-11 h-11" />
+                  </TouchableOpacity>
+                  <Text className="font-Jakarta font-light text-center my-1 text-xs">
+                    Tour
+                  </Text>
                 </View>
               </View>
             </View>
 
-            <View style={styles.separator} />
+            <View className="h-px bg-gray-300 my-1" />
 
             {/* 第二部分：推荐部分 */}
-            <View style={styles.recommendSection}>
-              <Text style={styles.leftAlignedText}>Recommend for you</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.horizontalScrollView}>
-                {/* 第一张和第二张部分可见 */}
-                <View style={styles.card}>
-                  <Image source={require('../../../assets/images/home.png')} style={styles.cardImage} />
-                  <Text style={styles.cardTitle}>ABC Restaurant</Text>
-                  <Text style={styles.cardSubtitle}>517m - A great restaurant near you</Text>
+            <View className="px-4 my-1">
+              <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
+                Daily Recommends
+              </Text>
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="pl-2 my-1">
+                {/* 第一张卡片 */}
+                <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1">
+                  <Image
+                    source={require('../../../assets/images/home.png')}
+                    className="w-full h-[260px]"
+                    resizeMode="cover"
+                  />
+                  <Text className="text-xl font-bold p-2">ABC Restaurant</Text>
+                  <Text className="text-base text-gray-600 px-2 pb-2">
+                    517m - A great restaurant near you
+                  </Text>
                 </View>
-                <View style={styles.card}>
-                  <Image source={require('../../../assets/images/yellow.png')} style={styles.cardImage} />
-                  <Text style={styles.cardTitle}>NFC Museum</Text>
-                  <Text style={styles.cardSubtitle}>5km - Famous museum in the area</Text>
+                {/* 第二张卡片 */}
+                <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1">
+                  <Image
+                    source={require('../../../assets/images/yellow.png')}
+                    className="w-full h-[260px]"
+                    resizeMode="cover"
+                  />
+                  <Text className="text-xl font-bold p-2">NFC Museum</Text>
+                  <Text className="text-base text-gray-600 px-2 pb-2">
+                    5km - Famous museum in the area
+                  </Text>
                 </View>
-                <View style={styles.card}>
-                  <Image source={require('../../../assets/images/background.png')} style={styles.cardImage} />
-                  <Text style={styles.cardTitle}>XYZ Cafe</Text>
-                  <Text style={styles.cardSubtitle}>1.2km - Cozy place for coffee</Text>
+                {/* 第三张卡片 */}
+                <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1">
+                  <Image
+                    source={require('../../../assets/images/background.png')}
+                    className="w-full h-[260px]"
+                    resizeMode="cover"
+                  />
+                  <Text className="text-xl font-bold p-2">XYZ Cafe</Text>
+                  <Text className="text-base text-gray-600 px-2 pb-2">
+                    1.2km - Cozy place for coffee
+                  </Text>
                 </View>
-                <View style={styles.card}>
-                  <Image source={require('../../../assets/images/background.png')} style={styles.cardImage} />
-                  <Text style={styles.cardTitle}>City Theatre</Text>
-                  <Text style={styles.cardSubtitle}>2km - Popular movie spot</Text>
+                {/* 第四张卡片 */}
+                <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1">
+                  <Image
+                    source={require('../../../assets/images/background.png')}
+                    className="w-full h-[260px]"
+                    resizeMode="cover"
+                  />
+                  <Text className="text-xl font-bold p-2">City Theatre</Text>
+                  <Text className="text-base text-gray-600 px-2 pb-2">
+                    2km - Popular movie spot
+                  </Text>
                 </View>
               </ScrollView>
             </View>
 
-            <View style={styles.separator} />
+            <View className="h-px bg-gray-300 my-1" />
 
             {/* 第三部分：Tips部分，需要下滑才能看到 */}
-            <View style={styles.tipsSection}>
-              <Text style={styles.leftAlignedText}>Tips from Lazy Go</Text>
-              <Text style={styles.tipsText}>Hi! Good morning! Welcome to lazy go. Today is rainy, remember to bring your umbrella if you go out!</Text>
-              <Text style={styles.tipsText}>1. Bring umbrella</Text>
-              <Text style={styles.tipsText}>2. Go to ABC restaurant</Text>
-              <Text style={styles.tipsText}>3. Bring your ID card</Text>
+            <View className="flex-1 px-4 my-1">
+              <Text className="text-left text-2xl font-bold my-1 px-2 self-start text-black">
+                Tips from Lazy Go
+              </Text>
+              <Text className="text-left text-base my-1 text-black">
+                Hi! Good morning! Welcome to lazy go. Today is rainy, remember
+                to bring your umbrella if you go out!
+              </Text>
+              <Text className="text-left text-base my-1 text-black">
+                1. Bring umbrella
+              </Text>
+              <Text className="text-left text-base my-1 text-black">
+                2. Go to ABC restaurant
+              </Text>
+              <Text className="text-left text-base my-1 text-black">
+                3. Bring your ID card
+              </Text>
             </View>
 
-            <View style={styles.separator} />
+            <View className="h-px bg-gray-300 my-1" />
 
             <CustomButton
               className="mt-6 bg-red-300"
@@ -104,29 +203,27 @@ export default function Page() {
             />
             <CustomButton
               className="mt-6 bg-red-300"
-              title="generate plan"
+              title="Generate Plan"
               onPress={async () => {
                 router.push('/(root)/(generate-plan)/gpt_test')
               }}
             />
             <CustomButton
               className="mt-6 bg-red-300"
-              title="travel plan test"
+              title="Travel Plan Test"
               onPress={async () => {
                 router.push('/(root)/(generate-plan)/explore')
               }}
             />
           </SignedIn>
           <SignedOut>
-            <Text> {/* 确保 Link 被包裹在 Text 中 */}
-              <Link href="/(auth)/sign-in">
-                Sign In
-              </Link>
+            <Text>
+              {/* 确保 Link 被包裹在 Text 中 */}
+              <Link href="/(auth)/sign-in">Sign In</Link>
             </Text>
-            <Text> {/* 确保 Link 被包裹在 Text 中 */}
-              <Link href="/(auth)/sign-up">
-                Sign Up
-              </Link>
+            <Text>
+              {/* 确保 Link 被包裹在 Text 中 */}
+              <Link href="/(auth)/sign-up">Sign Up</Link>
             </Text>
           </SignedOut>
         </ScrollView>
@@ -134,115 +231,3 @@ export default function Page() {
     </ImageBackground>
   )
 }
-
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-  contentWrapper: {
-    flex: 1,
-  },
-  searchContainer: {
-    flex: 1, // 占据三分之一
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginVertical: 5, // 统一上下间距
-  },
-  iconRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    paddingHorizontal: 20,
-    marginVertical: 5, // 统一上下间距
-  },
-  recommendSection: {
-    flex: 2, // 占据三分之二
-    paddingHorizontal: 16,
-    marginVertical: 5, // 统一上下间距
-  },
-  horizontalScrollView: {
-    flexDirection: 'row',
-    paddingLeft: 8,
-    marginVertical: 5, // 统一上下间距
-  },
-  card: {
-    width: 350, // 加大卡片宽度
-    marginRight: 16,
-    backgroundColor: '#fff',
-    borderRadius: 8,
-    overflow: 'hidden',
-    elevation: 4,
-    marginVertical: 5, // 统一上下间距
-  },
-  cardImage: {
-    width: '100%',
-    height: 350, // 调整图片高度
-    resizeMode: 'cover',
-  },
-  tipsSection: {
-    flex: 1, // 占据三分之一，需下滑才能看到
-    paddingHorizontal: 16,
-    marginVertical: 5, // 统一上下间距
-  },
-  background: {
-    flex: 1,
-    width: '100%',
-    height: '100%',
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    padding: 8,
-  },
-  cardSubtitle: {
-    fontSize: 16,
-    color: '#555',
-    paddingHorizontal: 8,
-    paddingBottom: 8,
-  },
-  iconWrapper: {
-    width: 60, 
-    height: 60, 
-    borderRadius: 30, 
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  iconLabel: {
-    textAlign: 'center',
-    marginVertical: 5,
-    fontSize: 20, // 标签字体大小
-  },
-  iconContainer: {
-    alignItems: 'center',
-  },
-  separator: {
-    height: 1,
-    backgroundColor: '#ddd',
-    marginVertical: 5,         // 统一上下间距
-  },
-  leftAlignedText: {
-    textAlign: 'left',          // 左对齐文本
-    fontSize: 24,               // 标题大小，可以根据需要调整
-    fontWeight: 'bold',         // 加粗字体
-    marginVertical: 5,          // 下方与内容的距离（图片或文本）
-    paddingHorizontal: 8,        // 设置与水平滚动区域相同的左右间距
-    alignSelf: 'flex-start',     // 确保文本左对齐且与父容器左侧对齐
-    color: '#000',              // 设置文本颜色
-  },
-  topText: {
-    textAlign: 'left',          // 左对齐文本
-    fontSize: 20,               // 文字大小
-    fontWeight: 'bold',         // 加粗字体
-    marginVertical: 5,         // 统一上下间距        
-    paddingHorizontal: 32,       // 设置与水平滚动区域相同的左右间距
-    color: '#000',
-  },
-  tipsText: {
-    textAlign: 'left',          // 左对齐文本
-    fontSize: 16,               // 文字大小
-    marginVertical: 5,         // 统一上下间距        
-    paddingHorizontal: 16,       // 设置与水平滚动区域相同的左右间距
-    color: '#000',
-  },
-  
-})
