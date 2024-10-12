@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text, View, StyleSheet, ScrollView } from 'react-native'
+import { Text, View, StyleSheet, ScrollView, Alert } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 
 import { useEffect, useState } from 'react'
@@ -16,105 +16,14 @@ import presetOptions_att from './data/preset-options-attractions.json'
 import CustomButton from '@/components/CustomButton'
 import { ProgressBar } from 'react-native-paper';
 import { useLocalSearchParams } from 'expo-router'
+import { getCurrentLocation } from '@/lib/location'
+import { Activity, generatePlan_restaurant, Plan } from '@/lib/gpt-plan-generate'
+import { router } from 'expo-router'
 
 import TravelCard from '@/components/TravelPlanComponent/TravelCard';
 
-const travelData = {
-    "1": [
-      {
-        time: '08:00',
-        duration: '2h',
-        destination: 'Tokyo Tower',
-        destinationDescrib:
-          '東京鐵塔，正式名稱為日本電波塔，是位於日本東京芝公園的一座電波塔。建於1958年。高332.9公尺，是日本第二高的結構物，僅次於東京晴空塔。',
-        destinationDuration: '1h',
-        transportation: 'Public',
-        distance: '3km',
-        estimatedPrice: '15 EUR',
-        startLocation: '35.6500,139.7500', // start lat, long
-        endLocation: '35.6586,139.7454', // end lat long (Tokyo Tower)
-      },
-      {
-        time: '08:00',
-        duration: '2h',
-        destination: 'Tokyo Tower',
-        destinationDescrib:
-          '東京鐵塔，正式名稱為日本電波塔，是位於日本東京芝公園的一座電波塔。建於1958年。高332.9公尺，是日本第二高的結構物，僅次於東京晴空塔。',
-        destinationDuration: '1h',
-        transportation: 'Public',
-        distance: '3km',
-        estimatedPrice: '15 EUR',
-        startLocation: '35.6500,139.7500', // start lat, long
-        endLocation: '35.6586,139.7454', // end lat long (Tokyo Tower)
-      },
-      {
-        time: '08:00',
-        duration: '2h',
-        destination: 'Tokyo Tower',
-        destinationDescrib:
-          '東京鐵塔，正式名稱為日本電波塔，是位於日本東京芝公園的一座電波塔。建於1958年。高332.9公尺，是日本第二高的結構物，僅次於東京晴空塔。',
-        destinationDuration: '1h',
-        transportation: 'Public',
-        distance: '3km',
-        estimatedPrice: '15 EUR',
-        startLocation: '35.6500,139.7500', // start lat, long
-        endLocation: '35.6586,139.7454', // end lat long (Tokyo Tower)
-      },
-      {
-        time: '10:30',
-        duration: '1.5h',
-        destination: 'Shiba Park',
-        destinationDescrib: '芝公园，靠近东京铁塔的大型绿地。',
-        destinationDuration: '2h',
-        transportation: 'Car',
-        distance: '2.5km',
-        estimatedPrice: '3 EUR',
-        startLocation: '35.6586,139.7454', // 起点的经纬度 (Tokyo Tower)
-        endLocation: '35.6544,139.7480', // 终点的经纬度 (Shiba Park)
-      },
-    ],
-    "2": [
-      {
-        time: '09:00',
-        duration: '1.5h',
-        destination: 'Zojoji Temple',
-        destinationDescrib: '增上寺，东京著名的佛教寺庙。',
-        destinationDuration: '1.5h',
-        transportation: 'Bicycle',
-        distance: '1.8km',
-        estimatedPrice: '2 EUR',
-        startLocation: '35.6544,139.7480', 
-        endLocation: '35.6580,139.7488', 
-      },
-      {
-        time: '11:00',
-        duration: '2h',
-        destination: 'Roppongi Hills',
-        destinationDescrib: '六本木新城，时尚和文化的中心。',
-        destinationDuration: '2h',
-        transportation: 'Walk',
-        distance: '4km',
-        estimatedPrice: '20 EUR',
-        startLocation: '35.6580,139.7488', 
-        endLocation: '35.6604,139.7292',
-      },
-      {
-        time: '13:00',
-        duration: '1h',
-        destination: 'Atago Shrine',
-        destinationDescrib: '爱宕神社，历史悠久的庙宇和著名的石阶。',
-        destinationDuration: '1h',
-        transportation: 'Public',
-        distance: '1km',
-        estimatedPrice: '5 EUR',
-        startLocation: '35.6604,139.7292', 
-        endLocation: '35.6650,139.7495',
-      },
-    ],
-  }
-
 type Message = {
-    content: string;
+    content: string | React.JSX.Element;
     sender: string;
 }
 
@@ -124,7 +33,6 @@ export type UserConfig = {
     departureTime: string;
     transportation: string;
     placeType?: string;
-    people?: string;
 }
 
 export type ChatProps = {
@@ -135,6 +43,8 @@ const Chat = (props: ChatProps) => {
 
     const [messages, setMessages] = useState<Message[]>([])
     const chatParams: ChatProps = useLocalSearchParams();
+    const [currentLocation, setCurrentLocation] = useState<string>("");
+    const [generating, setGenerating] = useState<boolean>(false);
     let presetChats = undefined;
     let presetOptions = undefined
     if (chatParams.placeType === "restaurant") {
@@ -150,6 +60,7 @@ const Chat = (props: ChatProps) => {
         presetChats = presetChats_caf;
         presetOptions = presetOptions_caf;
     } 
+
     // Initialize chats and options, use JSON.parse(JSON.stringify()) to deep copy the object
     const [chatsArray, setChatsArray] = useState<{content: string, keyword: string}[]>(JSON.parse(JSON.stringify(Object.values(presetChats))));
     const [optionsArray, setOptionsArray] = useState<{options: {content: string, key: string}[], keyword: string}[]>(JSON.parse(JSON.stringify(Object.values(presetOptions))));
@@ -162,6 +73,15 @@ const Chat = (props: ChatProps) => {
     });
     const totalSteps = Object.values(presetOptions).find((options) => options.keyword === "init")?.options.length || 0;
 
+    const initializeLocation = async () => {
+        const curLocation = await getCurrentLocation();
+        if (!curLocation) {
+            Alert.alert('Please enable location service');
+            return;
+        }
+        setCurrentLocation(curLocation);
+    };
+
     // Initialize chat with the first message from preset chats
     useEffect(() => {
         let initMsgContent = chatsArray.find((chat) => chat.keyword === "init");
@@ -173,6 +93,7 @@ const Chat = (props: ChatProps) => {
             };
             setMessages([initMsg]);
         }
+        initializeLocation();
     }, []);
 
     // Handle reset button
@@ -184,13 +105,8 @@ const Chat = (props: ChatProps) => {
             transportation: "",
         });
         setProgress(0);
-        if (chatParams.placeType === "restaurant") {
-            setChatsArray(JSON.parse(JSON.stringify(Object.values(presetChats_res))))
-            setOptionsArray(JSON.parse(JSON.stringify(Object.values(presetOptions_res))))
-          } else if (chatParams.placeType === "entertainment") {
-            setChatsArray(JSON.parse(JSON.stringify(Object.values(presetChats_ent))))
-            setOptionsArray(JSON.parse(JSON.stringify(Object.values(presetOptions_ent))))
-          }
+        setChatsArray(JSON.parse(JSON.stringify(Object.values(presetChats))));
+        setOptionsArray(JSON.parse(JSON.stringify(Object.values(presetOptions))));
         if (initMsgContent) {
             setCurrentChat(initMsgContent.keyword);
             let initMsg: Message = {
@@ -255,30 +171,100 @@ const Chat = (props: ChatProps) => {
                 userConfig.transportation = key;
                 setUserConfig({...userConfig});
                 break;
-            case "peaople":
-                userConfig.keywords = key;
-                setUserConfig({...userConfig});
-                break;
             default:
                 break;
         }
     }
 
     // Render each message 
-    const renderItem = ({ item }: { item: Message }) => {
-        return (
-            <Text style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
-                {item.content}
-            </Text>
-        );
+    const renderItem = ({ item, index }: { item: Message, index: number }) => {
+        if (typeof item.content === "string") {
+            return (
+                <Text key={index} style={{...styles.messageItem, alignSelf: item.sender === "bot"? "flex-start": "flex-end"}}>
+                    {item.content}
+                </Text>
+            );
+        } else {
+            return item.content;
+        }
+        
     };
+
+    // Handle check details button
+    const handleCheckDetails = (key: string, plan: Plan) => {
+        router.push({pathname: '/(root)/(generate-plan)/explore', params: {date: key, plan: JSON.stringify(plan)}});
+    }
+
+    // Handle generate plan button
+    const handleGeneratePlan = async () => {
+        setGenerating(true);
+        console.log("userConfig", userConfig);
+        if (!currentLocation) {
+            Alert.alert('Please enable location service');
+            return;
+        }
+        const now = new Date();
+        const futureTime = new Date(now.getTime() + (Number(userConfig.departureTime) * 60 * 1000)); // 加上20分钟
+        const departureTime = new Date(futureTime.getTime() - (futureTime.getTimezoneOffset() * 60000)).toISOString();
+
+        // Call API to generate plan
+        const result: Plan|void = await generatePlan_restaurant(currentLocation, 
+                                                                departureTime, 
+                                                                userConfig.transportation, 
+                                                                userConfig.minPrice, 
+                                                                userConfig.maxPrice);
+        if (!result) {
+            Alert.alert('Failed to generate plan');
+            return;
+        }
+        const newMessages: Message[] = [];
+        Object.keys(result).forEach((key) => {
+            let activities: Activity[] = result[Number(key)];
+            const newMessage: Message = {
+                content: (
+                    <View>
+                        <View style={styles.separator} />
+                        <Text>Day {key}</Text>
+                        {activities.map((data, index) => {
+                            return (
+                                <View  style={{width: '90%', marginLeft: 30}}>
+                                    <TravelCard
+                                        key={index}  // 确保每个 TravelCard 有唯一的 key
+                                        time={data.time}
+                                        duration={data.duration}
+                                        destination={data.destination}
+                                        destinationDescrib={data.destinationDescrib}
+                                        destinationDuration={data.destinationDuration}
+                                        transportation={data.transportation}
+                                        distance={data.distance}
+                                        estimatedPrice={data.estimatedPrice}
+                                        startLocation={data.startLocation}
+                                        endLocation={data.endLocation}
+                                    />
+                                </View>
+                            );
+                        })}
+                        <CustomButton title={"Check Details"} 
+                            className="mt-6 bg-orange-300"
+                            onPress={() => {handleCheckDetails(key, result)}}
+                        />
+                        <View style={styles.separator} />
+                    </View>
+                ),
+                sender: "bot",
+            };
+            newMessages.push(newMessage);
+        });
+        setMessages([...messages, ...newMessages]);
+        setGenerating(false);
+    }
 
     return (
         <SafeAreaView style={styles.contentWrapper}>
             <ScrollView style={styles.contentWrapper}>
                 <ProgressBar 
                     style={{ height: 10, width: '100%' }}
-                    progress={totalSteps > 0 ? progress / totalSteps : 3}
+                    progress={progress / totalSteps}
                 />
 
 
@@ -286,26 +272,10 @@ const Chat = (props: ChatProps) => {
                     <FlashList estimatedItemSize={35} data={messages} renderItem={renderItem} />
                 </View>
 
-                {/* 在这里添加 TravelCard */}
-                {progress === totalSteps && travelData["1"]?.length > 0 && (
-                <View style={styles.travelCardContainer}>
-                    {travelData["1"].map((data, index) => (
-                        <TravelCard
-                            key={index}  // 确保每个 TravelCard 有唯一的 key
-                            time={data.time}
-                            duration={data.duration}
-                            destination={data.destination}
-                            destinationDescrib={data.destinationDescrib}
-                            destinationDuration={data.destinationDuration}
-                            transportation={data.transportation}
-                            distance={data.distance}
-                            estimatedPrice={data.estimatedPrice}
-                            startLocation={data.startLocation}
-                            endLocation={data.endLocation}
-                        />
-                    ))}
-                </View>
-            )}
+            </ScrollView>
+
+            <View style={{ marginBottom: 50 }}>
+                
                 <View style={styles.options_container}>
                     {/* Render options based on current chat */}
                     {optionsArray.find((options) => options.keyword === currentChat)?.options.map((option) => {
@@ -319,9 +289,13 @@ const Chat = (props: ChatProps) => {
                         );
                     })}
                 </View>
-            </ScrollView>
-
-            <View style={{ marginBottom: 50 }}>
+                <CustomButton
+                    title={generating? "Generating...": "Generate Plan"}
+                    disabled={generating}
+                    style={{ display: progress !== totalSteps ? 'none' : 'flex' }}
+                    className="mt-6 bg-orange-300"
+                    onPress={handleGeneratePlan}
+                    />
                 <CustomButton
                     title="Reset"
                     className="mt-6 bg-orange-300"
@@ -364,6 +338,9 @@ const styles = StyleSheet.create({
         marginBottom: 40,
     },
     travelCardContainer: {
+        top:0,
+        marginTop: 0,
+        paddingTop: 0,
         backgroundColor: '#ffffff', // 使用白色背景，更显干净
         padding: 16, // 内边距
         borderRadius: 12, // 增加圆角
@@ -381,5 +358,9 @@ const styles = StyleSheet.create({
         borderWidth: 1, // 添加边框
         borderColor: '#e0e0e0', // 边框颜色
     },
-    
+    separator: {
+        height: 1,
+        backgroundColor: '#ddd',
+        marginVertical: 30,
+    },
 })
