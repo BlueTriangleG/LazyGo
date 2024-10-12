@@ -51,10 +51,10 @@ const ResDetail: React.FC<ResDetailProps> = ({
       description,
       tempLat,
       tempLong,
-      email, // 使用本地存储的 email
+      email, 
     };
 
-    // 调用 API 将数据发送到数据库
+    // call favorite api database
     try {
       const response = await fetch('/(api)/favorite', {
         method: 'POST',
@@ -87,7 +87,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
       visit_count: 1, // 永远设置为 1
     };
 
-    // 调用 API 将数据发送到数据库
+    // VisitedPlaces Database
     try {
       const response = await fetch('/(api)/VisitedPlaces', {
         method: 'POST',

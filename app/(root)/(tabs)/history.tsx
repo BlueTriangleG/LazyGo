@@ -1,14 +1,83 @@
-import React from 'react';
-import { Text, View, FlatList, StyleSheet, ImageBackground } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Text, View, FlatList, StyleSheet, ImageBackground, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import Icon from 'react-native-vector-icons/Ionicons'; // 引入图标库
+import { useNavigation } from '@react-navigation/native'; // 引入 useNavigation 钩子
+import { router } from 'expo-router';
 
 const History = () => {
-  // 模拟数据
-  const historyData = [
-    { id: '1', action: 'plan 1' },
-    { id: '2', action: 'plan 2' },
-    { id: '3', action: 'plan 3' },
-  ];
+  const navigation = useNavigation(); // 获取导航对象
+  const [travelHistory, setTravelHistory] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState('');
+  const handleCheckDetails = (key: string, plan: Plan) => {
+    router.push({
+        pathname: '/(root)/(generate-plan)/explore',
+        params: { date: key, plan: JSON.stringify(plan) }
+    });
+};
+
+  useEffect(() => {
+    const fetchTravelHistoryFromApi = async () => {
+      try {
+        const email = await AsyncStorage.getItem('userEmail');
+        if (!email) {
+          console.log('Email not found');
+          return;
+        }
+
+        const response = await fetch(`/(api)/TravelHistory?email=${email}`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error('Network wrong');
+        }
+
+        const result = await response.json();
+
+        if (!Array.isArray(result)) {
+          console.error('Wrong Data:', result);
+          return;
+        }
+
+        if (result.length === 0) {
+          console.log('NO data found');
+          return;
+        }
+
+        setTravelHistory(result);
+      } catch (error) {
+        console.error('Getting travel history Wrong:', error);
+        setError('获取旅行历史记录时出错');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTravelHistoryFromApi();
+  }, []);
+
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color="#0000ff" />
+        <Text>加载中...</Text>
+      </View>
+    );
+  }
+
+  if (error) {
+    return (
+      <View style={styles.errorContainer}>
+        <Text style={styles.errorText}>{error}</Text>
+      </View>
+    );
+  }
 
   return (
     <ImageBackground 
@@ -16,17 +85,28 @@ const History = () => {
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-      {/* 添加半透明遮罩层，提升文字可见度 */}
       <View style={styles.overlay} /> 
       <SafeAreaView style={styles.container}>
-        <Text style={styles.title}>History</Text>
+        <Text style={styles.title}>Travel History</Text>
         <FlatList
-          data={historyData}
-          keyExtractor={(item) => item.id}
+          data={travelHistory}
+          keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <View style={styles.itemContainer}>
-              <Text style={styles.itemText}>{item.action}</Text>
-            </View>
+
+            <TouchableOpacity 
+              style={styles.cardContainer}
+              onPress={() => handleCheckDetails(1, item)} // 点击时跳转并传递数据
+            >
+              <Image 
+                source={require('../../../assets/images/TravelCard/his1.jpg')}
+                style={styles.cardImage} 
+              />
+              <View style={styles.cardContent}>
+                <Text style={styles.cardTitle}>目的地: {item.destination}</Text>
+                <Text style={styles.cardDescription}>描述: {item.destinationdescrib}</Text>
+              </View>
+              <Icon name="chevron-forward" size={24} color="#333" style={styles.arrowIcon} />
+            </TouchableOpacity>
           )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
@@ -36,42 +116,75 @@ const History = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  errorText: {
+    color: 'red',
+    fontSize: 18,
+  },
   backgroundImage: {
     flex: 1,
     justifyContent: 'center',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',  // 半透明遮罩层，增强对比度
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
   },
   container: {
     flex: 1,
     padding: 16,
-    backgroundColor: 'rgba(255, 255, 255, 0.8)', // 半透明白色背景，适应整体风格
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
     marginBottom: 20,
     textAlign: 'center',
-    color: 'rgba(0, 0, 0, 0.7)', // 半透明文字
+    color: '#333',
   },
-  itemContainer: {
-    padding: 20, // 增大padding使白板更大
-    marginVertical: 10, // 增加间距
-    backgroundColor: 'rgba(255, 255, 255, 0.9)', // 白板半透明
-    borderRadius: 12, // 增大圆角
+  cardContainer: {
+    flexDirection: 'row',
+    padding: 20,
+    marginVertical: 10,
+    backgroundColor: '#fff',
+    borderRadius: 12,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 5,
-    elevation: 3, // 增强阴影效果
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+    elevation: 4,
+    alignItems: 'center', // 垂直居中对齐
   },
-  itemText: {
-    fontSize: 16,
-    color: 'rgba(0, 0, 0, 0.8)', // 半透明文字，保证可见性
+  cardImage: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    marginRight: 15,
+  },
+  cardContent: {
+    flex: 1,
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#333',
+  },
+  cardDescription: {
+    fontSize: 12,
+    color: '#777',
+  },
+  arrowIcon: {
+    marginLeft: 10, // 箭头与文本之间的间距
   },
   separator: {
-    height: 10, // 每个白板项之间的间隔
+    height: 10,
   },
 });
 
