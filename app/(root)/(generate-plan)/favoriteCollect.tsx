@@ -7,16 +7,14 @@ const FavoriteComponent = () => {
 
   const fetchFavoritesFromApi = async () => {
     try {
-      const email = await AsyncStorage.getItem('userEmail'); // 确保使用正确的键
+      const email = await AsyncStorage.getItem('userEmail'); // step1
       if (!email) {
         console.log('Email not found');
         return;
       }
 
-      console.log('获取到的 email:', email);
-
-      // 获取收藏数据
-      const response = await fetch(`/(api)/favorite?email=${email}`, {
+      // get favorite data
+      const response = await fetch(`/(api)/favorite?email=${email}`, { // step2
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
@@ -27,7 +25,7 @@ const FavoriteComponent = () => {
         throw new Error('Network wrong');
       }
 
-      const result = await response.json();
+      const result = await response.json();//step3
 
       if (!Array.isArray(result)) {
         console.error('Wrong Data:', result);
@@ -75,8 +73,8 @@ const FavoriteComponent = () => {
         renderItem={renderFavoriteCard}
         keyExtractor={(item) => item.id.toString()}
         contentContainerStyle={{ padding: 16 }}
-        showsVerticalScrollIndicator={false} // 隐藏滚动条
-        scrollEnabled={true} // 如果需要禁用滚动则设置为 false
+        showsVerticalScrollIndicator={false} 
+        scrollEnabled={true} 
       />
     </View>
   );
