@@ -15,6 +15,10 @@ import { getSensorData, SensorData } from '@/lib/sensorReader'
 import { getWeatherData } from '@/lib/get-Weather'
 import { getCurrentCoordinates } from '@/lib/get-Location'
 import * as Location from 'expo-location'
+interface Coordinates {
+  latitude: number
+  longitude: number
+}
 const MyComponent = () => {
   const [text, setText] = useState('')
   const [sensorData, setSensorData] = useState<SensorData | null>(null)
@@ -55,30 +59,35 @@ const MyComponent = () => {
     fetchData()
   }, [])
 
-
   const handleButtonPress = async () => {
     try {
-      let { status } = await Location.requestForegroundPermissionsAsync();
+      let { status } = await Location.requestForegroundPermissionsAsync()
       if (status !== 'granted') {
-        console.error('Permission to access location was denied');
-        return;
+        console.error('Permission to access location was denied')
+        return
       }
 
-      let loc = await Location.getCurrentPositionAsync({});
-      const location = `${loc.coords.latitude},${loc.coords.longitude}`;
-      console.log(location);
-      const now = new Date();
-      const currentTime = new Date(now.getTime() - (now.getTimezoneOffset() * 60000)).toISOString();
+      let loc = await Location.getCurrentPositionAsync({})
+      const location = `${loc.coords.latitude},${loc.coords.longitude}`
+      console.log(location)
+      const now = new Date()
+      const currentTime = new Date(
+        now.getTime() - now.getTimezoneOffset() * 60000
+      ).toISOString()
 
       console.log(currentTime)
-      const result = await generatePlan_restaurant(location, currentTime, "driving");
-      console.log(JSON.stringify(result));
+      const result = await generatePlan_restaurant(
+        location,
+        currentTime,
+        'driving'
+      )
+      console.log(JSON.stringify(result))
     } catch (error) {
-      console.error("Error generating recommends:", error);
-      setText("Failed to generate recommends.");
+      console.error('Error generating recommends:', error)
+      setText('Failed to generate recommends.')
     }
-  };
-  
+  }
+
   const handleGetSensor = async () => {
     try {
       console.log('Sensor Data:', sensorData)
@@ -87,7 +96,6 @@ const MyComponent = () => {
       setText('Failed to generate plan.')
     }
   }
-
 
   return (
     <View style={styles.container}>
@@ -100,8 +108,8 @@ const MyComponent = () => {
       <Button title="get sensor" onPress={handleGetSensor} />
       <ShakeDetector />
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
@@ -115,6 +123,6 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     color: 'black',
   },
-});
+})
 
-export default MyComponent;
+export default MyComponent
