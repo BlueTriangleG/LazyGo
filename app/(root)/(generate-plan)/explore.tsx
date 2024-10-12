@@ -121,44 +121,6 @@ export default function TabTwoScreen(props: ExploreProps) {
     );
   }
 
-  // landmark lat&long
-  const latData = {
-    1: [
-      {
-        lat: 35.6544,
-        long: 139.748,
-        title: 'Shiba Park',
-        description: '芝公园，靠近东京铁塔的大型绿地。',
-      },
-      {
-        lat: 35.6586,
-        long: 139.7454,
-        title: 'Tokyo Tower',
-        description: '东京铁塔',
-      },
-    ],
-    2: [
-      {
-        lat: 35.658,
-        long: 139.7488,
-        title: 'Zojoji Temple',
-        description: '增上寺，东京著名的佛教寺庙。',
-      },
-      {
-        lat: 35.6604,
-        long: 139.7292,
-        title: 'Roppongi Hills',
-        description: '六本木新城，时尚和文化的中心。',
-      },
-      {
-        lat: 35.665,
-        long: 139.7495,
-        title: 'Atago Shrine',
-        description: '爱宕神社，历史悠久的庙宇和著名的石阶。',
-      },
-    ],
-  }
-
   return (
     <View style={{ flex: 1 }}>
       {/* Full-Screen Lottie Animation Modal */}
