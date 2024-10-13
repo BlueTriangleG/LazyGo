@@ -2,7 +2,7 @@ import React from 'react';
 
 const plusVisited = async (title: string, email: string) => {
   try {
-    // 发起 GET 请求，通过 title 和 email 查询数据库
+    // 发起 GET 请求，通过 email 和 title 查询数据库
     const checkResponse = await fetch(`/(api)/VisitedPlaces?email=${email}&title=${title}`, {
       method: 'GET',
       headers: {
@@ -10,21 +10,15 @@ const plusVisited = async (title: string, email: string) => {
       },
     });
 
-    // 解析响应结果
     const checkResult = await checkResponse.json();
     
-    // 如果请求成功
+    // 检查响应状态
     if (checkResponse.ok) {
-      // 打印数据库查询到的结果
-      console.log('Database query result:', checkResult);
-      
-      // 如果有数据返回，打印详细信息
       if (checkResult.length > 0) {
         console.log('Record found:', checkResult[0]);
         
-        // 增加 visit_count
-        const visitCount = checkResult[0].visit_count + 1;
-        const id = checkResult[0].id; // 假设记录中有id字段
+        const visitCount = checkResult[0].visit_count + 1; // 增加访问计数
+        const id = checkResult[0].id;
         console.log('Updated visit count:', visitCount);
 
         // 使用 DELETE 请求删除记录
@@ -48,7 +42,7 @@ const plusVisited = async (title: string, email: string) => {
             body: JSON.stringify({
               email,
               title,
-              visit_count: visitCount,
+              visit_count: visitCount, // 使用更新后的 visit_count
             }),
           });
 
@@ -66,14 +60,33 @@ const plusVisited = async (title: string, email: string) => {
         }
 
       } else {
-        console.log('No record found for the given title and email');
+        // 如果没有找到记录，插入新的记录
+        console.log('No record found for the given title and email. Inserting new record.');
+        
+        const insertResponse = await fetch(`/(api)/VisitedPlaces`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email,
+            title,
+            visit_count: 1, // 初始 visit_count 为 1
+          }),
+        });
+
+        // 检查插入请求的响应
+        if (insertResponse.ok) {
+          console.log('New record inserted successfully with visit count set to 1.');
+        } else {
+          const insertResult = await insertResponse.json();
+          console.error('POST request failed:', insertResult);
+        }
       }
     } else {
-      // 请求失败时打印错误信息
       console.error('GET request failed:', checkResult);
     }
   } catch (error) {
-    // 捕获请求过程中的错误
     console.error('Error fetching data from the database:', error);
   }
 };

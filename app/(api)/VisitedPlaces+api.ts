@@ -33,14 +33,25 @@ export async function POST(request: Request) {
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get('email');
+  const title = searchParams.get('title'); // 获取 title 参数
 
   try {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
     
-    // 从 VisitedPlaces 表中查询数据
-    const response = await sql`
-      SELECT * FROM VisitedPlaces WHERE email = ${email}
-    `;
+    let response;
+
+    // 根据参数决定查询的条件
+    if (title) {
+      // 如果有 title，使用 email 和 title 查询
+      response = await sql`
+        SELECT * FROM VisitedPlaces WHERE email = ${email} AND title = ${title}
+      `;
+    } else {
+      // 如果没有 title，仅通过 email 查询
+      response = await sql`
+        SELECT * FROM VisitedPlaces WHERE email = ${email}
+      `;
+    }
 
     // 返回查询结果
     return new Response(JSON.stringify(response), { status: 200 });
@@ -50,6 +61,7 @@ export async function GET(request: Request) {
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }
+
 
 export async function PUT(request: Request) {
   try {
