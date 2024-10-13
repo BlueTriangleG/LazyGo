@@ -16,11 +16,18 @@ import CustomButton from '@/components/CustomButton'
 import { ProgressBar } from 'react-native-paper'
 import { useLocalSearchParams } from 'expo-router'
 import { getCurrentLocation } from '@/lib/location'
-import { Activity, generatePlan_attractions, generatePlan_cafe, generatePlan_entertainment, generatePlan_restaurant, Plan } from '@/lib/gpt-plan-generate'
+import {
+  Activity,
+  generatePlan_attractions,
+  generatePlan_cafe,
+  generatePlan_entertainment,
+  generatePlan_restaurant,
+  Plan,
+} from '@/lib/gpt-plan-generate'
 import { router } from 'expo-router'
 
-import TravelCard from '@/components/TravelPlanComponent/TravelCard';
-import * as Location from 'expo-location';
+import TravelCard from '@/components/TravelPlanComponent/TravelCard'
+import * as Location from 'expo-location'
 
 type Message = {
   content: string | React.JSX.Element
@@ -28,12 +35,12 @@ type Message = {
 }
 
 export type UserConfig = {
-    minPrice?: number;
-    maxPrice?: number;
-    departureTime: string;
-    transportation: string;
-    placeType?: string;
-    people?: string;
+  minPrice?: number
+  maxPrice?: number
+  departureTime: string
+  transportation: string
+  placeType?: string
+  people?: string
 }
 
 export type ChatProps = {
@@ -79,17 +86,19 @@ const Chat = (props: ChatProps) => {
     Object.values(presetOptions).find((options) => options.keyword === 'init')
       ?.options.length || 0
 
-    const initializeLocation = async () => {
-        let { status } = await Location.requestForegroundPermissionsAsync();
-        if (status !== 'granted') {
-            Alert.alert('Permission to access location was denied');
-            return;
-        }
+  const initializeLocation = async () => {
+    let { status } = await Location.requestForegroundPermissionsAsync()
+    if (status !== 'granted') {
+      Alert.alert('Permission to access location was denied')
+      return
+    }
 
-        let location = await Location.getCurrentPositionAsync({});
-        setCurrentLocation(`${location.coords.latitude},${location.coords.longitude}`);
-        console.log(`${location.coords.latitude},${location.coords.longitude}`);
-    };
+    let location = await Location.getCurrentPositionAsync({})
+    setCurrentLocation(
+      `${location.coords.latitude},${location.coords.longitude}`
+    )
+    console.log(`${location.coords.latitude},${location.coords.longitude}`)
+  }
 
   // Initialize chat with the first message from preset chats
   useEffect(() => {
@@ -235,77 +244,103 @@ const Chat = (props: ChatProps) => {
       futureTime.getTime() - futureTime.getTimezoneOffset() * 60000
     ).toISOString()
 
-        // Call API to generate plan
-        let result: Plan | void;
-        switch (chatParams.placeType) {
-            case 'restaurant':
-                result = await generatePlan_restaurant(currentLocation, departureTime, userConfig.transportation, userConfig.minPrice, userConfig.maxPrice);
-                break;
-            case 'cafe':
-                result = await generatePlan_cafe(currentLocation, departureTime, userConfig.transportation, userConfig.minPrice, userConfig.maxPrice);
-                break;
-            case 'attraction':
-                result = await generatePlan_attractions(currentLocation, departureTime, userConfig.transportation, userConfig.minPrice, userConfig.maxPrice);
-                break;
-            case 'entertainment':
-                let keywords: string[]; 
-                if (userConfig.people == "alone"){
-                    keywords = ["spa","arcade","cinema","museum","park", "bar"];
-                } else {
-                    keywords = ["bar", "karaoke", "escaperoom","boardgame","bowling"];
-                }
-                result = await generatePlan_entertainment(currentLocation, departureTime, userConfig.transportation, keywords);
-                break;
-            default:
-                Alert.alert('Invalid place type');
-                setGenerating(false);
-                return;
+    // Call API to generate plan
+    let result: Plan | void
+    switch (chatParams.placeType) {
+      case 'restaurant':
+        result = await generatePlan_restaurant(
+          currentLocation,
+          departureTime,
+          userConfig.transportation,
+          userConfig.minPrice,
+          userConfig.maxPrice
+        )
+        break
+      case 'cafe':
+        result = await generatePlan_cafe(
+          currentLocation,
+          departureTime,
+          userConfig.transportation,
+          userConfig.minPrice,
+          userConfig.maxPrice
+        )
+        break
+      case 'attraction':
+        result = await generatePlan_attractions(
+          currentLocation,
+          departureTime,
+          userConfig.transportation,
+          userConfig.minPrice,
+          userConfig.maxPrice
+        )
+        break
+      case 'entertainment':
+        let keywords: string[]
+        if (userConfig.people == 'alone') {
+          keywords = ['spa', 'arcade', 'cinema', 'museum', 'park', 'bar']
+        } else {
+          keywords = ['bar', 'karaoke', 'escaperoom', 'boardgame', 'bowling']
         }
-        if (!result) {
-            Alert.alert('Failed to generate plan');
-            return;
-        }
-        const newMessages: Message[] = [];
-        Object.keys(result).forEach((key) => {
-            let activities: Activity[] = result[Number(key)];
-            const newMessage: Message = {
-                content: (
-                    <View>
-                        <View style={styles.separator} />
-                        <Text>Day {key}</Text>
-                        {activities.map((data, index) => {
-                            return (
-                                <View  style={{width: '90%', marginLeft: 30}}>
-                                    <TravelCard
-                                        key={index}  // 确保每个 TravelCard 有唯一的 key
-                                        time={data.time}
-                                        duration={data.duration}
-                                        destination={data.destination}
-                                        destinationDescrib={data.destinationDescrib}
-                                        destinationDuration={data.destinationDuration}
-                                        transportation={data.transportation}
-                                        distance={data.distance}
-                                        estimatedPrice={data.estimatedPrice}
-                                        startLocation={data.startLocation}
-                                        endLocation={data.endLocation}
-                                    />
-                                </View>
-                            );
-                        })}
-                        <CustomButton title={"Check Details"} 
-                            className="mt-6 bg-orange-300"
-                            onPress={() => {handleCheckDetails(key, result)}}
-                        />
-                        <View style={styles.separator} />
-                    </View>
-                ),
-                sender: "bot",
-            };
-            newMessages.push(newMessage);
-        });
-        setMessages([...messages, ...newMessages]);
-        setGenerating(false);
+        result = await generatePlan_entertainment(
+          currentLocation,
+          departureTime,
+          userConfig.transportation,
+          keywords
+        )
+        break
+      default:
+        Alert.alert('Invalid place type')
+        setGenerating(false)
+        return
     }
+    if (!result) {
+      Alert.alert('Failed to generate plan')
+      return
+    }
+    const newMessages: Message[] = []
+    Object.keys(result).forEach((key) => {
+      let activities: Activity[] = result[Number(key)]
+      const newMessage: Message = {
+        content: (
+          <View>
+            <View className="h-px bg-gray-300 my-6" />
+            <Text>Day {key}</Text>
+            {activities.map((data, index) => {
+              return (
+                <View style={{ width: '90%', marginLeft: 30 }}>
+                  <TravelCard
+                    key={index} // 确保每个 TravelCard 有唯一的 key
+                    time={data.time}
+                    duration={data.duration}
+                    destination={data.destination}
+                    destinationDescrib={data.destinationDescrib}
+                    destinationDuration={data.destinationDuration}
+                    transportation={data.transportation}
+                    distance={data.distance}
+                    estimatedPrice={data.estimatedPrice}
+                    startLocation={data.startLocation}
+                    endLocation={data.endLocation}
+                  />
+                </View>
+              )
+            })}
+            <CustomButton
+              title={'Check Details'}
+              className="mt-6 bg-orange-300"
+              onPress={() => {
+                handleCheckDetails(key, result)
+              }}
+            />
+            <View className="h-px bg-gray-300 my-6" />
+          </View>
+        ),
+        sender: 'bot',
+      }
+      newMessages.push(newMessage)
+    })
+    setMessages([...messages, ...newMessages])
+    setGenerating(false)
+  }
 
   return (
     <SafeAreaView className="flex-1 h-full">
