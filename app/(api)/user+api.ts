@@ -25,8 +25,6 @@ export async function GET(request: Request) {
     const url = new URL(request.url)
     let email = url.searchParams.get('email')
     // change email to lower case
-
-    console.log('email:', email)
     if (!email) {
       return new Response(
         JSON.stringify({ error: 'Email query parameter is required' }),
