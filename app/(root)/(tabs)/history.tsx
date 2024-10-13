@@ -12,6 +12,9 @@ const History = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
 
+const [travels, setTravels] = useState([]);
+
+
   const images = [
     require('../../../assets/images/TravelCard/his1.jpg'),
     require('../../../assets/images/TravelCard/his2.jpg'),
@@ -22,12 +25,14 @@ const History = () => {
     return images[randomIndex];
   };
 
-  const handleCheckDetails = (key, plan) => {
-    router.push({
-      pathname: '/(root)/(generate-plan)/explore',
-      params: { date: key, plan: JSON.stringify(plan) },
-    });
-  };
+
+const handleCheckDetails = (key, plan) => {
+  router.push({
+    pathname: '/(root)/(generate-plan)/detail',
+    params: { date: key, plan: JSON.stringify(plan) },
+  });
+};
+
 
   useEffect(() => {
     const fetchTravelHistoryFromApi = async () => {
