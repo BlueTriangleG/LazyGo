@@ -1,11 +1,9 @@
 import { neon } from '@neondatabase/serverless';
 
-// POST 方法：用于插入新的旅行历史记录
 export async function POST(request: Request) {
   try {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
 
-    // 从请求中获取 JSON 数据
     const {
       duration,
       destination,
@@ -20,7 +18,6 @@ export async function POST(request: Request) {
       email,
     } = await request.json();
 
-    // 检查必填字段
     if (
       !duration ||
       !destination ||
@@ -78,7 +75,6 @@ export async function POST(request: Request) {
   }
 }
 
-// GET 方法：用于获取指定用户的旅行历史记录
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get('email');
@@ -86,7 +82,6 @@ export async function GET(request: Request) {
   try {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
     
-    // 检查 email 是否提供
     if (!email) {
       return new Response(
         JSON.stringify({ error: 'Missing email parameter' }),
@@ -94,16 +89,16 @@ export async function GET(request: Request) {
       );
     }
 
-    // 从 TravelHistory 表中查询数据
+    // data from TravelHistory 
     const response = await sql`
       SELECT * FROM TravelHistory WHERE email = ${email}
     `;
 
-    // 返回查询结果
+
     return new Response(JSON.stringify(response), { status: 200 });
 
   } catch (error) {
-    console.error('获取 TravelHistory 数据时出错:', error);
+    console.error('Error TravelHistory :', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }

@@ -2,12 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, FlatList, StyleSheet, ImageBackground, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation } from '@react-navigation/native';
+import Icon from 'react-native-vector-icons/Ionicons'; // 引入图标库
+import { useNavigation } from '@react-navigation/native'; // 引入 useNavigation 钩子
 import { router } from 'expo-router';
 
 const History = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation(); // 获取导航对象
   const [travelHistory, setTravelHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -26,13 +26,27 @@ const [travels, setTravels] = useState([]);
   };
 
 
-const handleCheckDetails = (key, plan) => {
-  router.push({
-    pathname: '/(root)/(generate-plan)/detail',
-    params: { date: key, plan: JSON.stringify(plan) },
-  });
-};
-
+  // 处理跳转和参数传递
+  const handleCheckDetails = (item) => {
+    console.log("+++++++++++",item);
+    router.push({
+      pathname: '/(root)/(generate-plan)/detail', // 跳转到目标页面
+      params: {
+        id: item.id,
+        duration: item.duration,
+        destination: item.destination,
+        destinationDescrib: item.destinationdescrib,
+        destinationDuration: item.destinationDuration,
+        transportation: item.transportation,
+        distance: item.distance,
+        estimatedPrice: item.estimatedprice,
+        startLocation: item.startlocation,
+        endLocation: item.endlocation,
+        detailedInfo: item.detailedinfo,
+        email: item.email,
+      },
+    });
+  };
 
   useEffect(() => {
     const fetchTravelHistoryFromApi = async () => {
@@ -55,7 +69,7 @@ const handleCheckDetails = (key, plan) => {
         }
 
         const result = await response.json();
-
+        console.log("=========",result);
         if (!Array.isArray(result)) {
           console.error('Wrong Data:', result);
           return;
@@ -76,6 +90,7 @@ const handleCheckDetails = (key, plan) => {
     };
 
     fetchTravelHistoryFromApi();
+
   }, []);
 
   if (loading) {
@@ -96,25 +111,25 @@ const handleCheckDetails = (key, plan) => {
   }
 
   return (
-    <ImageBackground
+    <ImageBackground 
       source={require('../../../assets/images/yellow.png')}
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-      <View style={styles.overlay} />
+      <View style={styles.overlay} /> 
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>Travel History</Text>
         <FlatList
           data={travelHistory}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity
+            <TouchableOpacity 
               style={styles.cardContainer}
-              onPress={() => handleCheckDetails(1, item)} // 点击时跳转并传递数据
+              onPress={() => handleCheckDetails(item)} // 点击时跳转并传递数据
             >
-              <Image
-                source={getRandomImage()} // 使用随机选择的图片
-                style={styles.cardImage}
+              <Image 
+                source={require('../../../assets/images/TravelCard/his1.jpg')}
+                style={styles.cardImage} 
               />
               <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>目的地: {item.destination}</Text>
@@ -175,7 +190,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
-    alignItems: 'center',
+    alignItems: 'center', // 垂直居中对齐
   },
   cardImage: {
     width: 60,
@@ -196,7 +211,7 @@ const styles = StyleSheet.create({
     color: '#777',
   },
   arrowIcon: {
-    marginLeft: 10,
+    marginLeft: 10, // 箭头与文本之间的间距
   },
   separator: {
     height: 10,
