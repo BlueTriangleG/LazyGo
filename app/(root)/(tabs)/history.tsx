@@ -23,10 +23,15 @@ const [travels, setTravels] = useState([]);
     return images[randomIndex];
   };
 
+<<<<<<< Updated upstream
 const handleCheckDetails = (key, plan) => {
+=======
+
+const handleCheckDetails = (plan) => {
+>>>>>>> Stashed changes
   router.push({
     pathname: '/(root)/(generate-plan)/detail',
-    params: { date: key, plan: JSON.stringify(plan) },
+    params: { plan: JSON.stringify(plan) },
   });
 };
 
@@ -107,7 +112,7 @@ const handleCheckDetails = (key, plan) => {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.cardContainer}
-              onPress={() => handleCheckDetails(1, item)} // 点击时跳转并传递数据
+              onPress={() => handleCheckDetails(item)} // 点击时跳转并传递数据
             >
               <Image
                 source={getRandomImage()} // 使用随机选择的图片
