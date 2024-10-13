@@ -1,9 +1,10 @@
 import React, { useEffect } from 'react';
-import { Text, View, StyleSheet, SafeAreaView } from 'react-native';
-import { useRoute } from '@react-navigation/native'; // 引入 useRoute 钩子
+import { Text, View, StyleSheet, SafeAreaView, Button, Alert } from 'react-native';
+import { useRoute } from '@react-navigation/native';
+import plusVisited from '@/components/plusVisited'; // 引入 plusVisited 函数
 
 const Detail = () => {
-  const route = useRoute(); // 获取路由对象
+  const route = useRoute();
   const {
     id,
     duration,
@@ -17,7 +18,7 @@ const Detail = () => {
     endLocation,
     detailedInfo,
     email,
-  } = route.params || {}; // 获取传递的参数
+  } = route.params || {};
 
   // 使用 useEffect 打印收到的数据
   useEffect(() => {
@@ -37,6 +38,22 @@ const Detail = () => {
     });
   }, [id, duration, destination, destinationDescrib, destinationDuration, transportation, distance, estimatedPrice, startLocation, endLocation, detailedInfo, email]);
 
+  // 点击按钮时调用 plusVisited 函数
+  const handleTestVisit = async () => {
+    if (!destination) {
+      Alert.alert('Error', '没有目的地，无法测试');
+      return;
+    }
+
+    try {
+      await plusVisited("The Savoy Hotel on Little Collins Melbourne","asukasaitolee@gmail.com"); // 传递目的地名
+      Alert.alert('Success', `Visited count updated for: ${destination}`);
+    } catch (error) {
+      Alert.alert('Error', '测试过程中出错');
+      console.error('Error calling plusVisited:', error);
+    }
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <Text style={styles.title}>旅行详情</Text>
@@ -52,6 +69,9 @@ const Detail = () => {
         <Text style={styles.detailText}>详细信息: {detailedInfo}</Text>
         <Text style={styles.detailText}>用户邮箱: {email}</Text>
       </View>
+      
+      {/* 添加按钮来测试调用 plusVisited */}
+      <Button title="测试 plusVisited" onPress={handleTestVisit} />
     </SafeAreaView>
   );
 };
