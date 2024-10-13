@@ -18,7 +18,6 @@ const Detail = () => {
     detailedInfo,
     email,
   } = route.params || {}; // 获取传递的参数
-
   // 使用 useEffect 打印收到的数据
   useEffect(() => {
     console.log('Received Data:', {
