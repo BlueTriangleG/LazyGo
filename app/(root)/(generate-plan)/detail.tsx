@@ -40,13 +40,8 @@ const Detail = () => {
 
   // 点击按钮时调用 plusVisited 函数
   const handleTestVisit = async () => {
-    if (!destination) {
-      Alert.alert('Error', '没有目的地，无法测试');
-      return;
-    }
-
     try {
-      await plusVisited("The Savoy Hotel on Little Collins Melbourne","asukasaitolee@gmail.com"); // 传递目的地名
+      await plusVisited("0000003333330","asukasaitolee@gmail.com"); // 传递目的地名
       Alert.alert('Success', `Visited count updated for: ${destination}`);
     } catch (error) {
       Alert.alert('Error', '测试过程中出错');
