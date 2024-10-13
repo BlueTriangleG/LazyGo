@@ -15,6 +15,7 @@ import {
   Image,
   ImageBackground,
   TouchableOpacity,
+  Modal,
 } from 'react-native'
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
 import { SafeAreaView } from 'react-native-safe-area-context'
@@ -29,6 +30,8 @@ import { getWeatherData } from '@/lib/get-Weather'
 import { getCurrentCoordinates } from '@/lib/get-Location'
 import * as Location from 'expo-location'
 import { set } from 'date-fns'
+import LottieView from 'lottie-react-native'
+
 interface Coordinates {
   latitude: number
   longitude: number
@@ -245,30 +248,45 @@ export default function Page() {
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Tips from Lazy Go
             </Text>
-            <ScrollView className="w-max h-64 bg-white rounded-lg shadow my-1">
-              <View className="w-full h-full p-2">
-                <Text className="text-gray-900 m-1 font-Jakarta text-sm">
-                  {recommend !== '' ? recommend : 'Fetching recommendations...'}
-                </Text>
-              </View>
+            <ScrollView className="w-full h-64 p-2 bg-white rounded-lg shadow my-1">
+              {recommend !== '' ? (
+                <View className="w-full h-full">
+                  <Text className="text-gray-900 m-1 font-Jakarta text-sm">
+                    {recommend}
+                  </Text>
+                </View>
+              ) : (
+                <View className="w-full h-64 justify-center items-center">
+                  <LottieView
+                    source={require('../../../assets/animation/animation2.json')} // Full-screen success animation path
+                    autoPlay
+                    style={{ width: 120, height: 120 }} // Customize size
+                  />
+                </View>
+              )}
             </ScrollView>
-            <View className="w-max mt-2 h-36 bg-white rounded-lg shadow my-3">
+            <View className="w-max h-36 bg-white rounded-lg shadow my-3">
               {!location ? (
-                <View className="w-max mt-2 h-36 bg-white rounded-lg shadow my-3"></View>
+                <View className="flex justify-center items-center w-max h-max">
+                  <LottieView
+                    source={require('../../../assets/animation/animation2.json')} // Full-screen success animation path
+                    autoPlay
+                    style={{ width: 120, height: 120 }} // Customize size
+                  />
+                </View>
               ) : (
                 <MapView
                   style={{ flex: 1 }}
                   initialRegion={{
                     latitude: location.latitude,
                     longitude: location.longitude,
-                    latitudeDelta: 0.006, // 控制缩放级别
+                    latitudeDelta: 0.006,
                     longitudeDelta: 0.006,
                   }}
-                  provider={mapProvider} // 根据平台设置地图提供商
-                  showsUserLocation={true} // 显示用户当前位置
-                  showsMyLocationButton={true} // 显示定位按钮
-                  showsCompass={true} // 显示指南针
-                >
+                  provider={mapProvider}
+                  showsUserLocation={true}
+                  showsMyLocationButton={true}
+                  showsCompass={true}>
                   {/* 你可以在这里添加 Markers 或其他组件 */}
                   <Marker
                     coordinate={{
@@ -291,7 +309,7 @@ export default function Page() {
             }}
           />
           <CustomButton
-            className="mt-6 bg-red-300"
+            className="mt-6 mb-20 bg-red-300"
             title="Travel Plan Test"
             onPress={async () => {
               router.push('/(root)/(generate-plan)/explore')
