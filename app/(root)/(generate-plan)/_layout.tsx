@@ -13,7 +13,7 @@ export default function Layout() {
       <View className="flex-1">
         <Stack>
           <Stack.Screen name="gpt_test" />
-          <Stack.Screen name="explore" />
+          <Stack.Screen name="explore" options={{ headerShown: false }} />
           <Stack.Screen name="chat" options={{ headerShown: false }} />
         </Stack>
       </View>
