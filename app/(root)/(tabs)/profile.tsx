@@ -18,6 +18,7 @@ import { router } from 'expo-router'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { useEffect, useState } from 'react'
 import { icons, images } from '@/constants'
+import FavoriteComponent from '@/components/favourite/favoriteCollect'
 
 const Profile = () => {
   const { signOut } = useAuth()
@@ -52,12 +53,6 @@ const Profile = () => {
       console.error('Error signing out:', error)
     }
   }
-
-  const handleFavorite = () => {
-    router.push('/(root)/(generate-plan)/favoriteCollect') // 跳转到收藏页面（假设有个收藏页面）
-    console.log('Navigating to favorite page')
-  }
-
   const header = () => {
     return (
       <ImageBackground
@@ -82,9 +77,8 @@ const Profile = () => {
   return (
     <View className="flex-1 justify-between">
       <View className="mt-0">{header()}</View>
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-        {/* 添加Favorite按钮 */}
-        <Button title="Favorite" onPress={handleFavorite} />
+      <View className="relative flex-1 bg-[#fde6ec] ">
+        <FavoriteComponent />
       </View>
     </View>
   )
