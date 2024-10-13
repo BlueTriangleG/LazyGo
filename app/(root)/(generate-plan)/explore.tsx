@@ -222,7 +222,7 @@ export default function TabTwoScreen(props: ExploreProps) {
           </View>
 
           <View style={styles.mapContainer}>
-            {console.log("latData1 before passing to Map:", latData1[selectedDay])}
+            {/* {console.log("latData1 before passing to Map:", latData1[selectedDay])} */}
             <Map coords={latData1[selectedDay]} />
           </View>
 
