@@ -72,7 +72,6 @@ export const getWeatherData = async (
         condition: data.daily[0].weather[0].description,
       },
     }
-    console.log(result)
 
     // Return the formatted data
     return result

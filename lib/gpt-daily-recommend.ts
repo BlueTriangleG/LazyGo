@@ -43,12 +43,12 @@ async function getRecommends(
 
   const url = 'https://api.openai.com/v1/chat/completions'
 
-    const requestBody = {
-        model: "gpt-4o-mini",
-        messages: [
-            {
-                role: "system",
-                content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 3 dataset will be given, you must completely randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error. If there are n datasets, the list must only contain n recommendations.
+  const requestBody = {
+    model: 'gpt-4o-mini',
+    messages: [
+      {
+        role: 'system',
+        content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 3 dataset will be given, you must completely randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error. If there are n datasets, the list must only contain n recommendations.
                 "destination" is the true name of the destination in the data given."destination describ" is the description of the destination."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data).
                 Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. You should only choose the destinations from the given Google Map API data. YOu must return the json 
                 in the form of string without \`\`\`.Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. 
@@ -76,8 +76,6 @@ async function getRecommends(
   }
 }
 
-
-
 export async function getRecommendsTips(
   requestMessage: string
 ): Promise<RecommendDetail[] | void> {
@@ -89,16 +87,17 @@ export async function getRecommendsTips(
   const url = 'https://api.openai.com/v1/chat/completions'
   console.log('requestMessage:', requestMessage)
   const requestBody = {
-    model: 'gpt-4o-mini',
+    model: 'gpt-4o',
     messages: [
       {
         role: 'system',
         content: `You are playing a cosplay game with me, you are a my cute girlfriend that needs more of this environmental information to give your users some advice. 
-        You will receive a dictionary of environmental information in the format ${SensorData}. And a dictionary about the weather. Based on what's on these dictionaries, you need to 
+        You will receive a dictionary of environmental information in the format ${SensorData}. And a dictionary about the weather. The time about the weather forcasting is next hour. Giving suggestions according to that time.
+        Based on what's on these background informations, you need to 
         output some natural language suggestions to the user. Don't show the actual data if the data is hard to understand for the user, only show the suggestions. The suggestions should
         include topics about: Weather and outdoor activities suggestions, Health suggestions related to the environment, and Pedometer data, light suggetions. If you don't receive the required
-        data, dont't show the suggestions about it. These suggestions need to be very useful in everyday life. Remember you are playing as a people, don't show you are a robot.
-         Only use natural language, no text formate and emojis. You need to focus on caring for me in your language! Try to try to reflect your cuteness in words`,
+        data, dont't show the suggestions about it. These suggestions need to be very useful in everyday life. The Remember you are playing as a people, don't show you are a robot.
+         Only use natural language. ensure you return right formate.  使用中文回复。 You need to focus on caring for me in your language!`,
       },
       { role: 'user', content: requestMessage },
     ],
@@ -122,19 +121,20 @@ export async function getRecommendsTips(
   }
 }
 
-
-export async function generateDailyRecommends(currentLocation:string): Promise<RecommendDetail[] | void> {
-  try{
-    let data_string = "";
+export async function generateDailyRecommends(
+  currentLocation: string
+): Promise<RecommendDetail[] | void> {
+  try {
+    let data_string = ''
     const promises = Types.map(async (type) => {
       const placesJson = await getNearbyPlaces(currentLocation, 2500, type)
       const filteredPlacesJson = filterGoogleMapData(placesJson)
       data_string += `${type}: ${JSON.stringify(filteredPlacesJson)};`
     })
 
-    await Promise.all(promises);
-   
-    let requestString = `${data_string}` 
+    await Promise.all(promises)
+
+    let requestString = `${data_string}`
     let recommends = await getRecommends(requestString)
     if (!recommends) {
       console.error('No valid recommend returned')
