@@ -62,7 +62,7 @@ export const FavoriteComponent = () => {
 
   // 渲染卡片
   const renderFavoriteCard = ({ item }) => (
-    <View className="flex-1 bg-pink-50 rounded-[12px] p-2 mb-4 shadow-md h-32 ">
+    <View className="flex-1 bg-white rounded-[12px] p-2 mb-4 shadow-md h-32 ">
       <Text className="text-[18px] font-bold">{item.transportation}</Text>
       <Text className="text-[14px] mt-1" style={{ color: '#555' }}>
         {item.description}
