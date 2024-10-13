@@ -2,21 +2,34 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, FlatList, StyleSheet, ImageBackground, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/Ionicons'; // 引入图标库
-import { useNavigation } from '@react-navigation/native'; // 引入 useNavigation 钩子
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
 
 const History = () => {
-  const navigation = useNavigation(); // 获取导航对象
+  const navigation = useNavigation();
   const [travelHistory, setTravelHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const handleCheckDetails = (key: string, plan: Plan) => {
-    router.push({
-        pathname: '/(root)/(generate-plan)/explore',
-        params: { date: key, plan: JSON.stringify(plan) }
-    });
+const [travels, setTravels] = useState([]);
+
+  const images = [
+    require('../../../assets/images/TravelCard/his1.jpg'),
+    require('../../../assets/images/TravelCard/his2.jpg'),
+  ];
+
+  const getRandomImage = () => {
+    const randomIndex = Math.floor(Math.random() * images.length);
+    return images[randomIndex];
+  };
+
+const handleCheckDetails = (key, plan) => {
+  router.push({
+    pathname: '/(root)/(generate-plan)/detail',
+    params: { date: key, plan: JSON.stringify(plan) },
+  });
 };
+
 
   useEffect(() => {
     const fetchTravelHistoryFromApi = async () => {
@@ -80,26 +93,25 @@ const History = () => {
   }
 
   return (
-    <ImageBackground 
+    <ImageBackground
       source={require('../../../assets/images/yellow.png')}
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-      <View style={styles.overlay} /> 
+      <View style={styles.overlay} />
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>Travel History</Text>
         <FlatList
           data={travelHistory}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.cardContainer}
               onPress={() => handleCheckDetails(1, item)} // 点击时跳转并传递数据
             >
-              <Image 
-                source={require('../../../assets/images/TravelCard/his1.jpg')}
-                style={styles.cardImage} 
+              <Image
+                source={getRandomImage()} // 使用随机选择的图片
+                style={styles.cardImage}
               />
               <View style={styles.cardContent}>
                 <Text style={styles.cardTitle}>目的地: {item.destination}</Text>
@@ -160,7 +172,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
-    alignItems: 'center', // 垂直居中对齐
+    alignItems: 'center',
   },
   cardImage: {
     width: 60,
@@ -181,7 +193,7 @@ const styles = StyleSheet.create({
     color: '#777',
   },
   arrowIcon: {
-    marginLeft: 10, // 箭头与文本之间的间距
+    marginLeft: 10,
   },
   separator: {
     height: 10,
