@@ -5,7 +5,7 @@ export async function POST(request: Request) {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
 
     // 从请求中获取 JSON 数据
-    const { email, title, visit_count } = await request.json();
+    const { email, title, visit_count, id } = await request.json();
 
     // 检查必填字段
     if (!email || !title) {
@@ -15,20 +15,29 @@ export async function POST(request: Request) {
       );
     }
 
-    // 插入数据到 VisitedPlaces 表
-    const response = await sql`
-      INSERT INTO VisitedPlaces (email, title, visit_count)
-      VALUES (${email}, ${title}, ${visit_count || 1})
-    `;
+    // 如果提供了 id，则使用 id 插入，否则只插入 email、title 和 visit_count
+    let response;
+    if (id) {
+      response = await sql`
+        INSERT INTO VisitedPlaces (id, email, title, visit_count)
+        VALUES (${id}, ${email}, ${title}, ${visit_count || 1})
+      `;
+    } else {
+      response = await sql`
+        INSERT INTO VisitedPlaces (email, title, visit_count)
+        VALUES (${email}, ${title}, ${visit_count || 1})
+      `;
+    }
 
     // 返回成功响应
     return new Response(JSON.stringify({ data: response }), { status: 201 });
 
   } catch (error) {
-    console.error(error);
+    console.error('插入 VisitedPlaces 数据时出错:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }
+
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

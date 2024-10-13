@@ -43,6 +43,7 @@ const plusVisited = async (title: string, email: string) => {
               email,
               title,
               visit_count: visitCount, // 使用更新后的 visit_count
+              id,
             }),
           });
 
