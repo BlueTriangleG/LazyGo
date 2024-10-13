@@ -244,11 +244,11 @@ export default function Page() {
           <View className="h-px bg-gray-300 my-1" />
 
           {/* 第三部分：Tips部分，需要下滑才能看到 */}
-          <View className="flex-1 px-4 my-1 ">
+          <View className="px-2 my-1">
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Tips from Lazy Go
             </Text>
-            <ScrollView className="w-full h-64 p-2 bg-white rounded-lg shadow my-1">
+            <ScrollView className="w-max h-64 m-2 p-2 bg-white rounded-lg shadow my-1">
               {recommend !== '' ? (
                 <View className="w-full h-full">
                   <Text className="text-gray-900 m-1 font-Jakarta text-sm">
@@ -265,7 +265,7 @@ export default function Page() {
                 </View>
               )}
             </ScrollView>
-            <View className="w-max h-36 bg-white rounded-lg shadow my-3">
+            <View className="w-max m-2 h-36 bg-white rounded-lg shadow my-3">
               {!location ? (
                 <View className="flex justify-center items-center w-max h-max">
                   <LottieView
@@ -306,13 +306,6 @@ export default function Page() {
             title="Generate Plan"
             onPress={async () => {
               router.push('/(root)/(generate-plan)/gpt_test')
-            }}
-          />
-          <CustomButton
-            className="mt-6 mb-20 bg-red-300"
-            title="Travel Plan Test"
-            onPress={async () => {
-              router.push('/(root)/(generate-plan)/explore')
             }}
           />
         </SignedIn>

@@ -13,17 +13,14 @@ import {
 import ParallaxScrollView from '@/components/TravelPlanComponent/ParallaxScrollView'
 import TravelCard from '@/components/TravelPlanComponent/TravelCard'
 import Map from '@/components/TravelPlanComponent/Map'
-import AddMoreRes from '@/components/TravelPlanComponent/AddMoreRes';
+import AddMoreRes from '@/components/TravelPlanComponent/AddMoreRes'
 import { generatePlan_restaurant } from '@/lib/gpt-plan-generate'
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import LottieView from 'lottie-react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import LottieView from 'lottie-react-native'
 
 import { getCurrentLocation } from '@/lib/location'
 import { useLocalSearchParams } from 'expo-router'
-
-
-
-
+import { SafeAreaView } from 'react-native-safe-area-context'
 
 export type ExploreProps = {
   date: string
@@ -32,96 +29,99 @@ export type ExploreProps = {
 
 // main page for travel plan
 export default function TabTwoScreen(props: ExploreProps) {
-  const exploreParams: ExploreProps = useLocalSearchParams();
+  const exploreParams: ExploreProps = useLocalSearchParams()
   // store current day
   const [selectedDay, setSelectedDay] = useState(1)
-  const [modalVisible, setModalVisible] = useState(false);
-  const [currentLocation, setCurrentLocation] = useState<string>("");
+  const [modalVisible, setModalVisible] = useState(false)
+  const [currentLocation, setCurrentLocation] = useState<string>('')
 
   // Initialize TravelData as an empty array or your expected data structure
-  const [travelData, setTravelData] = useState([]);
-  const [loading, setLoading] = useState(true); // Loading state
-  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false); // Animation control state
-  const [latData1, setLatData1] = useState({}); // Initialize as an object
-  const [email, setEmail] = useState<string | null>(null);
-  
+  const [travelData, setTravelData] = useState([])
+  const [loading, setLoading] = useState(true) // Loading state
+  const [showSuccessAnimation, setShowSuccessAnimation] = useState(false) // Animation control state
+  const [latData1, setLatData1] = useState({}) // Initialize as an object
+  const [email, setEmail] = useState<string | null>(null)
+
   useEffect(() => {
     // console.log("Explore page params: date: [", exploreParams.date, "], plan: [", exploreParams.plan, "]");
     const fetchEmail = async () => {
-      const storedEmail = await AsyncStorage.getItem('userEmail');
+      const storedEmail = await AsyncStorage.getItem('userEmail')
       if (storedEmail) {
-        setEmail(storedEmail);
+        setEmail(storedEmail)
       }
-      fetchEmail();
-    };
+      fetchEmail()
+    }
 
-    fetchEmail();
+    fetchEmail()
     // Parse travel plan
-    const parsedPlan = JSON.parse(exploreParams.plan);
-    setTravelData(parsedPlan);
+    const parsedPlan = JSON.parse(exploreParams.plan)
+    setTravelData(parsedPlan)
 
-    const newLatData1 = {};
+    const newLatData1 = {}
     // Extract required information
     for (const [key, travels] of Object.entries(parsedPlan)) {
-      newLatData1[key] = travels.map(travel => {
-        const [lat, long] = travel.endLocation.split(',').map(Number);
+      newLatData1[key] = travels.map((travel) => {
+        const [lat, long] = travel.endLocation.split(',').map(Number)
         return {
           lat,
           long,
           title: travel.destination,
           description: travel.destinationDescrib,
-        };
-      });
+        }
+      })
     }
 
     // Update the state with the new lat data
-    setLatData1(newLatData1); // Update state with latData1
+    setLatData1(newLatData1) // Update state with latData1
     if (Object.keys(newLatData1).length > 0) {
-      setLoading(false);
+      setLoading(false)
     }
 
     const fetchRestaurantPlan = async () => {
       try {
-        let curLocation = await getCurrentLocation();
+        let curLocation = await getCurrentLocation()
         if (!curLocation) {
-          Alert.alert('Please enable location service');
-          return;
+          Alert.alert('Please enable location service')
+          return
         }
-        setCurrentLocation(curLocation);
-        const result = await generatePlan_restaurant(curLocation, "2024-09-29T23:00:00Z", "driving");
+        setCurrentLocation(curLocation)
+        const result = await generatePlan_restaurant(
+          curLocation,
+          '2024-09-29T23:00:00Z',
+          'driving'
+        )
         // Directly store the result in travelData
-        setTravelData(result);
+        setTravelData(result)
       } catch (error) {
-        console.error('Error fetching restaurant plan:', error);
+        console.error('Error fetching restaurant plan:', error)
       } finally {
-        setLoading(false); // Set loading to false when done
-        setShowSuccessAnimation(true); // Trigger success animation after loading
+        setLoading(false) // Set loading to false when done
+        setShowSuccessAnimation(true) // Trigger success animation after loading
       }
-    };
+    }
 
     // fetchRestaurantPlan();
-  }, []); // Empty dependency array to run once on mount
+  }, []) // Empty dependency array to run once on mount
 
   const handleAddDestination = () => {
-    setModalVisible(true); // show dialog
-  };
+    setModalVisible(true) // show dialog
+  }
 
   const handleAnimationFinish = () => {
-    setShowSuccessAnimation(false); // Hide animation after it finishes
-  };
-
+    setShowSuccessAnimation(false) // Hide animation after it finishes
+  }
 
   const addToHistory = async (data) => {
     // 调用 handleTravelHistory 函数以更新 TravelHistory 数据库
-    await handleTravelHistory(data);
-  };
-  
+    await handleTravelHistory(data)
+  }
+
   const handleTravelHistory = async (data) => {
     if (!email) {
-      console.error('No Email Found');
-      return;
+      console.error('No Email Found')
+      return
     }
-  
+
     const travelData = {
       duration: data.duration,
       destination: data.destination,
@@ -132,10 +132,10 @@ export default function TabTwoScreen(props: ExploreProps) {
       estimatedPrice: data.estimatedPrice,
       startLocation: data.startLocation,
       endLocation: data.endLocation,
-      detailedInfo: data.detailedInfo || "", // 可选字段
+      detailedInfo: data.detailedInfo || '', // 可选字段
       email,
-    };
-  
+    }
+
     // TravelHistory Database
     try {
       const response = await fetch('/(api)/TravelHistory', {
@@ -144,20 +144,19 @@ export default function TabTwoScreen(props: ExploreProps) {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(travelData),
-      });
-  
-      const result = await response.json();
+      })
+
+      const result = await response.json()
       if (response.ok) {
-        console.log('Travel history added:', result);
+        console.log('Travel history added:', result)
       } else {
-        console.error('Travel history failed:', result);
+        console.error('Travel history failed:', result)
       }
     } catch (error) {
-      console.error('Wrong request:', error);
+      console.error('Wrong request:', error)
     }
-  };
-  
-  
+  }
+
   // Render loading indicator if still fetching data
   if (loading) {
     return (
@@ -177,14 +176,17 @@ export default function TabTwoScreen(props: ExploreProps) {
           <Text style={styles.loadingText}>Loading...</Text>
         </View>
       </ImageBackground>
-    );
+    )
   }
 
   return (
-    <View style={{ flex: 1 }}>
+    <SafeAreaView style={{ flex: 1 }}>
       {/* Full-Screen Lottie Animation Modal */}
       {showSuccessAnimation && (
-        <Modal transparent={false} animationType="fade" visible={showSuccessAnimation}>
+        <Modal
+          transparent={false}
+          animationType="fade"
+          visible={showSuccessAnimation}>
           <View style={styles.modalBackground}>
             <LottieView
               source={require('../../../assets/animation/success.json')} // Full-screen success animation path
@@ -199,15 +201,16 @@ export default function TabTwoScreen(props: ExploreProps) {
 
       {/* Regular ScrollView content */}
       {!showSuccessAnimation && ( // Only show content after animation finishes
-        <ScrollView style={styles.container} showsVerticalScrollIndicator={false}>
+        <ScrollView
+          style={styles.container}
+          showsVerticalScrollIndicator={false}>
           <View style={styles.daySelector}>
             <TouchableOpacity
               style={[
                 styles.dayButton,
                 selectedDay === 1 && styles.selectedDayButton,
               ]}
-              onPress={() => setSelectedDay(1)}
-            >
+              onPress={() => setSelectedDay(1)}>
               <Text style={styles.dayButtonText}>Day 1</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -215,8 +218,7 @@ export default function TabTwoScreen(props: ExploreProps) {
                 styles.dayButton,
                 selectedDay === 2 && styles.selectedDayButton,
               ]}
-              onPress={() => setSelectedDay(2)}
-            >
+              onPress={() => setSelectedDay(2)}>
               <Text style={styles.dayButtonText}>Day 2</Text>
             </TouchableOpacity>
           </View>
@@ -251,9 +253,10 @@ export default function TabTwoScreen(props: ExploreProps) {
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.addButton}
-                    onPress={handleAddDestination}
-                  >
-                    <Text style={styles.addButtonText}>Add More Destination</Text>
+                    onPress={handleAddDestination}>
+                    <Text style={styles.addButtonText}>
+                      Add More Destination
+                    </Text>
                   </TouchableOpacity>
                 </>
               )}
@@ -266,8 +269,8 @@ export default function TabTwoScreen(props: ExploreProps) {
           />
         </ScrollView>
       )}
-    </View>
-  );
+    </SafeAreaView>
+  )
 }
 
 const styles = StyleSheet.create({
@@ -332,4 +335,4 @@ const styles = StyleSheet.create({
   backgroundImage: {
     flex: 1,
   },
-});
+})
