@@ -46,8 +46,14 @@ export const getHistory = async () => {
 }
 
 
-const plusVisited = async (title: string, email: string) => {
+export const plusVisited = async (title: string) => {
   try {
+    const email = await AsyncStorage.getItem('userEmail')
+    if (!email) {
+      console.log('Email not found')
+      return
+    }
+
     // 发起 GET 请求，通过 email 和 title 查询数据库
     const checkResponse = await fetch(`/(api)/VisitedPlaces?email=${email}&title=${title}`, {
       method: 'GET',
