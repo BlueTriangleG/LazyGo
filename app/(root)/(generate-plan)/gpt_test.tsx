@@ -10,7 +10,7 @@ import {
   generateDailyRecommends,
   getRecommendsTips,
 } from '@/lib/gpt-daily-recommend'
-import ShakeDetector from '@/lib/shake'
+import ShakeDetector from '@/app/(root)/(generate-plan)/shake'
 import { getSensorData, SensorData } from '@/lib/sensorReader'
 import { getWeatherData } from '@/lib/get-Weather'
 import { getCurrentCoordinates } from '@/lib/get-Location'
