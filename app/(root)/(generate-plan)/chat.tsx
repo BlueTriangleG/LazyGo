@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Text, View, ScrollView, Alert, Image } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useContext, useEffect, useState } from 'react'
 
 import presetChats_res from './data/preset-chats-restaurant.json'
 import presetOptions_res from './data/preset-options-restuarant.json'
@@ -56,9 +56,16 @@ export type ChatProps = {
 const Chat = (props: ChatProps) => {
   const [messages, setMessages] = useState<Message[]>([])
   const chatParams: ChatProps = useLocalSearchParams()
-  const { generating, currentLocation, setGenerating, setCurrentLocation } = useMyContext(); 
+  const {
+    currentLocation,
+    sensorData,
+    weatherData,
+    isLoading,
+    error,
+    fetchData,
+  } = useMyContext()
+  const [generating, setGenerating] = useState<boolean>(false)
 
-  
   let presetChats = undefined
   let presetOptions = undefined
   if (chatParams.placeType === 'restaurant') {
@@ -93,20 +100,6 @@ const Chat = (props: ChatProps) => {
     Object.values(presetOptions).find((options) => options.keyword === 'init')
       ?.options.length || 0
 
-  const initializeLocation = async () => {
-    let { status } = await Location.requestForegroundPermissionsAsync()
-    if (status !== 'granted') {
-      Alert.alert('Permission to access location was denied')
-      return
-    }
-
-    let location = await Location.getCurrentPositionAsync({})
-    setCurrentLocation(
-      `${location.coords.latitude},${location.coords.longitude}`
-    )
-    console.log(`${location.coords.latitude},${location.coords.longitude}`)
-  }
-
   // Initialize chat with the first message from preset chats
   useEffect(() => {
     let initMsgContent = chatsArray.find((chat) => chat.keyword === 'init')
@@ -118,7 +111,6 @@ const Chat = (props: ChatProps) => {
       }
       setMessages([initMsg])
     }
-    initializeLocation()
   }, [])
 
   useEffect(() => {
@@ -151,7 +143,6 @@ const Chat = (props: ChatProps) => {
 
   // Auto choose chat if current chat is 'init'
   useEffect(() => {
-    console.log("currentChat", currentChat)
     if (currentChat === 'init') {
       autoChooseChat();
     }
@@ -273,92 +264,94 @@ const Chat = (props: ChatProps) => {
       params: { date: key, plan: JSON.stringify(plan) },
     })
   }
-
-  // Handle generate plan button
   const handleGeneratePlan = async () => {
-    setGenerating(true)
-    console.log('userConfig', userConfig)
-    if (!currentLocation) {
-      console.log("location empty, initialize")
-      await initializeLocation();
-    }
+    try {
+      setGenerating(true)
+      while (!currentLocation) {
+        // Get the newest use context location
+        console.log('location empty, initialize')
+        // Wait for 1 second to get current location
+        await fetchData()
+      }
 
+      console.log('userConfig', userConfig)
 
-    const now = new Date()
-    const futureTime = new Date(
-      now.getTime() + Number(userConfig.departureTime) * 60 * 1000
-    ) // 加上20分钟
-    const departureTime = new Date(
-      futureTime.getTime() - futureTime.getTimezoneOffset() * 60000
-    ).toISOString()
+      const locationString = `${currentLocation.latitude},${currentLocation.longitude}`
+      const now = new Date()
+      const futureTime = new Date(
+        now.getTime() + Number(userConfig.departureTime) * 60 * 1000
+      )
+      const departureTime = new Date(
+        futureTime.getTime() - futureTime.getTimezoneOffset() * 60000
+      ).toISOString()
 
-    // Call API to generate plan
-    let result: Plan | void
-    switch (chatParams.placeType) {
-      case 'restaurant':
-        result = await generatePlan_restaurant(
-          currentLocation,
-          departureTime,
-          userConfig.transportation,
-          userConfig.minPrice,
-          userConfig.maxPrice
-        )
-        break
-      case 'cafe':
-        result = await generatePlan_cafe(
-          currentLocation,
-          departureTime,
-          userConfig.transportation,
-          userConfig.minPrice,
-          userConfig.maxPrice
-        )
-        break
-      case 'attraction':
-        result = await generatePlan_attractions(
-          currentLocation,
-          departureTime,
-          userConfig.transportation,
-          userConfig.minPrice,
-          userConfig.maxPrice
-        )
-        break
-      case 'entertainment':
-        let keywords: string[]
-        if (userConfig.people == 'alone') {
-          keywords = ['spa', 'arcade', 'cinema', 'museum', 'park', 'bar']
-        } else {
-          keywords = ['bar', 'karaoke', 'escaperoom', 'boardgame', 'bowling']
-        }
-        result = await generatePlan_entertainment(
-          currentLocation,
-          departureTime,
-          userConfig.transportation,
-          keywords
-        )
-        break
-      default:
-        Alert.alert('Invalid place type')
+      // Call API to generate plan
+      let result: Plan | void
+      switch (chatParams.placeType) {
+        case 'restaurant':
+          result = await generatePlan_restaurant(
+            locationString,
+            Number(userConfig.departureTime),
+            userConfig.transportation,
+            userConfig.minPrice,
+            userConfig.maxPrice
+          )
+          break
+        case 'cafe':
+          result = await generatePlan_cafe(
+            locationString,
+            departureTime,
+            userConfig.transportation,
+            userConfig.minPrice,
+            userConfig.maxPrice
+          )
+          break
+        case 'attraction':
+          result = await generatePlan_attractions(
+            locationString,
+            departureTime,
+            userConfig.transportation,
+            userConfig.minPrice,
+            userConfig.maxPrice
+          )
+          break
+        case 'entertainment':
+          let keywords: string[]
+          if (userConfig.people === 'alone') {
+            keywords = ['spa', 'arcade', 'cinema', 'museum', 'park', 'bar']
+          } else {
+            keywords = ['bar', 'karaoke', 'escaperoom', 'boardgame', 'bowling']
+          }
+          result = await generatePlan_entertainment(
+            locationString,
+            departureTime,
+            userConfig.transportation,
+            keywords
+          )
+          break
+        default:
+          Alert.alert('Invalid place type')
+          setGenerating(false)
+          return
+      }
+
+      if (!result) {
+        Alert.alert('Failed to generate plan')
         setGenerating(false)
         return
-    }
-    if (!result) {
-      Alert.alert('Failed to generate plan')
-      setGenerating(false)
-      return
-    }
-    const newMessages: Message[] = []
-    Object.keys(result).forEach((key) => {
-      let activities: Activity[] = result[Number(key)]
-      const newMessage: Message = {
-        content: (
-          <View>
-            <View className="h-px bg-gray-300 my-6" />
-            <Text>Day {key}</Text>
-            {activities.map((data, index) => {
-              return (
-                <View style={{ width: '90%', marginLeft: 30 }}>
+      }
+
+      const newMessages: Message[] = []
+      Object.keys(result).forEach((key) => {
+        let activities: Activity[] = result[Number(key)]
+        const newMessage: Message = {
+          content: (
+            <View>
+              <View className="h-px bg-gray-300 my-6" />
+              <Text>Day {key}</Text>
+              {activities.map((data, index) => (
+                <View style={{ width: '90%', marginLeft: 30 }} key={index}>
                   <TravelCard
-                    key={index}
                     time={data.time}
                     duration={data.duration}
                     destination={data.destination}
@@ -371,24 +364,27 @@ const Chat = (props: ChatProps) => {
                     endLocation={data.endLocation}
                   />
                 </View>
-              )
-            })}
-            <CustomButton
-              title={'Check Details'}
-              className="mt-6 bg-red-300"
-              onPress={() => {
-                handleCheckDetails(key, result)
-              }}
-            />
-            <View className="h-px bg-gray-300 my-6" />
-          </View>
-        ),
-        sender: 'bot',
-      }
-      newMessages.push(newMessage)
-    })
-    setMessages([...messages, ...newMessages])
-    setGenerating(false)
+              ))}
+              <CustomButton
+                title={'Check Details'}
+                className="mt-6 bg-red-300"
+                onPress={() => handleCheckDetails(key, result)}
+              />
+              <View className="h-px bg-gray-300 my-6" />
+            </View>
+          ),
+          sender: 'bot',
+        }
+        newMessages.push(newMessage)
+      })
+
+      setMessages([...messages, ...newMessages])
+      setGenerating(false)
+    } catch (error) {
+      Alert.alert('Error', 'Failed to generate plan')
+      console.error('Error calling generatePlan:', error)
+      setGenerating(false)
+    }
   }
 
   return (
@@ -438,7 +434,7 @@ const Chat = (props: ChatProps) => {
               />
             </View>
           ) : (
-                <ShakeDetector onShake={handleGeneratePlan} disabled={generating}/>
+            <ShakeDetector onShake={handleGeneratePlan} disabled={generating} />
           ))}
       </View>
     </SafeAreaView>
