@@ -23,6 +23,7 @@ import { icons, images } from '@/constants'
 import {
   generateDailyRecommends,
   getRecommendsTips,
+  RecommendDetail,
 } from '@/lib/gpt-daily-recommend'
 import ShakeDetector from '@/app/(root)/(generate-plan)/shake'
 import { getSensorData, SensorData } from '@/lib/sensorReader'
@@ -39,7 +40,8 @@ interface Coordinates {
 export default function Page() {
   const { user } = useUser()
   const [sensorData, setSensorData] = useState<SensorData | null>(null)
-  const [recommend, setRecommned] = useState<string>('')
+  const [tip, setTip] = useState<string>('')
+  const [recommend, setRecommend] = useState<RecommendDetail[]>([])
   const [location, setLocation] = useState<Coordinates | null>(null)
 
   useEffect(() => {
@@ -48,21 +50,22 @@ export default function Page() {
         // Fetch sensor data
         const sensorData = await getSensorData()
         setSensorData(sensorData)
-        console.log('Sensor Data:', JSON.stringify(sensorData))
+        // console.log('Sensor Data:', JSON.stringify(sensorData))
 
         // Fetch current location coordinates
         const currentLocation: Coordinates | void =
           await getCurrentCoordinates()
-        console.log('Current Location:', currentLocation)
-
+        // console.log('Current Location:', currentLocation)
+        let location_string:string;
         if (currentLocation) {
           // Fetch weather data based on the current location
           const weatherData = await getWeatherData(
             currentLocation.latitude,
             currentLocation.longitude
           )
+          location_string = `${currentLocation.latitude},${currentLocation.longitude}`;
           setLocation(currentLocation)
-          console.log('Weather Data:', JSON.stringify(weatherData))
+          // console.log('Weather Data:', JSON.stringify(weatherData))
 
           // Combine sensorData and weatherData into a single JSON object
           const combinedData = {
@@ -71,12 +74,19 @@ export default function Page() {
           }
 
           // Pass the combined data as a JSON string to getRecommendsTips
-          const result = await getRecommendsTips(JSON.stringify(combinedData))
-          console.log('Recommendations:', JSON.stringify(result))
+          const [tips_result, recommends_result] = await Promise.all([
+            getRecommendsTips(JSON.stringify(combinedData)),
+            generateDailyRecommends(location_string), 
+          ]);
+          // console.log('Tips', JSON.stringify(tips_result))
+          // console.log('Recommendations:', JSON.stringify(recommends_result))
 
           // 如果 recommend 字符串中包含 '\\n'，将其替换为 '\n'
-          const formattedRecommend = result.replace(/\\n/g, '\n')
-          setRecommned(formattedRecommend)
+          const formattedRecommend = tips_result.replace(/\\n/g, '\n')
+          setTip(formattedRecommend)
+          if (recommends_result){
+            setRecommend(recommends_result);
+          }
         } else {
           console.error('Failed to get current location')
         }
@@ -189,55 +199,28 @@ export default function Page() {
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
-              className="pl-2 my-1">
-              {/* 第一张卡片 */}
-              <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1">
-                <Image
-                  source={require('../../../assets/images/home.png')}
-                  className="w-full h-[260px]"
-                  resizeMode="cover"
-                />
-                <Text className="text-xl font-bold p-2">ABC Restaurant</Text>
-                <Text className="text-base text-gray-600 px-2 pb-2">
-                  517m - A great restaurant near you
-                </Text>
-              </View>
-              {/* 第二张卡片 */}
-              <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1">
-                <Image
-                  source={require('../../../assets/images/yellow.png')}
-                  className="w-full h-[260px]"
-                  resizeMode="cover"
-                />
-                <Text className="text-xl font-bold p-2">NFC Museum</Text>
-                <Text className="text-base text-gray-600 px-2 pb-2">
-                  5km - Famous museum in the area
-                </Text>
-              </View>
-              {/* 第三张卡片 */}
-              <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1">
-                <Image
-                  source={require('../../../assets/images/background.png')}
-                  className="w-full h-[260px]"
-                  resizeMode="cover"
-                />
-                <Text className="text-xl font-bold p-2">XYZ Cafe</Text>
-                <Text className="text-base text-gray-600 px-2 pb-2">
-                  1.2km - Cozy place for coffee
-                </Text>
-              </View>
-              {/* 第四张卡片 */}
-              <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1">
-                <Image
-                  source={require('../../../assets/images/background.png')}
-                  className="w-full h-[260px]"
-                  resizeMode="cover"
-                />
-                <Text className="text-xl font-bold p-2">City Theatre</Text>
-                <Text className="text-base text-gray-600 px-2 pb-2">
-                  2km - Popular movie spot
-                </Text>
-              </View>
+              className="pl-2 my-1"
+            >
+              {recommend.length > 0 ? (
+                recommend.map((item: RecommendDetail, index: number) => (
+                  <View
+                    key={index}
+                    className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1"
+                  >
+                    <Image
+                      source={require('../../../assets/images/home.png')} // 这里可以根据 item 的数据动态设置
+                      className="w-full h-[260px]"
+                      resizeMode="cover"
+                    />
+                    <Text className="text-xl font-bold p-2">{item.destination}</Text>
+                    <Text className="text-base text-gray-600 px-2 pb-2">
+                      {item.distance} - {item.destinationDescrib}
+                    </Text>
+                  </View>
+                ))
+              ) : (
+                <Text className="text-gray-600 px-2 pb-2">No recommendations available</Text>
+              )}
             </ScrollView>
           </View>
 
@@ -249,10 +232,10 @@ export default function Page() {
               Tips from Lazy Go
             </Text>
             <ScrollView className="w-max h-64 m-2 p-2 bg-white rounded-lg shadow my-1">
-              {recommend !== '' ? (
+              {tip !== '' ? (
                 <View className="w-full h-full">
                   <Text className="text-gray-900 m-1 font-Jakarta text-sm">
-                    {recommend}
+                    {tip}
                   </Text>
                 </View>
               ) : (
