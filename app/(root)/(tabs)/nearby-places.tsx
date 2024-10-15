@@ -62,7 +62,7 @@ const MapTest = () => {
       const url = `${GOOGLE_MAP_API_BASE_URL}&location=${location.coords.latitude},${location.coords.longitude}&radius=${radius}&type=${placeType}`
 
       // Mocking the api call for testing. !!! Set isMocking to false to use the real api.!!!
-      const isMocking = true
+      const isMocking = false
 
       fetch(isMocking ? 'https://www.google.com' : url)
         .then((res) => {
@@ -112,7 +112,7 @@ const MapTest = () => {
 
   return (
     <SafeAreaView style={{ flex: 1 }}>
-      <Text style={commonStyles.h1text}>This is a map testing page.</Text>
+      <Text style={commonStyles.h1text}>Nearby places</Text>
       <View style={mapStyles.mapContainer}>
         {!initialLocationLoaded ? (
           <ActivityIndicator style={commonStyles.centerAll} size="large" />
