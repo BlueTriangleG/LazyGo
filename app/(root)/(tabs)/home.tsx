@@ -25,12 +25,7 @@ import {
   getRecommendsTips,
   RecommendDetail,
 } from '@/lib/gpt-daily-recommend'
-import ShakeDetector from '@/app/(root)/(generate-plan)/shake'
-import { getSensorData, SensorData } from '@/lib/sensorReader'
-import { getWeatherData } from '@/lib/get-Weather'
-import { getCurrentCoordinates } from '@/lib/get-Location'
 import * as Location from 'expo-location'
-import { set } from 'date-fns'
 import LottieView from 'lottie-react-native'
 import { useMyContext } from '@/app/context/MyContext'
 
@@ -46,6 +41,7 @@ export default function Page() {
   const [dailyRecommends, setDailyRecommends] = useState<
     RecommendDetail[] | null
   >(null)
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -61,19 +57,26 @@ export default function Page() {
             weatherData,
           }
 
-          // Pass the combined data as a JSON string to getRecommendsTips
-          const recommnedTips = await getRecommendsTips(
+          // Initiate both asynchronous operations without awaiting
+          const recommendTipsPromise = getRecommendsTips(
             JSON.stringify(combinedData)
           )
-          const dailyRecommends = await generateDailyRecommends(
+          const dailyRecommendsPromise = generateDailyRecommends(
             `${currentLocation.latitude},${currentLocation.longitude}`
           )
+
+          // Await both promises in parallel
+          const [recommnedTips, dailyRecommends] = await Promise.all([
+            recommendTipsPromise,
+            dailyRecommendsPromise,
+          ])
+
           if (!dailyRecommends || !recommnedTips) {
             console.error('Failed to get recommendations')
             alert('Failed to get daily recommendations')
             return
           } else {
-            // 如果 recommend 字符串中包含 '\\n'，将其替换为 '\n'
+            // If recommendTips is a string that contains '\\n', replace it with '\n'
             const formattedRecommend = recommnedTips.replace(/\\n/g, '\n')
             console.log('dailyRecommends:', dailyRecommends)
             setRecommned(formattedRecommend)
@@ -96,14 +99,14 @@ export default function Page() {
       <ScrollView className="flex-1">
         <SignedIn>
           <Text className="font-JakartaBold text-left font-light my-1 px-4 self-start text-black">
-            612/613 Swanston street
+            {currentLocation == null
+              ? 'Loading...'
+              : `${currentLocation.address.city},${currentLocation.address.street} ${currentLocation.address.streetNumber}`}
           </Text>
           <View className="h-px bg-gray-300 my-1" />
 
-          {/* 第一部分：图标部分 */}
           <View className="flex-1 justify-center items-center my-1">
             <View className="flex-row justify-around w-full px-5 ">
-              {/* 图标容器 */}
               <View className="items-center">
                 <TouchableOpacity
                   onPress={() =>
@@ -192,6 +195,8 @@ export default function Page() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 className="pl-2 my-1">
+                {/* card1 */}
+
                 <View className="w-[260px] mr-4 h-80 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
                   <LottieView
                     source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
@@ -200,7 +205,7 @@ export default function Page() {
                   />
                   <Text className="text-xl font-bold p-2">Loading...</Text>
                 </View>
-                {/* 第二张卡片 */}
+                {/* card2 */}
                 <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
                   <LottieView
                     source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
@@ -209,15 +214,7 @@ export default function Page() {
                   />
                   <Text className="text-xl font-bold p-2">Loading...</Text>
                 </View>
-                {/* 第三张卡片 */}
-                <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
-                  <LottieView
-                    source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
-                    autoPlay
-                    style={{ width: 200, height: 200 }} // Customize size
-                  />
-                  <Text className="text-xl font-bold p-2">Loading...</Text>
-                </View>
+                {/* card3 */}
                 <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
                   <LottieView
                     source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
@@ -249,7 +246,9 @@ export default function Page() {
                         marginVertical: 8,
                       }}>
                       <Image
-                        source={require('../../../assets/images/home.png')} // 这里可以改为动态图片
+                        source={require(
+                          `../../../assets/images/restaurant${1 - 1}.png`
+                        )}
                         style={{ width: '100%', height: 260 }}
                         resizeMode="cover"
                       />
@@ -302,7 +301,7 @@ export default function Page() {
             </ScrollView>
             <View className="w-max m-2 h-36 bg-white rounded-lg shadow my-3">
               {isLoading || currentLocation == null ? (
-                <View className="flex justify-center items-center w-max h-max">
+                <View className="flex-1 justify-center items-center w-max h-max">
                   <LottieView
                     source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
                     autoPlay
@@ -322,7 +321,6 @@ export default function Page() {
                   showsUserLocation={true}
                   showsMyLocationButton={true}
                   showsCompass={true}>
-                  {/* 你可以在这里添加 Markers 或其他组件 */}
                   <Marker
                     coordinate={{
                       latitude: currentLocation.latitude,
@@ -349,7 +347,6 @@ export default function Page() {
             <Link href="/(auth)/sign-in">Sign In</Link>
           </Text>
           <Text>
-            {/* 确保 Link 被包裹在 Text 中 */}
             <Link href="/(auth)/sign-up">Sign Up</Link>
           </Text>
         </SignedOut>

@@ -6,14 +6,19 @@ import React, {
   useEffect,
 } from 'react'
 import { getSensorData, SensorData } from '@/lib/sensorReader'
-import { getCurrentCoordinates } from '@/lib/get-Location'
+import { getCurrentCoordinates, Coordinates } from '@/lib/get-Location'
 import { getWeatherData } from '@/lib/get-Weather'
 import { set } from 'date-fns'
+import * as Location from 'expo-location'
 
-interface Coordinates {
-  latitude: number
-  longitude: number
+export interface Address {
+  street: string
+  city: string
+  region: string
+  country: string
+  postalCode: string
 }
+
 interface MyContextType {
   currentLocation: Coordinates | null
   sensorData: SensorData | null
