@@ -27,6 +27,7 @@ import {
 } from '@/lib/gpt-daily-recommend'
 import * as Location from 'expo-location'
 import LottieView from 'lottie-react-native'
+import { photoUrlBase } from '@/lib/google-map-api'
 import { useMyContext } from '@/app/context/MyContext'
 
 interface Coordinates {
@@ -246,9 +247,7 @@ export default function Page() {
                         marginVertical: 8,
                       }}>
                       <Image
-                        source={require(
-                          `../../../assets/images/restaurant${1 - 1}.png`
-                        )}
+                        source={{uri: photoUrlBase + recommend.photo_reference}}
                         style={{ width: '100%', height: 260 }}
                         resizeMode="cover"
                       />

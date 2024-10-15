@@ -2,6 +2,7 @@ export const GOOGLE_MAP_KEY = process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY;
 
 export const GOOGLE_MAP_API_BASE_URL = 'https://maps.googleapis.com/maps/api/place/nearbysearch/json?key=' + GOOGLE_MAP_KEY;
 
+export const photoUrlBase: string = 'https://maps.googleapis.com/maps/api/place/photo?maxwidth=400&key=' + process.env.EXPO_PUBLIC_GOOGLE_MAP_API_KEY + '&photoreference=';
 
 // Get the nearby places based on the coordinates and radius.
 export async function getNearbyPlaces(currentLocation: string, radius: number, placeType: string, minPrice?: number, maxPrice?: number) {

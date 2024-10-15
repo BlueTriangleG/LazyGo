@@ -27,18 +27,21 @@ export interface Plan {
 }
 
 interface GoogleMapPlace {
-  name: string
-  vicinity: string
-  rating: number
-  user_ratings_total: number
-  price_level: number
-  types: string[]
-  geometry: {
-    location: {
-      lat: number
-      lng: number
+    name: string
+    vicinity: string
+    rating: number
+    user_ratings_total: number
+    price_level: number
+    types: string[]
+    geometry: {
+        location: {
+        lat: number
+        lng: number
+        }
     }
-  }
+    photos: {
+        photo_reference: string;
+    }[];
 }
 
 interface GoogleMapResponse {
@@ -46,18 +49,19 @@ interface GoogleMapResponse {
 }
 
 export const filterGoogleMapData = (data: GoogleMapResponse) => {
-  const filteredResults = data.results.map((place: GoogleMapPlace) => ({
-    name: place.name,
-    vicinity: place.vicinity,
-    rating: place.rating,
-    user_ratings_total: place.user_ratings_total,
-    price_level: place.price_level,
-    types: place.types,
-    geometry: place.geometry.location,
-  }))
+    const filteredResults = data.results.map((place: GoogleMapPlace) => ({
+        name: place.name,
+        vicinity: place.vicinity,
+        rating: place.rating,
+        user_ratings_total: place.user_ratings_total,
+        price_level: place.price_level,
+        types: place.types,
+        geometry: place.geometry.location,
+        photo_reference: place.photos.map((photo: any) => photo.photo_reference),
+    }));
 
-  return filteredResults
-}
+    return filteredResults;
+};
 
 export const filterDistanceMatrixData = (data: any) => {
   const filteredResults = data.rows.map((row: any, originIndex: number) => {

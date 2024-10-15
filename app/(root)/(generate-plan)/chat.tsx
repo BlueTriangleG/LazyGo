@@ -126,6 +126,7 @@ const Chat = (props: ChatProps) => {
     setUserConfig({
       departureTime: '',
       transportation: '',
+      placeType: chatParams.placeType,
     })
     setProgress(0)
     setChatsArray(JSON.parse(JSON.stringify(Object.values(presetChats))))
@@ -138,6 +139,29 @@ const Chat = (props: ChatProps) => {
       }
       setMessages([initMsg])
     }
+  }
+
+  // Auto choose chat if current chat is 'init'
+  useEffect(() => {
+    if (currentChat === 'init') {
+      autoChooseChat();
+    }
+  }, [currentChat])
+
+  const autoChooseChat = () => {
+    const options = optionsArray.find((options) => options.keyword === 'init')?.options;
+    if (!options || options.length === 0) {
+      setCurrentChat('');
+      return;
+    }
+    const nextChat = options[0].key;
+    const nextContent = chatsArray.find((chat) => chat.keyword === nextChat)?.content;
+    setCurrentChat(nextChat);
+    let nextMsg: Message = {
+      content: nextContent || '',
+      sender: 'bot',
+    }
+    setMessages([...messages, nextMsg]);
   }
 
   // Handle user's choice
@@ -385,7 +409,7 @@ const Chat = (props: ChatProps) => {
       <View className="mb-3">
         <View className="mx-5 mb-5">
           {/* Render options based on current chat */}
-          {optionsArray
+          {currentChat !== "init" && optionsArray
             .find((options) => options.keyword === currentChat)
             ?.options.map((option) => {
               return (
