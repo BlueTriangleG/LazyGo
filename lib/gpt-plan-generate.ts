@@ -1,7 +1,8 @@
 import { useState } from "react";
 import {getDistanceMatrix, getNearbyEntertainment, getNearbyPlaces} from "./google-map-api"
 import { min } from "date-fns";
-import { getHistory } from "./history-management";
+import { getHistory, plusVisited } from "./history-management";
+
 const GPT_KEY= process.env.EXPO_PUBLIC_GPT_KEY;
 export interface Activity {
     "date": string;
@@ -218,6 +219,12 @@ export async function generatePlan_restaurant(gps_location: string, currentTime:
             }
             
         }
+        for (let day in planJson) {
+            planJson[day].forEach((activity, index) => {
+                const destinationName = activity.destination;
+                plusVisited(destinationName);
+            });
+        }
         return planJson;
     }catch(error){
         console.error("Error generating plan:", error);
@@ -314,6 +321,12 @@ export async function generatePlan_cafe(gps_location: string, currentTime: strin
                 currentLocation = activity_json.endLocation;
             }
         }
+        for (let day in planJson) {
+            planJson[day].forEach((activity, index) => {
+                const destinationName = activity.destination;
+                plusVisited(destinationName);
+            });
+        }
         return planJson;
     }catch(error){
         console.error("Error generating plan:", error);
@@ -349,7 +362,7 @@ export async function generatePlan_entertainment(gps_location: string, currentTi
     }
     try{
         const history = await getHistory();
-        // console.log(`History: ${JSON.stringify(history)}`)
+        console.log(`History: ${JSON.stringify(history)}`)
         let planJson:Plan = {1:[]};
         for (let i =0; i< numMeals;i++){
             const placesJson = await getNearbyEntertainment(currentLocation, radius, keywords)
@@ -410,6 +423,12 @@ export async function generatePlan_entertainment(gps_location: string, currentTi
                 planJson[1].push(activity_json);
                 currentLocation = activity_json.endLocation;
             }
+        }
+        for (let day in planJson) {
+            planJson[day].forEach((activity, index) => {
+                const destinationName = activity.destination;
+                plusVisited(destinationName);
+            });
         }
         return planJson;
     }catch(error){
@@ -503,6 +522,12 @@ export async function generatePlan_attractions(gps_location: string, currentTime
                 planJson[1].push(activity_json);
                 currentLocation = activity_json.endLocation;
             }
+        }
+        for (let day in planJson) {
+            planJson[day].forEach((activity, index) => {
+                const destinationName = activity.destination;
+                plusVisited(destinationName);
+            });
         }
         return planJson;
     }catch(error){

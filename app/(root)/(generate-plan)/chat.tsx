@@ -1,7 +1,7 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { Text, View, ScrollView, Alert, Image } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import presetChats_res from './data/preset-chats-restaurant.json'
 import presetOptions_res from './data/preset-options-restuarant.json'
@@ -24,6 +24,7 @@ import {
   generatePlan_restaurant,
   Plan,
 } from '@/lib/gpt-plan-generate'
+import ShakeDetector from '@/app/(root)/(generate-plan)/shake'
 import { router } from 'expo-router'
 
 import TravelCard from '@/components/TravelPlanComponent/TravelCard'
@@ -31,6 +32,8 @@ import * as Location from 'expo-location'
 import Header from './header'
 import { icons, images } from '@/constants'
 import LottieView from 'lottie-react-native'
+
+import { useMyContext } from '@/app/context/MyContext'
 
 type Message = {
   content: string | React.JSX.Element
@@ -53,8 +56,9 @@ export type ChatProps = {
 const Chat = (props: ChatProps) => {
   const [messages, setMessages] = useState<Message[]>([])
   const chatParams: ChatProps = useLocalSearchParams()
-  const [currentLocation, setCurrentLocation] = useState<string>('')
-  const [generating, setGenerating] = useState<boolean>(false)
+  const { generating, currentLocation, setGenerating, setCurrentLocation } = useMyContext(); 
+
+  
   let presetChats = undefined
   let presetOptions = undefined
   if (chatParams.placeType === 'restaurant') {
@@ -250,9 +254,11 @@ const Chat = (props: ChatProps) => {
     setGenerating(true)
     console.log('userConfig', userConfig)
     if (!currentLocation) {
-      Alert.alert('Please enable location service')
-      return
+      console.log("location empty, initialize")
+      await initializeLocation();
     }
+
+
     const now = new Date()
     const futureTime = new Date(
       now.getTime() + Number(userConfig.departureTime) * 60 * 1000
@@ -406,12 +412,7 @@ const Chat = (props: ChatProps) => {
               />
             </View>
           ) : (
-            <CustomButton
-              title="Try Again?"
-              disabled={generating}
-              className="mt-6 mb-3 bg-red-300"
-              onPress={handleGeneratePlan}
-            />
+                <ShakeDetector onShake={handleGeneratePlan} disabled={generating}/>
           ))}
       </View>
     </SafeAreaView>

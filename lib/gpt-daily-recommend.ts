@@ -1,6 +1,6 @@
 const GPT_KEY = process.env.EXPO_PUBLIC_GPT_KEY
 import { data } from '@/constants'
-import { getDistanceMatrix, getNearbyPlaces } from './google-map-api'
+import { getDistanceMatrix, getNearbyEntertainment, getNearbyPlaces } from './google-map-api'
 import {
   filterDistanceMatrixData,
   filterGoogleMapData,
@@ -31,7 +31,7 @@ const recommend_example = [
   },
 ]
 
-const Types = ['restaurant', 'cafe', 'tourist_attraction']
+const Types = ['restaurant', 'cafe', 'tourist_attraction',"entertainment"]
 
 async function getRecommends(
   requestMessage: string
@@ -48,11 +48,12 @@ async function getRecommends(
     messages: [
       {
         role: 'system',
-        content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 3 dataset will be given, you must completely randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error. If there are n datasets, the list must only contain n recommendations.
+        content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 4 dataset will be given, you must completely randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error. 
+                If there are n datasets, the list contain n recommendations. The list can contain <n recommendations. If the dataset is empty, skip that type and do recommendation for the next type.
                 "destination" is the true name of the destination in the data given."destination describ" is the description of the destination."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data).
                 Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. You should only choose the destinations from the given Google Map API data. YOu must return the json 
-                in the form of string without \`\`\`.Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. 
-                If a day has no plan, do not include it in the JSON.`,
+                in the form of string without \`\`\`.Do not return anything beyond the given data. Do not return anything besides the JSON.The recommend mustcontain all the keys in the sample form. 
+                `,
       },
       { role: 'user', content: requestMessage },
     ],
@@ -85,7 +86,7 @@ export async function getRecommendsTips(
   }
 
   const url = 'https://api.openai.com/v1/chat/completions'
-  console.log('requestMessage:', requestMessage)
+  // console.log('requestMessage:', requestMessage)
   const requestBody = {
     model: 'gpt-4o',
     messages: [
@@ -127,9 +128,19 @@ export async function generateDailyRecommends(
   try {
     let data_string = ''
     const promises = Types.map(async (type) => {
-      const placesJson = await getNearbyPlaces(currentLocation, 2500, type)
-      const filteredPlacesJson = filterGoogleMapData(placesJson)
-      data_string += `${type}: ${JSON.stringify(filteredPlacesJson)};`
+      switch (type){
+        case "entertainment":
+          const placesJson_ent = await getNearbyEntertainment(currentLocation, 2500, ["bar", "karaoke", "escaperoom","boardgame","bowling","spa","arcade","cinema","museum"])
+          const filteredPlacesJson_ent = filterGoogleMapData(placesJson_ent)
+          data_string += `${type}: ${JSON.stringify(filteredPlacesJson_ent)};`
+          break;
+        default:
+          const placesJson = await getNearbyPlaces(currentLocation, 2500, type)
+          const filteredPlacesJson = filterGoogleMapData(placesJson)
+          data_string += `${type}: ${JSON.stringify(filteredPlacesJson)};`
+          break;
+      }
+      
     })
 
     await Promise.all(promises)
