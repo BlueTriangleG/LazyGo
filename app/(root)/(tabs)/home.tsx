@@ -25,78 +25,72 @@ import {
   getRecommendsTips,
   RecommendDetail,
 } from '@/lib/gpt-daily-recommend'
-import ShakeDetector from '@/app/(root)/(generate-plan)/shake'
-import { getSensorData, SensorData } from '@/lib/sensorReader'
-import { getWeatherData } from '@/lib/get-Weather'
-import { getCurrentCoordinates } from '@/lib/get-Location'
 import * as Location from 'expo-location'
-import { set } from 'date-fns'
 import LottieView from 'lottie-react-native'
+import { useMyContext } from '@/app/context/MyContext'
 
 interface Coordinates {
   latitude: number
   longitude: number
 }
 export default function Page() {
+  const { currentLocation, sensorData, weatherData, isLoading, error } =
+    useMyContext()
   const { user } = useUser()
-  const [sensorData, setSensorData] = useState<SensorData | null>(null)
-  const [tip, setTip] = useState<string>('')
-  const [recommend, setRecommend] = useState<RecommendDetail[]>([])
-  const [location, setLocation] = useState<Coordinates | null>(null)
+  const [recommend, setRecommned] = useState<string>('')
+  const [dailyRecommends, setDailyRecommends] = useState<
+    RecommendDetail[] | null
+  >(null)
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        // Fetch sensor data
-        const sensorData = await getSensorData()
-        setSensorData(sensorData)
-        // console.log('Sensor Data:', JSON.stringify(sensorData))
-
-        // Fetch current location coordinates
-        const currentLocation: Coordinates | void =
-          await getCurrentCoordinates()
-        // console.log('Current Location:', currentLocation)
-        let location_string:string;
-        if (currentLocation) {
-          // Fetch weather data based on the current location
-          const weatherData = await getWeatherData(
-            currentLocation.latitude,
-            currentLocation.longitude
-          )
-          location_string = `${currentLocation.latitude},${currentLocation.longitude}`;
-          setLocation(currentLocation)
-          // console.log('Weather Data:', JSON.stringify(weatherData))
-
+        if (!isLoading && currentLocation && sensorData && weatherData) {
+          console.log('Data from useContext loaded!!!!!!!:', {
+            currentLocation,
+            sensorData,
+            weatherData,
+          })
           // Combine sensorData and weatherData into a single JSON object
           const combinedData = {
             sensorData,
             weatherData,
           }
 
-          // Pass the combined data as a JSON string to getRecommendsTips
-          const [tips_result, recommends_result] = await Promise.all([
-            getRecommendsTips(JSON.stringify(combinedData)),
-            generateDailyRecommends(location_string), 
-          ]);
-          // console.log('Tips', JSON.stringify(tips_result))
-          // console.log('Recommendations:', JSON.stringify(recommends_result))
+          // Initiate both asynchronous operations without awaiting
+          const recommendTipsPromise = getRecommendsTips(
+            JSON.stringify(combinedData)
+          )
+          const dailyRecommendsPromise = generateDailyRecommends(
+            `${currentLocation.latitude},${currentLocation.longitude}`
+          )
 
-          // 如果 recommend 字符串中包含 '\\n'，将其替换为 '\n'
-          const formattedRecommend = tips_result.replace(/\\n/g, '\n')
-          setTip(formattedRecommend)
-          if (recommends_result){
-            setRecommend(recommends_result);
+          // Await both promises in parallel
+          const [recommnedTips, dailyRecommends] = await Promise.all([
+            recommendTipsPromise,
+            dailyRecommendsPromise,
+          ])
+
+          if (!dailyRecommends || !recommnedTips) {
+            console.error('Failed to get recommendations')
+            alert('Failed to get daily recommendations')
+            return
+          } else {
+            // If recommendTips is a string that contains '\\n', replace it with '\n'
+            const formattedRecommend = recommnedTips.replace(/\\n/g, '\n')
+            console.log('dailyRecommends:', dailyRecommends)
+            setRecommned(formattedRecommend)
+            setDailyRecommends(dailyRecommends)
           }
-        } else {
-          console.error('Failed to get current location')
         }
       } catch (error) {
         console.error('Error fetching data:', error)
       }
     }
-
-    fetchData()
-  }, [])
+    if (!isLoading) {
+      fetchData()
+    }
+  }, [isLoading, currentLocation, sensorData, weatherData])
   const mapProvider =
     Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
 
@@ -105,14 +99,14 @@ export default function Page() {
       <ScrollView className="flex-1">
         <SignedIn>
           <Text className="font-JakartaBold text-left font-light my-1 px-4 self-start text-black">
-            612/613 Swanston street
+            {currentLocation == null
+              ? 'Loading...'
+              : `${currentLocation.address.city},${currentLocation.address.street} ${currentLocation.address.streetNumber}`}
           </Text>
           <View className="h-px bg-gray-300 my-1" />
 
-          {/* 第一部分：图标部分 */}
           <View className="flex-1 justify-center items-center my-1">
             <View className="flex-row justify-around w-full px-5 ">
-              {/* 图标容器 */}
               <View className="items-center">
                 <TouchableOpacity
                   onPress={() =>
@@ -196,32 +190,89 @@ export default function Page() {
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Daily Recommends
             </Text>
-            <ScrollView
-              horizontal
-              showsHorizontalScrollIndicator={false}
-              className="pl-2 my-1"
-            >
-              {recommend.length > 0 ? (
-                recommend.map((item: RecommendDetail, index: number) => (
-                  <View
-                    key={index}
-                    className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1"
-                  >
-                    <Image
-                      source={require('../../../assets/images/home.png')} // 这里可以根据 item 的数据动态设置
-                      className="w-full h-[260px]"
-                      resizeMode="cover"
-                    />
-                    <Text className="text-xl font-bold p-2">{item.destination}</Text>
-                    <Text className="text-base text-gray-600 px-2 pb-2">
-                      {item.distance} - {item.destinationDescrib}
-                    </Text>
-                  </View>
-                ))
-              ) : (
-                <Text className="text-gray-600 px-2 pb-2">No recommendations available</Text>
-              )}
-            </ScrollView>
+            {dailyRecommends == null ? (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="pl-2 my-1">
+                {/* card1 */}
+
+                <View className="w-[260px] mr-4 h-80 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
+                  <LottieView
+                    source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
+                    autoPlay
+                    style={{ width: 200, height: 200 }} // Customize size
+                  />
+                  <Text className="text-xl font-bold p-2">Loading...</Text>
+                </View>
+                {/* card2 */}
+                <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
+                  <LottieView
+                    source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
+                    autoPlay
+                    style={{ width: 200, height: 200 }} // Customize size
+                  />
+                  <Text className="text-xl font-bold p-2">Loading...</Text>
+                </View>
+                {/* card3 */}
+                <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
+                  <LottieView
+                    source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
+                    autoPlay
+                    style={{ width: 200, height: 200 }} // Customize size
+                  />
+                  <Text className="text-xl font-bold p-2">Loading...</Text>
+                </View>
+              </ScrollView>
+            ) : (
+              <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                className="pl-2 my-1">
+                {dailyRecommends &&
+                  dailyRecommends.map((recommend, index) => (
+                    <View
+                      key={index}
+                      style={{
+                        width: 260,
+                        marginRight: 16,
+                        backgroundColor: 'white',
+                        borderRadius: 8,
+                        overflow: 'hidden',
+                        shadowColor: '#000',
+                        shadowOpacity: 0.1,
+                        shadowRadius: 4,
+                        shadowOffset: { width: 0, height: 2 },
+                        marginVertical: 8,
+                      }}>
+                      <Image
+                        source={require(
+                          `../../../assets/images/restaurant${1 - 1}.png`
+                        )}
+                        style={{ width: '100%', height: 260 }}
+                        resizeMode="cover"
+                      />
+                      <Text
+                        style={{
+                          fontSize: 18,
+                          fontWeight: 'bold',
+                          padding: 8,
+                        }}>
+                        {recommend.destination}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          color: '#666',
+                          paddingHorizontal: 8,
+                          paddingBottom: 8,
+                        }}>
+                        {recommend.distance} - {recommend.destinationDescrib}
+                      </Text>
+                    </View>
+                  ))}
+              </ScrollView>
+            )}
           </View>
 
           <View className="h-px bg-gray-300 my-1" />
@@ -232,10 +283,10 @@ export default function Page() {
               Tips from Lazy Go
             </Text>
             <ScrollView className="w-max h-64 m-2 p-2 bg-white rounded-lg shadow my-1">
-              {tip !== '' ? (
+              {recommend !== '' ? (
                 <View className="w-full h-full">
                   <Text className="text-gray-900 m-1 font-Jakarta text-sm">
-                    {tip}
+                    {recommend}
                   </Text>
                 </View>
               ) : (
@@ -249,10 +300,10 @@ export default function Page() {
               )}
             </ScrollView>
             <View className="w-max m-2 h-36 bg-white rounded-lg shadow my-3">
-              {!location ? (
-                <View className="flex justify-center items-center w-max h-max">
+              {isLoading || currentLocation == null ? (
+                <View className="flex-1 justify-center items-center w-max h-max">
                   <LottieView
-                    source={require('../../../assets/animation/animation2.json')} // Full-screen success animation path
+                    source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
                     autoPlay
                     style={{ width: 120, height: 120 }} // Customize size
                   />
@@ -261,8 +312,8 @@ export default function Page() {
                 <MapView
                   style={{ flex: 1 }}
                   initialRegion={{
-                    latitude: location.latitude,
-                    longitude: location.longitude,
+                    latitude: currentLocation.latitude,
+                    longitude: currentLocation.longitude,
                     latitudeDelta: 0.006,
                     longitudeDelta: 0.006,
                   }}
@@ -270,11 +321,10 @@ export default function Page() {
                   showsUserLocation={true}
                   showsMyLocationButton={true}
                   showsCompass={true}>
-                  {/* 你可以在这里添加 Markers 或其他组件 */}
                   <Marker
                     coordinate={{
-                      latitude: location.latitude,
-                      longitude: location.longitude,
+                      latitude: currentLocation.latitude,
+                      longitude: currentLocation.longitude,
                     }}
                     title="Your Location"
                     description="This is your current location"
@@ -297,7 +347,6 @@ export default function Page() {
             <Link href="/(auth)/sign-in">Sign In</Link>
           </Text>
           <Text>
-            {/* 确保 Link 被包裹在 Text 中 */}
             <Link href="/(auth)/sign-up">Sign Up</Link>
           </Text>
         </SignedOut>
