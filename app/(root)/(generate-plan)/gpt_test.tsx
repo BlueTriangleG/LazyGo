@@ -84,8 +84,7 @@ const MyComponent = () => {
       //   'driving'
       // )
 
-      const result = await generateDailyRecommends(location);
-
+      const result = await generateDailyRecommends(location)
       console.log(JSON.stringify(result))
     } catch (error) {
       console.error('Error generating recommends:', error)
@@ -134,11 +133,11 @@ const MyComponent = () => {
         console.log('NO data found')
         return
       }
-      const filtered_result = result.map(item => ({
+      const filtered_result = result.map((item) => ({
         title: item.title,
-        visit_count: item.visit_count
-      }));
-      console.log("Visited Places")
+        visit_count: item.visit_count,
+      }))
+      console.log('Visited Places')
       console.log(filtered_result)
     } catch (error) {
       console.error('Getting favorite Wrong:', error)
