@@ -35,6 +35,9 @@ interface GoogleMapPlace {
         lng: number;
         };
     };
+    photos: {
+        photo_reference: string;
+    }[];
 }
 
 interface GoogleMapResponse {
@@ -51,7 +54,8 @@ export const filterGoogleMapData = (data: GoogleMapResponse) => {
         user_ratings_total: place.user_ratings_total,
         price_level: place.price_level,
         types: place.types,
-        geometry: place.geometry.location
+        geometry: place.geometry.location,
+        photo_reference: place.photos.map((photo: any) => photo.photo_reference),
     }));
 
     return filteredResults;

@@ -32,6 +32,7 @@ import { getCurrentCoordinates } from '@/lib/get-Location'
 import * as Location from 'expo-location'
 import { set } from 'date-fns'
 import LottieView from 'lottie-react-native'
+import { photoUrlBase } from '@/lib/google-map-api'
 
 interface Coordinates {
   latitude: number
@@ -208,7 +209,7 @@ export default function Page() {
                     className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1"
                   >
                     <Image
-                      source={require('../../../assets/images/home.png')} // 这里可以根据 item 的数据动态设置
+                      source={{uri: photoUrlBase + item.photo_reference}} // 这里可以根据 item 的数据动态设置
                       className="w-full h-[260px]"
                       resizeMode="cover"
                     />
