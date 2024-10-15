@@ -144,7 +144,6 @@ export async function generateDailyRecommends(
           data_string += `${type}: ${JSON.stringify(filteredPlacesJson)};`
           break;
       }
-      
     })
 
     await Promise.all(promises)

@@ -49,18 +49,27 @@ interface GoogleMapResponse {
 }
 
 export const filterGoogleMapData = (data: GoogleMapResponse) => {
-    const filteredResults = data.results.map((place: GoogleMapPlace) => ({
-        name: place.name,
-        vicinity: place.vicinity,
-        rating: place.rating,
-        user_ratings_total: place.user_ratings_total,
-        price_level: place.price_level,
-        types: place.types,
-        geometry: place.geometry.location,
-        photo_reference: place.photos.map((photo: any) => photo.photo_reference),
-    }));
-
-    return filteredResults;
+    try {
+        if (!data || !data.results) {
+            return [];
+        }
+        const filteredResults = data.results.filter((place) => {
+            return place.photos && place.photos.length > 0;
+        }).map((place: GoogleMapPlace) => ({
+            name: place.name,
+            vicinity: place.vicinity,
+            rating: place.rating,
+            user_ratings_total: place.user_ratings_total,
+            price_level: place.price_level,
+            types: place.types,
+            geometry: place.geometry.location,
+            photo_reference: place.photos.map((photo) => photo.photo_reference),
+        }));
+    
+        return filteredResults;
+    } catch (error) {
+        throw "Error filtering Google Map data"
+    }
 };
 
 export const filterDistanceMatrixData = (data: any) => {
