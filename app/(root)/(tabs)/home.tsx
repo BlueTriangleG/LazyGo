@@ -71,6 +71,8 @@ export default function Page() {
             recommendTipsPromise,
             dailyRecommendsPromise,
           ])
+          console.log('recommnedTips:', recommnedTips)
+          console.log('dailyRecommends:', dailyRecommends)
 
           if (!dailyRecommends || !recommnedTips) {
             console.error('Failed to get recommendations')

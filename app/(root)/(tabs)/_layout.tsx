@@ -68,7 +68,7 @@ export default function Layout() {
         }}
       />
       <Tabs.Screen
-        name="map-test"
+        name="nearby-places"
         options={{
           title: 'map',
           headerShown: false,
