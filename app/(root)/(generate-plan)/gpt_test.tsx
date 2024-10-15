@@ -78,11 +78,14 @@ const MyComponent = () => {
       ).toISOString()
 
       console.log(currentTime)
-      const result = await generatePlan_restaurant(
-        location,
-        currentTime,
-        'driving'
-      )
+      // const result = await generatePlan_restaurant(
+      //   location,
+      //   currentTime,
+      //   'driving'
+      // )
+
+      const result = await generateDailyRecommends(location);
+
       console.log(JSON.stringify(result))
     } catch (error) {
       console.error('Error generating recommends:', error)
@@ -151,8 +154,6 @@ const MyComponent = () => {
       <Text style={styles.text}>{text}</Text>
       <Button title="Generate Plan" onPress={handleButtonPress} />
       <Button title="get sensor" onPress={handleGetSensor} />
-      <Button title="get generate history" onPress={handleGetHistory} />
-      <ShakeDetector />
     </View>
   )
 }
