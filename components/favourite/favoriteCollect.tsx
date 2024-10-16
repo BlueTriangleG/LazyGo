@@ -115,22 +115,22 @@ export const FavoriteComponent = () => {
 
   // 渲染卡片
   const renderFavoriteCard = ({ item }) => (
-    <View className="bg-white rounded-[12px] p-2 mb-4 shadow-md" style={{ height: 230 }}>
+    <View style={styles.cardContainer}>
       <Image
         source={{ uri: photoUrlBase + item.photoreference }}
-        style={{ width: '100%', height: '60%', borderRadius: 10 }}
+        style={styles.image}
         resizeMode="cover"
       />
-      <Text className="text-[18px] font-bold mt-2">{item.transportation || "N/A"}</Text>
-      <Text className="text-[14px] mt-1" style={{ color: '#555' }}>
+      <Text style={styles.titleText}>{item.transportation || "N/A"}</Text>
+      <Text style={styles.descriptionText}>
         {item.description || "No description available."}
       </Text>
-
+  
       {/* Add RatingStars component */}
-      <View className="flex-row items-center mt-1 mb-2">
+      <View style={styles.ratingContainer}>
         <RatingStars rating={parseFloat(item.tips) || 0} comments={3000} />
       </View>
-
+  
       <TouchableOpacity
         style={styles.detailButton} // Applying the external styles
         onPress={() => handleAddFavorite(item)}>
@@ -138,6 +138,7 @@ export const FavoriteComponent = () => {
       </TouchableOpacity>
     </View>
   );
+  
 
   return (
     <View className="flex-1 ">
@@ -177,15 +178,47 @@ export const FavoriteComponent = () => {
     </View>
   );
 };
-
 const styles = StyleSheet.create({
+  cardContainer: {
+    backgroundColor: 'white', // White background
+    borderRadius: 12, // Rounded corners
+    padding: 8, // Padding (equivalent to 'p-2')
+    marginBottom: 16, // Margin at the bottom (equivalent to 'mb-4')
+    shadowColor: '#000', // Shadow for iOS
+    shadowOffset: { width: 0, height: 2 }, // Shadow offset for iOS
+    shadowOpacity: 0.1, // Shadow opacity for iOS
+    shadowRadius: 4, // Shadow radius for iOS
+    elevation: 5, // Shadow for Android
+    // height: 230, 
+  },
+  image: {
+    width: '100%',
+    height: 130,
+    borderRadius: 10, // Rounded corners for image
+  },
+  titleText: {
+    fontSize: 18, // Text size (equivalent to 'text-[18px]')
+    fontWeight: 'bold', // Bold font
+    marginTop: 8, // Margin at the top (equivalent to 'mt-2')
+  },
+  descriptionText: {
+    fontSize: 14, // Text size (equivalent to 'text-[14px]')
+    color: '#555', // Text color (equivalent to style with '#555')
+    marginTop: 4, // Margin at the top (equivalent to 'mt-1')
+  },
+  ratingContainer: {
+    flexDirection: 'row', // Align stars in a row
+    alignItems: 'center', // Center align items vertically
+    marginTop: 4, // Margin at the top (equivalent to 'mt-1')
+    marginBottom: 8, // Margin at the bottom (equivalent to 'mb-2')
+  },
   detailButton: {
     backgroundColor: '#fcaac1', // Button background color
     borderRadius: 30, // Rounded corners
-    paddingVertical: 8, // Equivalent to 'py-1'
-    paddingHorizontal: 12, // Equivalent to 'px-3'
-    alignSelf: 'flex-end', // Aligns the button to the right
-    marginTop: -40, // Adds margin at the top (equivalent to 'mt-2')
+    paddingVertical: 8, // Vertical padding (equivalent to 'py-1')
+    paddingHorizontal: 12, // Horizontal padding (equivalent to 'px-3')
+    alignSelf: 'flex-end', // Align button to the right
+    marginTop: -40, // Top margin (equivalent to 'mt-2')
   },
   detailButtonText: {
     fontSize: 16, // Text size (equivalent to 'text-base')
@@ -193,5 +226,6 @@ const styles = StyleSheet.create({
     color: '#fff', // White text color
   },
 });
+
 
 export default FavoriteComponent;
