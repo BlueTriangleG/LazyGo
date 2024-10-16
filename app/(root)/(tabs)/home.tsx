@@ -58,7 +58,7 @@ export default function Page() {
             weatherData,
           }
 
-          // Initiate both asynchronous operations without awaiting
+          // Initiate both asynchronous operations
           const recommendTipsPromise = getRecommendsTips(
             JSON.stringify(combinedData)
           )
@@ -66,25 +66,36 @@ export default function Page() {
             `${currentLocation.latitude},${currentLocation.longitude}`
           )
 
-          // Await both promises in parallel
-          const [recommnedTips, dailyRecommends] = await Promise.all([
-            recommendTipsPromise,
-            dailyRecommendsPromise,
-          ])
-          console.log('recommnedTips:', recommnedTips)
-          console.log('dailyRecommends:', dailyRecommends)
+          // Handle recommendTips as it resolves
+          recommendTipsPromise
+            .then((recommnedTips) => {
+              if (recommnedTips) {
+                // 如果 recommendTips 字符串中包含 '\\n'，将其替换为 '\n'
+                const formattedRecommend = recommnedTips.replace(/\\n/g, '\n')
+                console.log('recommnedTips:', recommnedTips)
+                setRecommned(formattedRecommend)
+              } else {
+                console.error('Failed to get recommnedTips')
+                alert('Failed to get recommnedTips')
+              }
+            })
+            .catch((error) => {
+              console.error('Error fetching recommendTips:', error)
+            })
 
-          if (!dailyRecommends || !recommnedTips) {
-            console.error('Failed to get recommendations')
-            alert('Failed to get daily recommendations')
-            return
-          } else {
-            // If recommendTips is a string that contains '\\n', replace it with '\n'
-            const formattedRecommend = recommnedTips.replace(/\\n/g, '\n')
-            console.log('dailyRecommends:', dailyRecommends)
-            setRecommned(formattedRecommend)
-            setDailyRecommends(dailyRecommends)
-          }
+          // Handle dailyRecommends as it resolves
+          dailyRecommendsPromise
+            .then((dailyRecommends) => {
+              if (dailyRecommends) {
+                console.log('dailyRecommends:', dailyRecommends)
+                setDailyRecommends(dailyRecommends)
+              } else {
+                console.error('Failed to get dailyRecommends')
+              }
+            })
+            .catch((error) => {
+              console.error('Error fetching dailyRecommends:', error)
+            })
         }
       } catch (error) {
         console.error('Error fetching data:', error)
@@ -150,7 +161,7 @@ export default function Page() {
                   <Image source={icons.coffee} className="w-11 h-11" />
                 </TouchableOpacity>
                 <Text className="font-Jakarta font-light text-center mt-1 text-xs">
-                  Cafe
+                  Coffee
                 </Text>
               </View>
 
@@ -249,7 +260,9 @@ export default function Page() {
                         marginVertical: 8,
                       }}>
                       <Image
-                        source={{uri: photoUrlBase + recommend.photo_reference}}
+                        source={{
+                          uri: photoUrlBase + recommend.photo_reference,
+                        }}
                         style={{ width: '100%', height: 260 }}
                         resizeMode="cover"
                       />
@@ -334,14 +347,14 @@ export default function Page() {
               )}
             </View>
           </View>
-
-          <CustomButton
+          <View className="h-8 my-1"></View>
+          {/* <CustomButton
             className="mt-6 bg-red-300"
             title="Generate Plan"
             onPress={async () => {
               router.push('/(root)/(generate-plan)/gpt_test')
             }}
-          />
+          /> */}
         </SignedIn>
         <SignedOut>
           <Text>

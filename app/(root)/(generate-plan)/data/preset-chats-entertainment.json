@@ -1,18 +1,18 @@
 [
-    {
-        "content": "Hi there! We got several recommendations about entertainment! Choose a option to continue your process, we will help you find the best answer!",
-        "keyword": "init"
-    },
-    {
-        "content": "Are you going out for entertainment alone or with a group?",
-        "keyword": "people"
-    },
-    {
-        "content": "What kind of transportation do you prefer?",
-        "keyword": "travel_mode"
-    },
-    {
-        "content": "When do you want to start your trip?", 
-        "keyword": "departure_time"
-    }
+  {
+    "content": "Hi there! We got several recommendations about entertainment! Choose a option to continue your process, we will help you find the best answer!",
+    "keyword": "init"
+  },
+  {
+    "content": "Are you going out for entertainment alone or with a group?",
+    "keyword": "people"
+  },
+  {
+    "content": "What kind of transportation do you prefer?",
+    "keyword": "travel_mode"
+  },
+  {
+    "content": "How long do you want to spend on this trip?",
+    "keyword": "departure_time"
+  }
 ]
