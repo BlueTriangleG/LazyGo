@@ -106,7 +106,7 @@ export async function getRecommendsTips(
         output some natural language suggestions to the user. Don't show the actual data if the data is hard to understand for the user, only show the suggestions. The suggestions should
         include topics about: Weather and outdoor activities suggestions, Health suggestions related to the environment, and Pedometer data, light suggetions. If you don't receive the required
         data, dont't show the suggestions about it. These suggestions need to be very useful in everyday life. The Remember you are playing as a people, don't show you are a robot.
-         Only use natural language. ensure you return right formate.  使用中文回复。 You need to focus on caring for me in your language!`,
+         Only use natural language without formate like bold. ensure you return right formate. You need to focus on caring for me in your language!`,
       },
       { role: 'user', content: requestMessage },
     ],
