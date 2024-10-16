@@ -20,6 +20,7 @@ export interface Activity {
   estimatedPrice: string
   startLocation: string
   endLocation: string
+  photo_reference: string
 }
 
 export interface Plan {
@@ -99,6 +100,7 @@ const json_sample: Plan = {
       estimatedPrice: '15 AUD',
       startLocation: '48.8566,2.3522',
       endLocation: '48.8606,2.3376',
+      photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     },
     {
       date: '2024-09-29',
@@ -112,6 +114,7 @@ const json_sample: Plan = {
       estimatedPrice: '15 AUD',
       startLocation: '48.8566,2.3522',
       endLocation: '48.8606,2.3376',
+      photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     },
   ],
   2: [
@@ -127,6 +130,7 @@ const json_sample: Plan = {
       estimatedPrice: '15 AUD',
       startLocation: '48.8566,2.3522',
       endLocation: '48.8606,2.3376',
+      photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     },
   ],
 }

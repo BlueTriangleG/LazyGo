@@ -1,0 +1,34 @@
+dailyRecommends: [
+    {
+        "destination": "Crown Melbourne",
+        "destinationDescrib": "A popular casino and tourist attraction offering various entertainment options including gaming, dining, and events.",
+        "distance": "1.6 km",
+        "estimatedPrice": "50 AUD",
+        "photo_reference": "AdCG2DP3LmUuptXgVH0i0-lgabo9gfzpHRt-R6QxC8TCo9xSUhd-GWzVxwvriqNsvyBM8obm09fthbNuhxpcm5wYG4c-oU-Pys09DwOMOztd3gs4-LEiZBopsV2v3f5Kpv393jjpWfTzu7ZXny-LVS8k7UaaSZUfS1Hwl-EOJANWEteb7woV",
+        "vicinity": "8 Whiteman Street, Southbank"
+    },
+    {
+        "destination": "Kebab Kingz Melbourne",
+        "destinationDescrib": "A popular eatery serving delicious kebabs and other fast food options.",
+        "distance": "2.2 km",
+        "estimatedPrice": "10 AUD",
+        "photo_reference": "AdCG2DMKlt2rAPs1utNDP1PixNxrLzUCookNzSALum-QrdGpxMchFmS1VPX3g2b-mgXX-sIAdgF4qx0TB3Fxs50ofFgGsfHjkGFJZRRHcy7doZc0Dnhhfh0gisAq2yfOsRigwfe6I2MpOa5gmNmlGItWXZ2-6OX7eAnHTv3NIcZOM-3s3ts",
+        "vicinity": "438 Spencer Street, West Melbourne"
+    },
+    {
+        "destination": "Best Western Melbourne City Hotel",
+        "destinationDescrib": "Comfortable accommodation that also serves a variety of meals in their cafe.",
+        "distance": "1.8 km",
+        "estimatedPrice": "30 AUD",
+        "photo_reference": "AdCG2DM-LntK-6tIK2uTSqi2W76x7KFuf4tDp_wuKjDWgT-OxjhGjLTn5fd2IDe16cTJ0BpCa5Ab8Z0gDuXACNaUMuI3AG1dKj3QfKRrl1dY4OtveMnFEhzsEh2-EnZM7le6p8rlyi9xldteU5jP9PP0Tes22Bqs2B2gZXlcgNn-6bDXEqoV",
+        "vicinity": "16 Spencer Street, Melbourne"
+    },
+    {
+        "destination": "Village Cinemas Crown",
+        "destinationDescrib": "A movie theater offering a wide selection of films and a great viewing experience.",
+        "distance": "2.8 km",
+        "estimatedPrice": "15 AUD",
+        "photo_reference": "AdCG2DNlHD9B1014l_RbmrLtNHG0mjk9rpCEWXSZoS--fxI5bE8YHHR38cFItmUCwf2RUkkp_Q3zBGGoTMn8-l4OSPXdEsodmZdB_dKz8ANCpeLv_8p_EPQ-vg8r4uD0U_ZUE7QAfLOb6F0lHRbTwqNiP_QMvyJcdqjoGwzVogu5YKtnP1RB",
+        "vicinity": "Shop 50/8 Whiteman St, Southbank"
+    }
+]

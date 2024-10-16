@@ -362,6 +362,7 @@ const Chat = (props: ChatProps) => {
                     estimatedPrice={data.estimatedPrice}
                     startLocation={data.startLocation}
                     endLocation={data.endLocation}
+                    photoReference={data.photo_reference}
                   />
                 </View>
               ))}
