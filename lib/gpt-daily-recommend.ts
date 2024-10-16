@@ -1,6 +1,10 @@
 const GPT_KEY = process.env.EXPO_PUBLIC_GPT_KEY
 import { data } from '@/constants'
-import { getDistanceMatrix, getNearbyEntertainment, getNearbyPlaces } from './google-map-api'
+import {
+  getDistanceMatrix,
+  getNearbyEntertainment,
+  getNearbyPlaces,
+} from './google-map-api'
 import {
   filterDistanceMatrixData,
   filterGoogleMapData,
@@ -34,7 +38,7 @@ const recommend_example = [
   },
 ]
 
-const Types = ['restaurant', 'cafe', 'tourist_attraction',"entertainment"]
+const Types = ['restaurant', 'cafe', 'tourist_attraction', 'entertainment']
 
 async function getRecommends(
   requestMessage: string
@@ -132,17 +136,31 @@ export async function generateDailyRecommends(
   try {
     let data_string = ''
     const promises = Types.map(async (type) => {
-      switch (type){
-        case "entertainment":
-          const placesJson_ent = await getNearbyEntertainment(currentLocation, 2500, ["bar", "karaoke", "escaperoom","boardgame","bowling","spa","arcade","cinema","museum"])
+      switch (type) {
+        case 'entertainment':
+          const placesJson_ent = await getNearbyEntertainment(
+            currentLocation,
+            2500,
+            [
+              'bar',
+              'karaoke',
+              'escaperoom',
+              'boardgame',
+              'bowling',
+              'spa',
+              'arcade',
+              'cinema',
+              'museum',
+            ]
+          )
           const filteredPlacesJson_ent = filterGoogleMapData(placesJson_ent)
           data_string += `${type}: ${JSON.stringify(filteredPlacesJson_ent)};`
-          break;
+          break
         default:
           const placesJson = await getNearbyPlaces(currentLocation, 2500, type)
           const filteredPlacesJson = filterGoogleMapData(placesJson)
           data_string += `${type}: ${JSON.stringify(filteredPlacesJson)};`
-          break;
+          break
       }
     })
 
