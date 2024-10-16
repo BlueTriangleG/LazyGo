@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { photoUrlBase } from '@/lib/google-map-api';
 
 type ResDetailProps = {
   onClose: () => void;
@@ -8,6 +9,12 @@ type ResDetailProps = {
   title: string;
   description: string;
   coords: string;
+  duration: string;
+  destinationDuration: string;
+  transportation: string;
+  distance: string;
+  estimatedPrice: string;
+  photoReference: string;
   tips: string;
 };
 
@@ -20,13 +27,17 @@ const ResDetail: React.FC<ResDetailProps> = ({
   title,
   description,
   coords,
+  duration,
+  destinationDuration,
+  transportation,
+  distance,
+  estimatedPrice,
+  photoReference,
   tips,
 }) => {
   const [email, setEmail] = useState<string | null>(null);
   const [tempLat, tempLong] = coords.split(',').map(Number);
-  console.log(tempLat);
-  console.log(tempLong);
-
+  
   // get local email
   useEffect(() => {
     const fetchEmail = async () => {
@@ -50,7 +61,14 @@ const ResDetail: React.FC<ResDetailProps> = ({
       description,
       tempLat,
       tempLong,
-      email, 
+      email,
+      duration,
+      destinationDuration,
+      transportation,
+      distance,
+      estimatedPrice,
+      photoReference,
+      tips,
     };
 
     // call favorite api database
@@ -76,14 +94,14 @@ const ResDetail: React.FC<ResDetailProps> = ({
 
   const handleVisited = async () => {
     if (!email) {
-      console.error('用户未登录或未获取到 email');
+      console.error('Email not Found');
       return;
     }
 
     const visitedData = {
       email,
       title,
-      visit_count: 1, // 永远设置为 1
+      visit_count: 1, // first visit
     };
 
     // VisitedPlaces Database
@@ -109,49 +127,50 @@ const ResDetail: React.FC<ResDetailProps> = ({
 
   return (
     <View className="flex-1 justify-center items-center">
-      {/* 透明背景 */}
       <TouchableOpacity
-        onPress={onClose} // 点击背景关闭卡片
+        onPress={onClose} // close card
         style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
         className="absolute inset-0"
       />
 
-      {/* 卡片容器 */}
+      {/* card container */}
       <View
-        style={{ maxHeight: screenHeight * 0.45 }} // 设置最大高度为屏幕高度的45%
+        style={{ maxHeight: screenHeight * 0.75 }} // set max height based on screen 
         className="bg-white w-11/12 rounded-2xl overflow-hidden shadow-lg"
       >
-        {/* ScrollView 以启用滚动 */}
-        <ScrollView contentContainerStyle={{ padding: 16 }}>
-          {/* 图片 */}
+        <ScrollView 
+          contentContainerStyle={{ padding: 16 }} 
+          showsHorizontalScrollIndicator={false} // 隐藏水平滚动条
+          showsVerticalScrollIndicator={false} // 隐藏垂直滚动条
+        >
+          {/* image */}
           <Image
-            source={{ uri: 'https://i.pinimg.com/564x/a7/76/fa/a776faacad7abdd153d59d1361ff2680.jpg' }} // 替换为你的图片 URL
-            className="w-full h-40"
+            source={{ uri: photoUrlBase + photoReference }} // show pic
+            style={{ width: 300, height: 300, borderRadius: 10, marginRight: 10 }} 
             resizeMode="cover"
           />
 
-          {/* 标题 */}
+          {/* title */}
           <View className="mt-4">
             <Text className="text-lg font-bold text-gray-800 mb-2">{title}</Text>
-            <Text className="text-sm text-gray-500">道路</Text>
 
-            {/* 收藏和替换按钮 */}
+            {/* favorite and visited */}
             <View className="flex-row space-x-4 mb-4">
               <TouchableOpacity
-                onPress={handleFavorite} // 点击收藏时调用 handleFavorite
+                onPress={handleFavorite} 
                 className="flex-1 bg-yellow-500 rounded-full py-2"
               >
                 <Text className="text-white text-center text-sm font-semibold">Favorite</Text>
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={handleVisited} // 点击“Mark as Visited”时调用 handleVisited
+                onPress={handleVisited}
                 className="flex-1 bg-blue-100 rounded-full py-2"
               >
                 <Text className="text-blue-500 text-center text-sm font-semibold">Mark as Visited</Text>
               </TouchableOpacity>
             </View>
 
-            {/* 评分部分 */}
+            {/* rating tbc*/}
             <View className="flex-row items-center mt-2 mb-4">
               <Text className="text-sm text-green-600 font-bold mr-2">4.0</Text>
               <Text className="text-xs text-gray-500">3847则评论</Text>
@@ -159,33 +178,33 @@ const ResDetail: React.FC<ResDetailProps> = ({
 
             {/* 地点信息 */}
             <Text className="text-xs text-gray-600 mb-4">
-              Kanagawa Pref. Yokohamashi Naka...
+              {description}
             </Text>
 
             {/* 交通信息 */}
-            <Text className="text-sm font-bold text-gray-700 mb-2">交通方式</Text>
-            <Text className="text-sm text-gray-600 mb-4">{title}</Text>
+            <Text className="text-sm font-bold text-gray-700 mb-2">Transportation</Text>
+            <Text className="text-sm text-gray-600 mb-4">{transportation}</Text>
 
-            <Text className="text-sm font-bold text-gray-700 mb-2">距离</Text>
-            <Text className="text-sm text-gray-600 mb-4">{description}</Text>
+            <Text className="text-sm font-bold text-gray-700 mb-2">distance</Text>
+            <Text className="text-sm text-gray-600 mb-4">{distance}</Text>
 
-            <Text className="text-sm font-bold text-gray-700 mb-2">预估价格</Text>
-            <Text className="text-sm text-gray-600 mb-4">{description}</Text>
+            <Text className="text-sm font-bold text-gray-700 mb-2">Price</Text>
+            <Text className="text-sm text-gray-600 mb-4">{estimatedPrice}</Text>
 
             {/* 简介 */}
-            <Text className="text-sm font-bold text-gray-700 mb-2">简介</Text>
+            <Text className="text-sm font-bold text-gray-700 mb-2">Description</Text>
             <Text className="text-sm text-gray-600 mb-4">{description}</Text>
 
             {/* 小贴士部分 */}
-            <Text className="text-sm font-bold text-gray-700 mb-2">小贴士</Text>
+            <Text className="text-sm font-bold text-gray-700 mb-2">Tips</Text>
             <Text className="text-sm text-gray-600 mb-4">{tips}</Text>
 
-            {/* 关闭按钮 */}
+            {/* close button */}
             <TouchableOpacity
               onPress={onClose}
               className="bg-blue-500 rounded-full py-2 mb-4"
             >
-              <Text className="text-white text-center text-sm font-semibold">关闭</Text>
+              <Text className="text-white text-center text-sm font-semibold">Close</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

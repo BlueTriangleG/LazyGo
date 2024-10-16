@@ -21,6 +21,7 @@ import LottieView from 'lottie-react-native'
 import { getCurrentLocation } from '@/lib/location'
 import { useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
+import { getPhotoByReference } from '@/lib/google-map-api'
 
 export type ExploreProps = {
   date: string
@@ -133,6 +134,7 @@ export default function TabTwoScreen(props: ExploreProps) {
       startLocation: data.startLocation,
       endLocation: data.endLocation,
       detailedInfo: data.detailedInfo || '', // 可选字段
+      photoReference: data.photo_reference,
       email,
     }
 
@@ -204,7 +206,7 @@ export default function TabTwoScreen(props: ExploreProps) {
         <ScrollView
           style={styles.container}
           showsVerticalScrollIndicator={false}>
-          <View style={styles.daySelector}>
+          {/* <View style={styles.daySelector}>
             <TouchableOpacity
               style={[
                 styles.dayButton,
@@ -213,15 +215,7 @@ export default function TabTwoScreen(props: ExploreProps) {
               onPress={() => setSelectedDay(1)}>
               <Text style={styles.dayButtonText}>Day 1</Text>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.dayButton,
-                selectedDay === 2 && styles.selectedDayButton,
-              ]}
-              onPress={() => setSelectedDay(2)}>
-              <Text style={styles.dayButtonText}>Day 2</Text>
-            </TouchableOpacity>
-          </View>
+          </View> */}
 
           <View style={styles.mapContainer}>
             <Map coords={latData1[selectedDay]} />
@@ -240,6 +234,7 @@ export default function TabTwoScreen(props: ExploreProps) {
                 estimatedPrice={data.estimatedPrice}
                 startLocation={data.startLocation}
                 endLocation={data.endLocation}
+                photoReference={data.photo_reference}
                 detailedInfo={''}
               />
               {index === travelData[selectedDay].length - 1 && (
@@ -250,7 +245,6 @@ export default function TabTwoScreen(props: ExploreProps) {
                   >
                     <Text style={styles.addButtonText}>Add to History</Text>
                   </TouchableOpacity>
-
                 </>
               )}
             </React.Fragment>

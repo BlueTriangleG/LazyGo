@@ -16,6 +16,7 @@ export async function POST(request: Request) {
       endLocation,
       detailedInfo,
       email,
+      photoReference, // 新增字段
     } = await request.json();
 
     if (
@@ -28,7 +29,8 @@ export async function POST(request: Request) {
       !estimatedPrice ||
       !startLocation ||
       !endLocation ||
-      !email
+      !email||
+      !photoReference
     ) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
@@ -49,7 +51,8 @@ export async function POST(request: Request) {
         startLocation,
         endLocation,
         detailedInfo,
-        email
+        email,
+        photoReference  -- 新增字段
       ) VALUES (
         ${duration},
         ${destination},
@@ -61,7 +64,8 @@ export async function POST(request: Request) {
         ${startLocation},
         ${endLocation},
         ${detailedInfo},
-        ${email}
+        ${email},
+        ${photoReference}  -- 新增字段
       )
       RETURNING *
     `;
@@ -74,6 +78,7 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }
+
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

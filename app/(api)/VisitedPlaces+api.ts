@@ -4,10 +4,10 @@ export async function POST(request: Request) {
   try {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
 
-    // 从请求中获取 JSON 数据
-    const { email, title, visit_count, id } = await request.json();
+    // lowercase email
+    const { email: rawEmail, title, visit_count, id } = await request.json();
+    const email = rawEmail.toLowerCase();
 
-    // 检查必填字段
     if (!email || !title) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }), 
@@ -15,7 +15,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 如果提供了 id，则使用 id 插入，否则只插入 email、title 和 visit_count
+
     let response;
     if (id) {
       response = await sql`
@@ -29,19 +29,17 @@ export async function POST(request: Request) {
       `;
     }
 
-    // 返回成功响应
     return new Response(JSON.stringify({ data: response }), { status: 201 });
 
   } catch (error) {
-    console.error('插入 VisitedPlaces 数据时出错:', error);
+    console.error('Inser VisitedPlaces wrong:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }
 
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
-  const email = searchParams.get('email');
+  const email = searchParams.get('email')?.toLowerCase(); // 转为小写
   const title = searchParams.get('title'); // 获取 title 参数
 
   try {
@@ -49,37 +47,34 @@ export async function GET(request: Request) {
     
     let response;
 
-    // 根据参数决定查询的条件
+    // check if exist
     if (title) {
-      // 如果有 title，使用 email 和 title 查询
       response = await sql`
         SELECT * FROM VisitedPlaces WHERE email = ${email} AND title = ${title}
       `;
     } else {
-      // 如果没有 title，仅通过 email 查询
       response = await sql`
         SELECT * FROM VisitedPlaces WHERE email = ${email}
       `;
     }
 
-    // 返回查询结果
     return new Response(JSON.stringify(response), { status: 200 });
 
   } catch (error) {
-    console.error('获取 VisitedPlaces 数据时出错:', error);
+    console.error('Getting VisitedPlaces Wrong:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }
+
 
 
 export async function PUT(request: Request) {
   try {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
 
-    // 从请求中获取 JSON 数据
     const { email, title, visit_count } = await request.json();
 
-    // 检查必填字段，确保 visit_count 是一个数字
+
     if (!email || !title || typeof visit_count !== 'number') {
       return new Response(
         JSON.stringify({ error: 'Missing or invalid required fields' }), 
@@ -87,19 +82,18 @@ export async function PUT(request: Request) {
       );
     }
 
-    // 更新 VisitedPlaces 表中的 visit_count
     const response = await sql`
       UPDATE VisitedPlaces
       SET visit_count = ${visit_count}
       WHERE email = ${email} AND title = ${title}
     `;
 
-    // 检查是否有行被更新
+
     if (response.rowCount === 0) {
       return new Response(JSON.stringify({ error: 'Record not found' }), { status: 404 });
     }
 
-    // 返回成功响应
+
     return new Response(JSON.stringify({ success: true }), { status: 200 });
 
   } catch (error) {
@@ -109,7 +103,7 @@ export async function PUT(request: Request) {
 }
 
 
-// 删除记录
+// delete
 export async function DELETE(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get('email');
@@ -118,7 +112,7 @@ export async function DELETE(request: Request) {
   try {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
 
-    // 检查必填字段
+
     if (!email || !title) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }), 
@@ -126,22 +120,19 @@ export async function DELETE(request: Request) {
       );
     }
 
-    // 从 VisitedPlaces 表中删除数据
     const response = await sql`
       DELETE FROM VisitedPlaces 
       WHERE email = ${email} AND title = ${title}
     `;
 
-    // 检查是否有行被删除
     if (response.rowCount === 0) {
       return new Response(JSON.stringify({ error: 'Record not found' }), { status: 404 });
     }
 
-    // 返回成功响应
     return new Response(JSON.stringify({ success: true }), { status: 200 });
 
   } catch (error) {
-    console.error('删除 VisitedPlaces 数据时出错:', error);
+    console.error('Deleting VisitedPlaces Wrong:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }

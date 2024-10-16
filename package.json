@@ -75,6 +75,7 @@
     "react-native-sensors": "^7.3.6",
     "react-native-sound-level": "^1.2.0",
     "react-native-swiper": "^1.6.0",
+    "react-native-vector-icons": "^10.2.0",
     "react-native-web": "~0.19.10",
     "sqlite3": "^5.1.7",
     "stripe": "^16.7.0",

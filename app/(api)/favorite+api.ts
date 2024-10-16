@@ -5,7 +5,20 @@ export async function POST(request: Request) {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
 
     // 从请求中获取 JSON 数据
-    const { title, description, tempLat, tempLong, email } = await request.json();
+    const { 
+      title, 
+      description, 
+      tempLat, 
+      tempLong, 
+      email, 
+      duration, 
+      destinationDuration, 
+      transportation, 
+      distance, 
+      estimatedPrice, 
+      photoReference, 
+      tips 
+    } = await request.json();
 
     // 检查必填字段
     if (!title || !description || tempLat === undefined || tempLong === undefined || !email) {
@@ -17,8 +30,33 @@ export async function POST(request: Request) {
 
     // 插入数据到 favorite 表
     const response = await sql`
-      INSERT INTO favorite (title, description, tempLat, tempLong, email)
-      VALUES (${title}, ${description}, ${tempLat}, ${tempLong}, ${email})
+      INSERT INTO favorite (
+        title, 
+        description, 
+        tempLat, 
+        tempLong, 
+        email, 
+        duration, 
+        destinationDuration, 
+        transportation, 
+        distance, 
+        estimatedPrice, 
+        photoReference, 
+        tips
+      ) VALUES (
+        ${title}, 
+        ${description}, 
+        ${tempLat}, 
+        ${tempLong}, 
+        ${email}, 
+        ${duration}, 
+        ${destinationDuration}, 
+        ${transportation}, 
+        ${distance}, 
+        ${estimatedPrice}, 
+        ${photoReference}, 
+        ${tips}
+      )
     `;
 
     // 返回成功响应
@@ -29,6 +67,7 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }
+
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);

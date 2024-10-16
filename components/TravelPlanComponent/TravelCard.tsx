@@ -88,14 +88,26 @@ const TravelCard: React.FC<TravelCardProps> = ({
         {/* 内部卡片 */}
         <View style={styles.card}>
           <View style={styles.header}>
-            <Text style={styles.location}>{destination}{'\n'}<Text style={styles.departureTime}>Depart at: {time}</Text></Text>
+            {/* 包裹 Image 的 View */}
+            <View style={styles.imageContainer}>
+              <Image
+                source={{ uri: photoUrlBase + photoReference }}
+                style={styles.image}
+                resizeMode="cover"
+              />
+              <View style={styles.priceTag}>
+                <Text style={styles.priceText}>{estimatedPrice}</Text>
+              </View>
+            </View>
+
           </View>
 
-          <Text style={styles.waitTime}>
-          {/* {renderTransportationIcons()} */}
-          Estimated Cost:{' '}{estimatedPrice}
-
+          <Text style={styles.location}>
+            {destination}
+            {'\n'}
+            <Text style={styles.departureTime}>Depart at: {time}</Text>
           </Text>
+
           <Text style={styles.destinationDescription}>
             {destinationDescrib}
           </Text>
@@ -123,16 +135,12 @@ const TravelCard: React.FC<TravelCardProps> = ({
           <TouchableOpacity onPress={openGoogleMaps}>
             <Text style={styles.detailedInfo}>Click to google map</Text>
           </TouchableOpacity>
-
           <View style={styles.transportIcons}>
             <Text>
               Distance: {distance} / {transportation} ({duration})
             </Text>
           </View>
-          <Image
-            source={{ uri: photoUrlBase + photoReference }}
-            style={{ width: 350, height: 300, borderRadius: 10, marginRight: 10 }}
-          />
+
         </View>
       </View>
 
@@ -152,11 +160,12 @@ const TravelCard: React.FC<TravelCardProps> = ({
           transportation={transportation}
           distance={distance}
           estimatedPrice={estimatedPrice}
+          photoReference={photoReference}
           tips=" "
         />
       </Modal>
 
-    </View>
+    </View >
   )
 }
 
@@ -202,10 +211,9 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 5,
+    flexDirection: 'column', // 改为竖直排列
+    alignItems: 'center', // 可选择居中对齐
+    marginBottom: 0,
   },
   location: {
     fontSize: 18,
@@ -272,6 +280,34 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'flex-start',
     marginTop: 10,
+  },
+  imageContainer: {
+    marginTop: -8,
+    borderRadius: 10,
+    overflow: 'hidden',
+    width: 277,
+    height: 180,
+    position: 'relative',
+  },
+  image: {
+    borderRadius: 10,
+    width: '100%',
+    height: 180,
+    minWidth: 277,
+  },
+  priceTag: {
+    position: 'absolute',   
+    bottom: 10,                   
+    right: 10,                   
+    backgroundColor: 'rgba(0, 0, 0, 0.7)', 
+    borderRadius: 10,             
+    padding: 5,                  
+  },
+
+  priceText: {
+    color: '#FFFFFF',             
+    fontWeight: 'bold',           
+    fontSize: 14,                 
   },
 })
 
