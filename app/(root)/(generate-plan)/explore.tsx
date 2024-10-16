@@ -56,7 +56,7 @@ export default function TabTwoScreen(props: ExploreProps) {
     // Parse travel plan
     const parsedPlan = JSON.parse(exploreParams.plan)
     setTravelData(parsedPlan)
-
+    console.log("explore.tsx++++++=======++++++++",parsedPlan)
     const newLatData1 = {}
     // Extract required information
     for (const [key, travels] of Object.entries(parsedPlan)) {
@@ -224,7 +224,6 @@ export default function TabTwoScreen(props: ExploreProps) {
           </View>
 
           <View style={styles.mapContainer}>
-            {/* {console.log("latData1 before passing to Map:", latData1[selectedDay])} */}
             <Map coords={latData1[selectedDay]} />
           </View>
 
@@ -247,26 +246,15 @@ export default function TabTwoScreen(props: ExploreProps) {
                 <>
                   <TouchableOpacity
                     style={styles.addButton}
-                    onPress={() => addToHistory(data)} // 点击时调用 addToHistory
+                    onPress={() => addToHistory(data)} // call addToHistory
                   >
                     <Text style={styles.addButtonText}>Add to History</Text>
                   </TouchableOpacity>
-                  <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={handleAddDestination}>
-                    <Text style={styles.addButtonText}>
-                      Add More Destination
-                    </Text>
-                  </TouchableOpacity>
+
                 </>
               )}
             </React.Fragment>
           ))}
-
-          <AddMoreRes
-            visible={modalVisible}
-            onClose={() => setModalVisible(false)}
-          />
         </ScrollView>
       )}
     </SafeAreaView>

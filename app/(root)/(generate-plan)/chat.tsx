@@ -334,6 +334,7 @@ const Chat = (props: ChatProps) => {
           setGenerating(false)
           return
       }
+      console.log("chat.tsx==========", result);
 
       if (!result) {
         Alert.alert('Failed to generate plan')

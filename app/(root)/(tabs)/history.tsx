@@ -69,7 +69,7 @@ const [travels, setTravels] = useState([]);
         }
 
         const result = await response.json();
-        console.log("=========",result);
+        console.log("history.tsx=========",result);
         if (!Array.isArray(result)) {
           console.error('Wrong Data:', result);
           return;

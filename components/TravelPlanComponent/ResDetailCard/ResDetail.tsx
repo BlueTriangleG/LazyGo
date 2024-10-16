@@ -2,7 +2,6 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-// 定义组件的 Props 类型
 type ResDetailProps = {
   onClose: () => void;
   onFavorite: () => void;
@@ -12,7 +11,7 @@ type ResDetailProps = {
   tips: string;
 };
 
-// 获取屏幕高度
+// collect screen height
 const screenHeight = Dimensions.get('window').height;
 
 const ResDetail: React.FC<ResDetailProps> = ({
@@ -28,7 +27,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
   console.log(tempLat);
   console.log(tempLong);
 
-  // 获取本地存储的 email
+  // get local email
   useEffect(() => {
     const fetchEmail = async () => {
       const storedEmail = await AsyncStorage.getItem('userEmail');
@@ -42,7 +41,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
 
   const handleFavorite = async () => {
     if (!email) {
-      console.error('用户未登录或未获取到 email');
+      console.error('Did not found email');
       return;
     }
 
@@ -133,7 +132,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
 
           {/* 标题 */}
           <View className="mt-4">
-            <Text className="text-lg font-bold text-gray-800 mb-2">横滨中华街</Text>
+            <Text className="text-lg font-bold text-gray-800 mb-2">{title}</Text>
             <Text className="text-sm text-gray-500">道路</Text>
 
             {/* 收藏和替换按钮 */}

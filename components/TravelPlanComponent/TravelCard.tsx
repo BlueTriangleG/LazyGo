@@ -51,14 +51,12 @@ const TravelCard: React.FC<TravelCardProps> = ({
 
   const renderTransportationIcons = () => {
     switch (transportation) {
-      case 'Public':
-        return '🚶‍♂️ → 🚆 → 🚶‍♂️'
-      case 'Car':
-        return '🚗 → 🚦 → 🏁'
-      case 'Bicycle':
-        return '🚲 → 🌳 → 🏖️'
-      case 'Walk':
-        return '🚶‍♀️ → 🌳 → 🏞️'
+      case 'Transit':
+        return '🚶‍♂️'
+      case 'Driving':
+        return '🚗 '
+      case 'Walking':
+        return '🚶‍♀️'
       default:
         return ''
     }
@@ -87,20 +85,26 @@ const TravelCard: React.FC<TravelCardProps> = ({
         {/* 内部卡片 */}
         <View style={styles.card}>
           <View style={styles.header}>
-            <Text style={styles.location}>{destination}{'\n'}<Text style={styles.departureTime}>{time} 出發</Text></Text>
-
+            <Text style={styles.location}>{destination}{'\n'}<Text style={styles.departureTime}>Depart at: {time}</Text></Text>
           </View>
 
           <Text style={styles.waitTime}>
-            步行時長 ({duration}){'\n'}
+          {/* {renderTransportationIcons()} */}
+          Estimated Cost:{' '}{estimatedPrice}
+
           </Text>
           <Text style={styles.destinationDescription}>
             {destinationDescrib}
           </Text>
-          
-          <Text style={styles.destinationDuration}>
-            目的地停留時長: {destinationDuration} min
-          </Text>
+          <View style={styles.durationContainer}>
+            <Image
+              source={require('@/assets/images/TravelCard/time.png')} // 根据你的路径调整
+              style={styles.icon}
+            />
+            <Text style={styles.destinationDuration}>
+              Stay Duration: {destinationDuration} min
+            </Text>
+          </View>
 
           {/* click show more */}
           <View style={styles.transportInfoContainer}>
@@ -110,37 +114,39 @@ const TravelCard: React.FC<TravelCardProps> = ({
           </View>
         </View>
 
-        {/* 其他信息 */}
+        {/* Navigation Info */}
         <View style={styles.additionalInfoContainer}>
-          <Text style={styles.sectionTitle}>公共交通</Text>
+          <Text style={styles.sectionTitle}>Navigation Info</Text>
           <TouchableOpacity onPress={openGoogleMaps}>
-            <Text style={styles.detailedInfo}>点击跳转google map</Text>
+            <Text style={styles.detailedInfo}>Click to google map</Text>
           </TouchableOpacity>
 
           <View style={styles.transportIcons}>
             <Text>
-              交通方式: {transportation} / 距離: {distance} / 預估價格:{' '}
-              {estimatedPrice}
-              {'\n'}
-              {renderTransportationIcons()}
+              Distance: {distance} / {transportation} ({duration})
             </Text>
           </View>
         </View>
       </View>
 
-      {/* 显示更多信息的模态框 */}
+      {/* click for more detail */}
       <Modal
         transparent={true}
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-      <ResDetail
-        onClose={() => setModalVisible(false)}
-        title = {destination}
-        description = {destinationDescrib}
-        coords = {endLocation}
-        tips="尝试这里的街头小吃！"
-      />
+        <ResDetail
+          onClose={() => setModalVisible(false)}
+          title={destination}
+          description={destinationDescrib}
+          coords={endLocation}
+          duration={duration}
+          destinationDuration={destinationDuration}
+          transportation={transportation}
+          distance={distance}
+          estimatedPrice={estimatedPrice}
+          tips=" "
+        />
       </Modal>
     </View>
   )
@@ -191,7 +197,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
-    marginBottom: 10,
+    marginBottom: 5,
   },
   location: {
     fontSize: 18,
@@ -205,7 +211,7 @@ const styles = StyleSheet.create({
   waitTime: {
     fontSize: 14,
     color: '#888888',
-    marginBottom: 10,
+    marginBottom: 0,
   },
   destinationDescription: {
     fontSize: 14,
@@ -215,7 +221,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: '#555555',
   },
+  durationContainer: {
+    flexDirection: 'row', // 水平排列图标和文本
+    alignItems: 'center', // 垂直居中
+  },
+  icon: {
+    width: 16, // 根据图标大小调整
+    height: 16, // 根据图标大小调整
+    marginRight: 5, // 图标和文本之间的间距
+  },
   destinationDuration: {
+    marginTop: 2,
     fontSize: 14,
     color: '#555555',
   },
