@@ -11,6 +11,52 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import ResDetail from '@/components/TravelPlanComponent/ResDetailCard/ResDetail'; // Ensure to import your ResDetail component
 import { photoUrlBase } from '@/lib/google-map-api';
 
+// Inline RatingStars component with full and half-star images
+const RatingStars = ({ rating, comments }) => {
+  const fullStars = Math.floor(rating); // Number of full stars
+  const hasHalfStar = rating % 1 !== 0; // Check if there's a half star
+  const stars = [];
+
+  // Add full stars using star.png
+  for (let i = 0; i < fullStars; i++) {
+    stars.push(
+      <Image
+        key={i}
+        source={require('@/assets/images/TravelCard/star.png')}
+        style={{ width: 14, height: 14 }}
+      />
+    );
+  }
+
+  // Add half star using half_star.png if applicable
+  if (hasHalfStar) {
+    stars.push(
+      <Image
+        key={fullStars}
+        source={require('@/assets/images/TravelCard/half_star.png')}
+        style={{ width: 14, height: 14 }}
+      />
+    );
+  }
+
+  // Add empty stars using Text component to fill up to 5 stars
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+  for (let i = 0; i < emptyStars; i++) {
+    stars.push(
+      <Text key={fullStars + 1 + i} style={{ color: '#FFD700', fontSize: 20 }}>
+        ☆
+      </Text>
+    );
+  }
+
+  return (
+    <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+      {stars}
+      <Text style={{ marginLeft: 5 }}>{comments} comments</Text>
+    </View>
+  );
+};
+
 export const FavoriteComponent = () => {
   const [favorites, setFavorites] = useState([]);
   const [modalVisible, setModalVisible] = useState(false);
@@ -67,25 +113,30 @@ export const FavoriteComponent = () => {
   };
 
   // 渲染卡片
-// 渲染卡片
-const renderFavoriteCard = ({ item }) => (
-  <View className="bg-white rounded-[12px] p-2 mb-4 shadow-md" style={{ height: 230 }}>
-    <Image
-      source={{ uri: photoUrlBase + item.photoreference }}
-      style={{ width: '100%', height: '60%', borderRadius: 10 }} 
-      resizeMode="cover"
-    />
-    <Text className="text-[18px] font-bold mt-2">{item.transportation}</Text>
-    <Text className="text-[14px] mt-1" style={{ color: '#555' }}>
-      {item.description}
-    </Text>
-    <TouchableOpacity
-      className="bg-[#fcaac1] rounded-[30px] py-1 px-3 self-end"
-      onPress={() => handleAddFavorite(item)}>
-      <Text className="text-base font-bold text-white">Detail</Text>
-    </TouchableOpacity>
-  </View>
-);
+  const renderFavoriteCard = ({ item }) => (
+    <View className="bg-white rounded-[12px] p-2 mb-4 shadow-md" style={{ height: 230 }}>
+      <Image
+        source={{ uri: photoUrlBase + item.photoreference }}
+        style={{ width: '100%', height: '60%', borderRadius: 10 }} 
+        resizeMode="cover"
+      />
+      <Text className="text-[18px] font-bold mt-2">{item.transportation || "N/A"}</Text>
+      <Text className="text-[14px] mt-1" style={{ color: '#555' }}>
+        {item.description || "No description available."}
+      </Text>
+
+      {/* Add RatingStars component */}
+      <View className="flex-row items-center mt-1 mb-2">
+        <RatingStars rating={parseFloat(item.tips) || 0} comments={3000} />
+      </View>
+
+      <TouchableOpacity
+        className="bg-[#fcaac1] rounded-[30px] py-1 px-3 self-end mt-2"
+        onPress={() => handleAddFavorite(item)}>
+        <Text className="text-base font-bold text-white">Detail</Text>
+      </TouchableOpacity>
+    </View>
+  );
 
   return (
     <View className="flex-1 ">
@@ -118,7 +169,7 @@ const renderFavoriteCard = ({ item }) => (
             distance={selectedItem.distance}
             estimatedPrice={selectedItem.estimatedprice}
             photoReference={selectedItem.photoreference}
-            tips={'4.7'}
+            tips={selectedItem.tips || '4.7'} // Ensure tips are provided
           />
         )}
       </Modal>
