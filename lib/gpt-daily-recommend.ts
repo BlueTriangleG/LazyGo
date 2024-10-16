@@ -1,6 +1,10 @@
 const GPT_KEY = process.env.EXPO_PUBLIC_GPT_KEY
 import { data } from '@/constants'
-import { getDistanceMatrix, getNearbyEntertainment, getNearbyPlaces } from './google-map-api'
+import {
+  getDistanceMatrix,
+  getNearbyEntertainment,
+  getNearbyPlaces,
+} from './google-map-api'
 import {
   filterDistanceMatrixData,
   filterGoogleMapData,
@@ -34,7 +38,7 @@ const recommend_example = [
   },
 ]
 
-const Types = ['restaurant', 'cafe', 'tourist_attraction',"entertainment"]
+const Types = ['restaurant', 'cafe', 'tourist_attraction', 'entertainment']
 
 async function getRecommends(
   requestMessage: string
@@ -54,7 +58,7 @@ async function getRecommends(
         content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 4 dataset will be given, you must completely randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error. 
                 If there are n datasets, the list contain n recommendations. The list can contain <n recommendations. If the dataset is empty, skip that type and do recommendation for the next type.
                 "destination" is the true name of the destination in the data given."destination describ" is the description of the destination."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data).
-                Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. And the photo_reference is exactly the photo_reference from the given Google Map API data. You should only choose the destinations from the given Google Map API data. YOu must return the json 
+                Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. And the photo_reference is exactly the photo_reference from the given Google Map API data, no need to change it. You should only choose the destinations from the given Google Map API data. YOu must return the json 
                 in the form of string without \`\`\`.Do not return anything beyond the given data. Do not return anything besides the JSON.The recommend mustcontain all the keys in the sample form. 
                 `,
       },
@@ -102,7 +106,7 @@ export async function getRecommendsTips(
         output some natural language suggestions to the user. Don't show the actual data if the data is hard to understand for the user, only show the suggestions. The suggestions should
         include topics about: Weather and outdoor activities suggestions, Health suggestions related to the environment, and Pedometer data, light suggetions. If you don't receive the required
         data, dont't show the suggestions about it. These suggestions need to be very useful in everyday life. The Remember you are playing as a people, don't show you are a robot.
-         Only use natural language. ensure you return right formate.  使用中文回复。 You need to focus on caring for me in your language!`,
+         Only use natural language without formate like bold. ensure you return right formate. You need to focus on caring for me in your language!`,
       },
       { role: 'user', content: requestMessage },
     ],
@@ -132,17 +136,31 @@ export async function generateDailyRecommends(
   try {
     let data_string = ''
     const promises = Types.map(async (type) => {
-      switch (type){
-        case "entertainment":
-          const placesJson_ent = await getNearbyEntertainment(currentLocation, 2500, ["bar", "karaoke", "escaperoom","boardgame","bowling","spa","arcade","cinema","museum"])
+      switch (type) {
+        case 'entertainment':
+          const placesJson_ent = await getNearbyEntertainment(
+            currentLocation,
+            2500,
+            [
+              'bar',
+              'karaoke',
+              'escaperoom',
+              'boardgame',
+              'bowling',
+              'spa',
+              'arcade',
+              'cinema',
+              'museum',
+            ]
+          )
           const filteredPlacesJson_ent = filterGoogleMapData(placesJson_ent)
           data_string += `${type}: ${JSON.stringify(filteredPlacesJson_ent)};`
-          break;
+          break
         default:
           const placesJson = await getNearbyPlaces(currentLocation, 2500, type)
           const filteredPlacesJson = filterGoogleMapData(placesJson)
           data_string += `${type}: ${JSON.stringify(filteredPlacesJson)};`
-          break;
+          break
       }
     })
 

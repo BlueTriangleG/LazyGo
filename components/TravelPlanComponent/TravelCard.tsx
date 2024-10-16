@@ -9,6 +9,7 @@ import {
   Linking,
   Modal,
 } from 'react-native'
+import { photoUrlBase } from '@/lib/google-map-api'
 
 
 type TravelCardProps = {
@@ -22,6 +23,7 @@ type TravelCardProps = {
   estimatedPrice: string
   startLocation: string // 起点经纬度
   endLocation: string // 终点经纬度
+  photoReference: string
 }
 
 const TravelCard: React.FC<TravelCardProps> = ({
@@ -35,6 +37,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
   estimatedPrice,
   startLocation,
   endLocation,
+  photoReference,
 }) => {
   const [lineHeight, setLineHeight] = useState(0)
   const [modalVisible, setModalVisible] = useState(false) // 控制模态框的可见性
@@ -126,6 +129,10 @@ const TravelCard: React.FC<TravelCardProps> = ({
               Distance: {distance} / {transportation} ({duration})
             </Text>
           </View>
+          <Image
+            source={{ uri: photoUrlBase + photoReference }}
+            style={{ width: 350, height: 300, borderRadius: 10, marginRight: 10 }}
+          />
         </View>
       </View>
 
@@ -148,6 +155,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
           tips=" "
         />
       </Modal>
+
     </View>
   )
 }

@@ -144,24 +144,28 @@ const Chat = (props: ChatProps) => {
   // Auto choose chat if current chat is 'init'
   useEffect(() => {
     if (currentChat === 'init') {
-      autoChooseChat();
+      autoChooseChat()
     }
   }, [currentChat])
 
   const autoChooseChat = () => {
-    const options = optionsArray.find((options) => options.keyword === 'init')?.options;
+    const options = optionsArray.find(
+      (options) => options.keyword === 'init'
+    )?.options
     if (!options || options.length === 0) {
-      setCurrentChat('');
-      return;
+      setCurrentChat('')
+      return
     }
-    const nextChat = options[0].key;
-    const nextContent = chatsArray.find((chat) => chat.keyword === nextChat)?.content;
-    setCurrentChat(nextChat);
+    const nextChat = options[0].key
+    const nextContent = chatsArray.find(
+      (chat) => chat.keyword === nextChat
+    )?.content
+    setCurrentChat(nextChat)
     let nextMsg: Message = {
       content: nextContent || '',
       sender: 'bot',
     }
-    setMessages([...messages, nextMsg]);
+    setMessages([...messages, nextMsg])
   }
 
   // Handle user's choice
@@ -363,6 +367,7 @@ const Chat = (props: ChatProps) => {
                     estimatedPrice={data.estimatedPrice}
                     startLocation={data.startLocation}
                     endLocation={data.endLocation}
+                    photoReference={data.photo_reference}
                   />
                 </View>
               ))}
@@ -410,20 +415,21 @@ const Chat = (props: ChatProps) => {
       <View className="mb-3">
         <View className="mx-5 mb-5">
           {/* Render options based on current chat */}
-          {currentChat !== "init" && optionsArray
-            .find((options) => options.keyword === currentChat)
-            ?.options.map((option) => {
-              return (
-                <CustomButton
-                  key={option.key} // 确保每个 button 有唯一的 key
-                  title={option.content}
-                  className="mt-6 bg-red-300"
-                  onPress={() =>
-                    handleButtonPress(currentChat, option.key, option.content)
-                  }
-                />
-              )
-            })}
+          {currentChat !== 'init' &&
+            optionsArray
+              .find((options) => options.keyword === currentChat)
+              ?.options.map((option) => {
+                return (
+                  <CustomButton
+                    key={option.key} // 确保每个 button 有唯一的 key
+                    title={option.content}
+                    className="mt-6 bg-red-300"
+                    onPress={() =>
+                      handleButtonPress(currentChat, option.key, option.content)
+                    }
+                  />
+                )
+              })}
         </View>
         {progress === totalSteps &&
           (generating ? (
@@ -435,7 +441,12 @@ const Chat = (props: ChatProps) => {
               />
             </View>
           ) : (
-            <ShakeDetector onShake={handleGeneratePlan} disabled={generating} />
+            <View className="flex justify-center items-center w-full h-10">
+              <ShakeDetector
+                onShake={handleGeneratePlan}
+                disabled={generating}
+              />
+            </View>
           ))}
       </View>
     </SafeAreaView>
