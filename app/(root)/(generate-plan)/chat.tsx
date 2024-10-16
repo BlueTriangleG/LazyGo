@@ -338,7 +338,6 @@ const Chat = (props: ChatProps) => {
           setGenerating(false)
           return
       }
-      console.log("chat.tsx==========", result);
 
       if (!result) {
         Alert.alert('Failed to generate plan')
@@ -355,7 +354,7 @@ const Chat = (props: ChatProps) => {
               <View className="h-px bg-gray-300 my-6" />
               <Text>Day {key}</Text>
               {activities.map((data, index) => (
-                <View style={{ width: '90%', marginLeft: 30 }} key={index}>
+                <View style={{ width: '90%', marginLeft: 20 }} key={index}>
                   <TravelCard
                     time={data.time}
                     duration={data.duration}
@@ -421,7 +420,7 @@ const Chat = (props: ChatProps) => {
               ?.options.map((option) => {
                 return (
                   <CustomButton
-                    key={option.key} // 确保每个 button 有唯一的 key
+                    key={option.key} // each button has unique key
                     title={option.content}
                     className="mt-6 bg-red-300"
                     onPress={() =>

@@ -52,7 +52,7 @@ export async function POST(request: Request) {
         endLocation,
         detailedInfo,
         email,
-        photoReference  -- 新增字段
+        photoReference
       ) VALUES (
         ${duration},
         ${destination},

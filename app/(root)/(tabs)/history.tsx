@@ -42,7 +42,7 @@ const [travels, setTravels] = useState([]);
         estimatedPrice: item.estimatedprice,
         startLocation: item.startlocation,
         endLocation: item.endlocation,
-        detailedInfo: item.detailedinfo,
+        detailedInfo: item.detailedinfo || '4.2',
         email: item.email,
       },
     });

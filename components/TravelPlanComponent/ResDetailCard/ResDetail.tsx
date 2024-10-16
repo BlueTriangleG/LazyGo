@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { photoUrlBase } from '@/lib/google-map-api';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
 type ResDetailProps = {
   onClose: () => void;
@@ -37,7 +38,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
 }) => {
   const [email, setEmail] = useState<string | null>(null);
   const [tempLat, tempLong] = coords.split(',').map(Number);
-  
+
   // get local email
   useEffect(() => {
     const fetchEmail = async () => {
@@ -91,6 +92,30 @@ const ResDetail: React.FC<ResDetailProps> = ({
       console.error('Wrong request:', error);
     }
   };
+  const RatingStars = ({ rating }) => {
+    const fullStars = Math.floor(rating); // 获取完整星星的数量
+    const hasHalfStar = rating % 1 !== 0; // 判断是否有半颗星
+    const stars = [];
+
+    // 添加完整的星星
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Icon key={i} name="star" size={20} color="gold" />);
+    }
+
+    // 添加半颗星
+    if (hasHalfStar) {
+      stars.push(<Icon key={fullStars} name="star-half-full" size={20} color="gold" />);
+    }
+
+    // 添加空星星
+    const emptyStars = 5 - stars.length;
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />);
+    }
+
+    return <View style={{ flexDirection: 'row' }}>{stars}</View>;
+  };
+
 
   const handleVisited = async () => {
     if (!email) {
@@ -138,15 +163,15 @@ const ResDetail: React.FC<ResDetailProps> = ({
         style={{ maxHeight: screenHeight * 0.75 }} // set max height based on screen 
         className="bg-white w-11/12 rounded-2xl overflow-hidden shadow-lg"
       >
-        <ScrollView 
-          contentContainerStyle={{ padding: 16 }} 
+        <ScrollView
+          contentContainerStyle={{ padding: 16 }}
           showsHorizontalScrollIndicator={false} // 隐藏水平滚动条
           showsVerticalScrollIndicator={false} // 隐藏垂直滚动条
         >
           {/* image */}
           <Image
             source={{ uri: photoUrlBase + photoReference }} // show pic
-            style={{ width: 300, height: 300, borderRadius: 10, marginRight: 10 }} 
+            style={{ width: 300, height: 300, borderRadius: 10, marginRight: 10 }}
             resizeMode="cover"
           />
 
@@ -157,7 +182,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
             {/* favorite and visited */}
             <View className="flex-row space-x-4 mb-4">
               <TouchableOpacity
-                onPress={handleFavorite} 
+                onPress={handleFavorite}
                 className="flex-1 bg-yellow-500 rounded-full py-2"
               >
                 <Text className="text-white text-center text-sm font-semibold">Favorite</Text>
@@ -172,8 +197,8 @@ const ResDetail: React.FC<ResDetailProps> = ({
 
             {/* rating tbc*/}
             <View className="flex-row items-center mt-2 mb-4">
-              <Text className="text-sm text-green-600 font-bold mr-2">4.0</Text>
-              <Text className="text-xs text-gray-500">3847则评论</Text>
+              <RatingStars rating={parseFloat(tips)} />
+              <Text className="text-xs text-gray-500 ml-2">3847 comments</Text>
             </View>
 
             {/* 地点信息 */}
@@ -194,10 +219,10 @@ const ResDetail: React.FC<ResDetailProps> = ({
             {/* 简介 */}
             <Text className="text-sm font-bold text-gray-700 mb-2">Description</Text>
             <Text className="text-sm text-gray-600 mb-4">{description}</Text>
+            {/* 
 
-            {/* 小贴士部分 */}
             <Text className="text-sm font-bold text-gray-700 mb-2">Tips</Text>
-            <Text className="text-sm text-gray-600 mb-4">{tips}</Text>
+            <Text className="text-sm text-gray-600 mb-4">{tips}</Text> */}
 
             {/* close button */}
             <TouchableOpacity

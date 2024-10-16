@@ -118,7 +118,7 @@ const renderFavoriteCard = ({ item }) => (
             distance={selectedItem.distance}
             estimatedPrice={selectedItem.estimatedprice}
             photoReference={selectedItem.photoreference}
-            tips=" "
+            tips={'4.7'}
           />
         )}
       </Modal>

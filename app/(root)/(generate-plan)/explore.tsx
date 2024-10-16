@@ -133,7 +133,7 @@ export default function TabTwoScreen(props: ExploreProps) {
       estimatedPrice: data.estimatedPrice,
       startLocation: data.startLocation,
       endLocation: data.endLocation,
-      detailedInfo: data.detailedInfo || '', // 可选字段
+      detailedInfo: data.detailedInfo || '4.7',
       photoReference: data.photo_reference,
       email,
     }
@@ -235,7 +235,7 @@ export default function TabTwoScreen(props: ExploreProps) {
                 startLocation={data.startLocation}
                 endLocation={data.endLocation}
                 photoReference={data.photo_reference}
-                detailedInfo={''}
+                detailedinfo={data.detailedinfo}
               />
               {index === travelData[selectedDay].length - 1 && (
                 <>

@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import ResDetail from '@/components/TravelPlanComponent/ResDetailCard/ResDetail' // 导入 ResDetail 模态框
+import Icon from 'react-native-vector-icons/FontAwesome';
 import {
   View,
   Text,
@@ -21,8 +22,9 @@ type TravelCardProps = {
   transportation: string
   distance: string
   estimatedPrice: string
-  startLocation: string // 起点经纬度
-  endLocation: string // 终点经纬度
+  startLocation: string
+  endLocation: string
+  detailedinfo: string
   photoReference: string
 }
 
@@ -37,6 +39,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
   estimatedPrice,
   startLocation,
   endLocation,
+  detailedinfo,
   photoReference,
 }) => {
   const [lineHeight, setLineHeight] = useState(0)
@@ -51,6 +54,30 @@ const TravelCard: React.FC<TravelCardProps> = ({
       })
     }
   }
+  const RatingStars = ({ rating }) => {
+    const fullStars = Math.floor(rating); // 获取完整星星的数量
+    const hasHalfStar = rating % 1 !== 0; // 判断是否有半颗星
+    const stars = [];
+
+    // 添加完整的星星
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Icon key={i} name="star" size={20} color="gold" />);
+    }
+
+    // 添加半颗星
+    if (hasHalfStar) {
+      stars.push(<Icon key={fullStars} name="star-half-full" size={20} color="gold" />);
+    }
+
+    // 添加空星星
+    const emptyStars = 5 - stars.length;
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(<Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />);
+    }
+
+    return <View style={{ flexDirection: 'row' }}>{stars}</View>;
+  };
+
 
   const renderTransportationIcons = () => {
     switch (transportation) {
@@ -69,6 +96,18 @@ const TravelCard: React.FC<TravelCardProps> = ({
     const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving`
     Linking.openURL(url).catch((err) => console.error('An error occurred', err))
   }
+
+  const getRandomRating = () => {
+    return (Math.random() * (5 - 3.5) + 3.5).toFixed(1); // Generates a random number between 3.5 and 5
+  };
+
+  // Function to generate a random number of comments between 300 and 3000
+  const getRandomComments = () => {
+    return Math.floor(Math.random() * (3000 - 300 + 1)) + 300; // Generates a random integer between 300 and 3000
+  };
+
+  const randomRating = getRandomRating();
+  const randomComments = getRandomComments();
 
   return (
     <View style={styles.container}>
@@ -108,17 +147,18 @@ const TravelCard: React.FC<TravelCardProps> = ({
             <Text style={styles.departureTime}>Depart at: {time}</Text>
           </Text>
 
-          <Text style={styles.destinationDescription}>
-            {destinationDescrib}
-          </Text>
           <View style={styles.durationContainer}>
             <Image
-              source={require('@/assets/images/TravelCard/time.png')} // 根据你的路径调整
+              source={require('@/assets/images/TravelCard/time.png')}
               style={styles.icon}
             />
             <Text style={styles.destinationDuration}>
               Stay Duration: {destinationDuration} min
             </Text>
+          </View>
+          <View className="flex-row items-center mt-1 mb-2">
+            <RatingStars rating={parseFloat(randomRating)} />
+            <Text className="text-xs text-gray-500 ml-2">{randomComments} comments</Text>
           </View>
 
           {/* click show more */}
@@ -161,7 +201,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
           distance={distance}
           estimatedPrice={estimatedPrice}
           photoReference={photoReference}
-          tips=" "
+          tips={randomRating}
         />
       </Modal>
 
@@ -296,18 +336,18 @@ const styles = StyleSheet.create({
     minWidth: 277,
   },
   priceTag: {
-    position: 'absolute',   
-    bottom: 10,                   
-    right: 10,                   
-    backgroundColor: 'rgba(0, 0, 0, 0.7)', 
-    borderRadius: 10,             
-    padding: 5,                  
+    position: 'absolute',
+    bottom: 10,
+    right: 10,
+    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+    borderRadius: 10,
+    padding: 5,
   },
 
   priceText: {
-    color: '#FFFFFF',             
-    fontWeight: 'bold',           
-    fontSize: 14,                 
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 14,
   },
 })
 
