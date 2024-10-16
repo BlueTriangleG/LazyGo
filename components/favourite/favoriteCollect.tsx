@@ -69,7 +69,7 @@ export const FavoriteComponent = () => {
   // 渲染卡片
 // 渲染卡片
 const renderFavoriteCard = ({ item }) => (
-  <View className="bg-white rounded-[12px] p-2 mb-4 shadow-md" style={{ height: 200 }}>
+  <View className="bg-white rounded-[12px] p-2 mb-4 shadow-md" style={{ height: 230 }}>
     <Image
       source={{ uri: photoUrlBase + item.photoreference }}
       style={{ width: '100%', height: '60%', borderRadius: 10 }} 
@@ -80,7 +80,7 @@ const renderFavoriteCard = ({ item }) => (
       {item.description}
     </Text>
     <TouchableOpacity
-      className="bg-[#fcaac1] rounded-[30px] py-1 px-3 self-end mt-2"
+      className="bg-[#fcaac1] rounded-[30px] py-1 px-3 self-end"
       onPress={() => handleAddFavorite(item)}>
       <Text className="text-base font-bold text-white">Detail</Text>
     </TouchableOpacity>
