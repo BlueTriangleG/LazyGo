@@ -20,6 +20,7 @@ export interface Activity {
   estimatedPrice: string
   startLocation: string
   endLocation: string
+  photo_reference: string
 }
 
 export interface Plan {
@@ -63,7 +64,7 @@ export const filterGoogleMapData = (data: GoogleMapResponse) => {
             price_level: place.price_level,
             types: place.types,
             geometry: place.geometry.location,
-            photo_reference: place.photos.map((photo) => photo.photo_reference),
+            photo_reference: place.photos[0].photo_reference,
         }));
     
         return filteredResults;
@@ -99,6 +100,7 @@ const json_sample: Plan = {
       estimatedPrice: '15 AUD',
       startLocation: '48.8566,2.3522',
       endLocation: '48.8606,2.3376',
+      photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     },
     {
       date: '2024-09-29',
@@ -112,6 +114,7 @@ const json_sample: Plan = {
       estimatedPrice: '15 AUD',
       startLocation: '48.8566,2.3522',
       endLocation: '48.8606,2.3376',
+      photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     },
   ],
   2: [
@@ -127,6 +130,7 @@ const json_sample: Plan = {
       estimatedPrice: '15 AUD',
       startLocation: '48.8566,2.3522',
       endLocation: '48.8606,2.3376',
+      photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
     },
   ],
 }
@@ -214,7 +218,7 @@ export async function generatePlan_restaurant(
       // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
       // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
       const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter). Let the "time" of the plan be the current time.
-            All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
+            All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}. You don't need to change the photo_reference from the given data, just use the photo_reference in the given data.
             The current plan is ${JSON.stringify(planJson)}. The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
 
       const requestBody = {
