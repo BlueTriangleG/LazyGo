@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import {
+  StyleSheet,
   View,
   Text,
   Image,
@@ -23,7 +24,7 @@ const RatingStars = ({ rating, comments }) => {
       <Image
         key={i}
         source={require('@/assets/images/TravelCard/star.png')}
-        style={{ width: 14, height: 14 }}
+        style={{ width: 15, height: 15 }}
       />
     );
   }
@@ -34,7 +35,7 @@ const RatingStars = ({ rating, comments }) => {
       <Image
         key={fullStars}
         source={require('@/assets/images/TravelCard/half_star.png')}
-        style={{ width: 14, height: 14 }}
+        style={{ width: 15, height: 15 }}
       />
     );
   }
@@ -117,7 +118,7 @@ export const FavoriteComponent = () => {
     <View className="bg-white rounded-[12px] p-2 mb-4 shadow-md" style={{ height: 230 }}>
       <Image
         source={{ uri: photoUrlBase + item.photoreference }}
-        style={{ width: '100%', height: '60%', borderRadius: 10 }} 
+        style={{ width: '100%', height: '60%', borderRadius: 10 }}
         resizeMode="cover"
       />
       <Text className="text-[18px] font-bold mt-2">{item.transportation || "N/A"}</Text>
@@ -131,9 +132,9 @@ export const FavoriteComponent = () => {
       </View>
 
       <TouchableOpacity
-        className="bg-[#fcaac1] rounded-[30px] py-1 px-3 self-end mt-2"
+        style={styles.detailButton} // Applying the external styles
         onPress={() => handleAddFavorite(item)}>
-        <Text className="text-base font-bold text-white">Detail</Text>
+        <Text style={styles.detailButtonText}>Detail</Text>
       </TouchableOpacity>
     </View>
   );
@@ -176,5 +177,21 @@ export const FavoriteComponent = () => {
     </View>
   );
 };
+
+const styles = StyleSheet.create({
+  detailButton: {
+    backgroundColor: '#fcaac1', // Button background color
+    borderRadius: 30, // Rounded corners
+    paddingVertical: 8, // Equivalent to 'py-1'
+    paddingHorizontal: 12, // Equivalent to 'px-3'
+    alignSelf: 'flex-end', // Aligns the button to the right
+    marginTop: -40, // Adds margin at the top (equivalent to 'mt-2')
+  },
+  detailButtonText: {
+    fontSize: 16, // Text size (equivalent to 'text-base')
+    fontWeight: 'bold', // Bold text
+    color: '#fff', // White text color
+  },
+});
 
 export default FavoriteComponent;
