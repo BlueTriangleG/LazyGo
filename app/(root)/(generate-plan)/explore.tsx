@@ -43,6 +43,8 @@ export default function TabTwoScreen(props: ExploreProps) {
   const [latData1, setLatData1] = useState({}) // Initialize as an object
   const [email, setEmail] = useState<string | null>(null)
 
+  const [isFromHistory, setIsFromHistory] = useState<boolean>(false);
+
   useEffect(() => {
     // console.log("Explore page params: date: [", exploreParams.date, "], plan: [", exploreParams.plan, "]");
     const fetchEmail = async () => {
@@ -58,6 +60,7 @@ export default function TabTwoScreen(props: ExploreProps) {
     const parsedPlan = JSON.parse(exploreParams.plan)
     setTravelData(parsedPlan)
     console.log("explore.tsx++++++=======++++++++",parsedPlan)
+    setIsFromHistory(!!exploreParams.fromHistory);
     const newLatData1 = {}
     // Extract required information
     for (const [key, travels] of Object.entries(parsedPlan)) {
@@ -237,7 +240,7 @@ export default function TabTwoScreen(props: ExploreProps) {
                 photoReference={data.photo_reference}
                 detailedInfo={data.detailedinfo}
               />
-              {index === travelData[selectedDay].length - 1 && (
+              {index === travelData[selectedDay].length - 1 && !isFromHistory &&(
                 <>
                   <TouchableOpacity
                     style={styles.addButton}

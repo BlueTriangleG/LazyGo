@@ -64,7 +64,7 @@ const handleCheckDetails = (item) => {
 
   router.push({
     pathname: '/(root)/(generate-plan)/explore', // Navigate to the target page
-    params: { date: 1, plan: JSON.stringify(wrapped) },
+    params: { date: 1, plan: JSON.stringify(wrapped),fromHistory: true,},
   });
 };
 
