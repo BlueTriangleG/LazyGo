@@ -22,6 +22,7 @@ import { getCurrentLocation } from '@/lib/location'
 import { useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { getPhotoByReference } from '@/lib/google-map-api'
+import NFCControl from '@/components/TravelPlanComponent/NFCControl';
 
 export type ExploreProps = {
   date: string
@@ -59,7 +60,7 @@ export default function TabTwoScreen(props: ExploreProps) {
     // Parse travel plan
     const parsedPlan = JSON.parse(exploreParams.plan)
     setTravelData(parsedPlan)
-    console.log("explore.tsx++++++=======++++++++",parsedPlan)
+    console.log("explore.tsx++++++=======++++++++", parsedPlan)
     setIsFromHistory(!!exploreParams.fromHistory);
     const newLatData1 = {}
     // Extract required information
@@ -240,7 +241,7 @@ export default function TabTwoScreen(props: ExploreProps) {
                 photoReference={data.photo_reference}
                 detailedInfo={data.detailedinfo}
               />
-              {index === travelData[selectedDay].length - 1 && !isFromHistory &&(
+              {index === travelData[selectedDay].length - 1 && !isFromHistory && (
                 <>
                   <TouchableOpacity
                     style={styles.addButton}
@@ -252,6 +253,7 @@ export default function TabTwoScreen(props: ExploreProps) {
               )}
             </React.Fragment>
           ))}
+          {/* {isFromHistory && <NFCControl />} */}
         </ScrollView>
       )}
     </SafeAreaView>

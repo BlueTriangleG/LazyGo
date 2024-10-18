@@ -105,7 +105,7 @@ const handleCheckDetails = (item) => {
         setTravelHistory(result);
       } catch (error) {
         console.error('Getting travel history Wrong:', error);
-        setError('获取旅行历史记录时出错');
+        setError('Error when getting travelHistory');
       } finally {
         setLoading(false);
       }
@@ -147,25 +147,32 @@ const handleCheckDetails = (item) => {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.cardContainer}
-              onPress={() => handleCheckDetails(item)} // 点击时跳转并传递数据
+              onPress={() => handleCheckDetails(item)}
             >
-              <Image
-                source={{ uri: photoUrlBase + item.photoreference }} // 动态加载图像
-                style={styles.cardImage}
-              />
-
-              <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>{item.destination}</Text>
-                <Text style={styles.cardDescription}>{item.destinationdescrib}</Text>
-              </View>
-              <Icon name="chevron-forward" size={24} color="#333" style={styles.arrowIcon} />
+              <ImageBackground
+                source={{ uri: photoUrlBase + item.photoreference }}
+                style={styles.cardImageBackground}
+                imageStyle={styles.cardImage}
+              >
+                {/* Wrap destination and location in styled containers */}
+                <View style={styles.overlayTextContainer}>
+                  <View style={styles.textWrapper}>
+                    <Text style={styles.destinationLabel}>{item.destination}</Text>
+                  </View>
+                  <View style={styles.locationWrapper}>
+                    <Icon name="location-outline" size={14} color="white" />
+                    <Text style={styles.locationLabel}>Melb</Text>
+                  </View>
+                </View>
+              </ImageBackground>
             </TouchableOpacity>
           )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
         />
       </SafeAreaView>
     </ImageBackground>
-  );
+);
+
 };
 
 const styles = StyleSheet.create({
@@ -199,45 +206,67 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 20,
+    marginBottom: 10,
     textAlign: 'center',
     color: '#333',
   },
   cardContainer: {
-    flexDirection: 'row',
-    padding: 20,
     marginVertical: 10,
-    backgroundColor: '#fff',
-    borderRadius: 12,
+    borderRadius: 15,
+    overflow: 'hidden',
     shadowColor: '#000',
     shadowOpacity: 0.2,
     shadowRadius: 6,
     elevation: 4,
-    alignItems: 'center', // 垂直居中对齐
+  },
+  cardImageBackground: {
+    width: '100%',
+    height: 200,
+    justifyContent: 'flex-end',
   },
   cardImage: {
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    marginRight: 15,
+    borderRadius: 15,
   },
-  cardContent: {
-    flex: 1,
+  overlayTextContainer: {
+    backgroundColor: 'rgba(0, 0, 0, 0.3)',
+    padding: 10,
+    borderBottomLeftRadius: 15,
+    borderBottomRightRadius: 15,
   },
-  cardTitle: {
+  destinationLabel: {
     fontSize: 18,
+    color: 'white',
     fontWeight: 'bold',
-    color: '#333',
   },
-  cardDescription: {
-    fontSize: 12,
-    color: '#777',
+  locationContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 5,
   },
-  arrowIcon: {
-    marginLeft: 10, // 箭头与文本之间的间距
+  locationLabel: {
+    fontSize: 14,
+    color: 'white',
+    marginLeft: 5,
   },
   separator: {
     height: 10,
+  },
+  textWrapper: {
+    backgroundColor: 'rgba(2, 48, 71, 0.45)', // Dark blue background with 60% opacity
+    paddingVertical: 1,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    marginBottom: 5,
+    alignSelf: 'flex-start', // Prevent full width
+  },
+  locationWrapper: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(2, 48, 71, 0.45)', // Dark blue background with 60% opacity
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+    borderRadius: 15,
+    alignSelf: 'flex-start',
   },
 });
 
