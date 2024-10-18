@@ -2,19 +2,25 @@ import React, { useEffect, useState } from 'react';
 import { Text, View, FlatList, StyleSheet, ImageBackground, ActivityIndicator, Image, TouchableOpacity } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/Ionicons'; // 引入图标库
-import { useNavigation } from '@react-navigation/native'; // 引入 useNavigation 钩子
+import Icon from 'react-native-vector-icons/Ionicons';
+import { useNavigation } from '@react-navigation/native';
 import { router } from 'expo-router';
+import { photoUrlBase } from '@/lib/google-map-api'
 
 const History = () => {
-  const navigation = useNavigation(); // 获取导航对象
+  const navigation = useNavigation();
   const [travelHistory, setTravelHistory] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [wrappedData, setWrappedData] = useState<{ [key: string]: any } | null>(null);
+  const [travels, setTravels] = useState([]);
 
-const [travels, setTravels] = useState([]);
-
-
+  function wrapData(inputData: any) {
+    console.log("wei")
+    return {
+      "1": [inputData]
+    };
+  }
   const images = [
     require('../../../assets/images/TravelCard/his1.jpg'),
     require('../../../assets/images/TravelCard/his2.jpg'),
@@ -26,27 +32,44 @@ const [travels, setTravels] = useState([]);
   };
 
 
-  // 处理跳转和参数传递
-  const handleCheckDetails = (item) => {
-    console.log("+++++++++++",item);
-    router.push({
-      pathname: '/(root)/(generate-plan)/detail', // 跳转到目标页面
-      params: {
-        id: item.id,
-        duration: item.duration,
-        destination: item.destination,
-        destinationDescrib: item.destinationdescrib,
-        destinationDuration: item.destinationDuration,
-        transportation: item.transportation,
-        distance: item.distance,
-        estimatedPrice: item.estimatedprice,
-        startLocation: item.startlocation,
-        endLocation: item.endlocation,
-        detailedInfo: item.detailedinfo || '4.2',
-        email: item.email,
-      },
-    });
+// Handle navigation and parameter passing
+const handleCheckDetails = (item) => {
+  // Destructure to get other properties while excluding those that need to be changed
+  const { 
+    endlocation, 
+    destinationdescrib, 
+    destinationduration, 
+    estimatedprice, 
+    startlocation, 
+    detailedinfo, 
+    photoreference, 
+    ...rest 
+  } = item; // Destructure item to get properties that need to be changed and exclude them
+
+  // Create a new object with the modified property names
+  const updatedItem = {
+    ...rest,
+    endLocation: endlocation, // Add new key endLocation
+    destinationDescrib: destinationdescrib,
+    destinationDuration: destinationduration,
+    estimatedPrice: estimatedprice,
+    startLocation: startlocation,
+    detailedInfo: detailedinfo || '4.7', // Provide a default value
+    photo_reference: photoreference, // Change to photo_reference
   };
+
+  const wrapped = wrapData(updatedItem); // Use the updated item
+  setWrappedData(wrapped);
+  console.log("History.tsx+++++++++++", wrapped);
+
+  router.push({
+    pathname: '/(root)/(generate-plan)/explore', // Navigate to the target page
+    params: { date: 1, plan: JSON.stringify(wrapped) },
+  });
+};
+
+  
+
 
   useEffect(() => {
     const fetchTravelHistoryFromApi = async () => {
@@ -69,7 +92,6 @@ const [travels, setTravels] = useState([]);
         }
 
         const result = await response.json();
-        console.log("history.tsx=========",result);
         if (!Array.isArray(result)) {
           console.error('Wrong Data:', result);
           return;
@@ -97,7 +119,7 @@ const [travels, setTravels] = useState([]);
     return (
       <View style={styles.loadingContainer}>
         <ActivityIndicator size="large" color="#0000ff" />
-        <Text>加载中...</Text>
+        <Text>Loading...</Text>
       </View>
     );
   }
@@ -111,29 +133,30 @@ const [travels, setTravels] = useState([]);
   }
 
   return (
-    <ImageBackground 
+    <ImageBackground
       source={require('../../../assets/images/yellow.png')}
       style={styles.backgroundImage}
       resizeMode="cover"
     >
-      <View style={styles.overlay} /> 
+      <View style={styles.overlay} />
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>Travel History</Text>
         <FlatList
           data={travelHistory}
           keyExtractor={(item) => item.id.toString()}
           renderItem={({ item }) => (
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.cardContainer}
               onPress={() => handleCheckDetails(item)} // 点击时跳转并传递数据
             >
-              <Image 
-                source={require('../../../assets/images/TravelCard/his1.jpg')}
-                style={styles.cardImage} 
+              <Image
+                source={{ uri: photoUrlBase + item.photoreference }} // 动态加载图像
+                style={styles.cardImage}
               />
+
               <View style={styles.cardContent}>
-                <Text style={styles.cardTitle}>目的地: {item.destination}</Text>
-                <Text style={styles.cardDescription}>描述: {item.destinationdescrib}</Text>
+                <Text style={styles.cardTitle}>{item.destination}</Text>
+                <Text style={styles.cardDescription}>{item.destinationdescrib}</Text>
               </View>
               <Icon name="chevron-forward" size={24} color="#333" style={styles.arrowIcon} />
             </TouchableOpacity>

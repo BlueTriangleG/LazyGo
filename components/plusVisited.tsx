@@ -42,7 +42,7 @@ const plusVisited = async (title: string, email: string) => {
             body: JSON.stringify({
               email,
               title,
-              visit_count: visitCount, // 使用更新后的 visit_count
+              visit_count: visitCount, // update visit_count
               id,
             }),
           });

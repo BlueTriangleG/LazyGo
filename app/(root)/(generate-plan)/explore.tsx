@@ -235,7 +235,7 @@ export default function TabTwoScreen(props: ExploreProps) {
                 startLocation={data.startLocation}
                 endLocation={data.endLocation}
                 photoReference={data.photo_reference}
-                detailedinfo={data.detailedinfo}
+                detailedInfo={data.detailedinfo}
               />
               {index === travelData[selectedDay].length - 1 && (
                 <>
