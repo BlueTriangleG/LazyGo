@@ -11,6 +11,8 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import ResDetail from '@/components/TravelPlanComponent/ResDetailCard/ResDetail'; // Ensure to import your ResDetail component
 import { photoUrlBase } from '@/lib/google-map-api';
+import { useFocusEffect } from '@react-navigation/native';
+
 
 // Inline RatingStars component with full and half-star images
 const RatingStars = ({ rating, comments }) => {
@@ -102,9 +104,11 @@ export const FavoriteComponent = () => {
     }
   };
 
-  useEffect(() => {
-    fetchFavoritesFromApi();
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchFavoritesFromApi(); // 重新抓取数据库数据
+    }, [])
+  );
 
   const handleAddFavorite = (item) => {
     console.log('handle detail button:', item);
