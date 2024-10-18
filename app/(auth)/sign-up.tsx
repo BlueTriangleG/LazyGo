@@ -10,6 +10,8 @@ import { fetchAPI } from '@/lib/fetch'
 import { useSignUp } from '@clerk/clerk-expo'
 import { useRouter } from 'expo-router'
 import { clerk } from '@clerk/clerk-expo/dist/provider/singleton'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+
 const SignUp = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
   const { isLoaded, signUp, setActive } = useSignUp()
@@ -176,7 +178,11 @@ const SignUp = () => {
             </Text>
             <CustomButton
               title="Browse Home"
-              onPress={() => router.push(`/(root)/(tabs)/home`)}
+              onPress={async () => {
+                setShowSuccessModal(false)
+                router.push(`/(root)/(tabs)/home`)
+                await AsyncStorage.setItem('userEmail', form.email)
+              }}
               className="mt-5"
             />
           </View>

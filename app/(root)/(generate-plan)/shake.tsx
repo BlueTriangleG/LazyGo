@@ -79,7 +79,9 @@ const ShakeDetector: React.FC<ShakeDetectorProps> = ({ onShake, disabled }) => {
 
   return (
     <View>
-      <Text>Shake to generate again</Text>
+      <Text className="font-JakartaBold text-left font-light my-1 px-4 self-start text-black">
+        Shake to refresh
+      </Text>
     </View>
   )
 }

@@ -13,6 +13,7 @@ import {
   View,
   ScrollView,
   Image,
+  Linking,
   ImageBackground,
   TouchableOpacity,
   Modal,
@@ -29,6 +30,8 @@ import * as Location from 'expo-location'
 import LottieView from 'lottie-react-native'
 import { photoUrlBase } from '@/lib/google-map-api'
 import { useMyContext } from '@/app/context/MyContext'
+import ShakeDetector from '@/app/(root)/(generate-plan)/shake'
+import { set } from 'date-fns'
 
 interface Coordinates {
   latitude: number
@@ -42,6 +45,11 @@ export default function Page() {
   const [dailyRecommends, setDailyRecommends] = useState<
     RecommendDetail[] | null
   >(null)
+  const [reload, setReload] = useState<boolean>(false)
+  // const openGoogleMaps = () => {
+  //   const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving`
+  //   Linking.openURL(url).catch((err) => console.error('An error occurred', err))
+  // }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -70,7 +78,6 @@ export default function Page() {
           recommendTipsPromise
             .then((recommnedTips) => {
               if (recommnedTips) {
-                // 如果 recommendTips 字符串中包含 '\\n'，将其替换为 '\n'
                 const formattedRecommend = recommnedTips.replace(/\\n/g, '\n')
                 console.log('recommnedTips:', recommnedTips)
                 setRecommned(formattedRecommend)
@@ -103,20 +110,30 @@ export default function Page() {
     }
     if (!isLoading) {
       fetchData()
+      setReload(false)
     }
-  }, [isLoading, currentLocation, sensorData, weatherData])
+  }, [isLoading, currentLocation, sensorData, weatherData, reload])
   const mapProvider =
     Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
 
   return (
     <SafeAreaView className="flex-1">
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1 ">
         <SignedIn>
-          <Text className="font-JakartaBold text-left font-light my-1 px-4 self-start text-black">
-            {currentLocation == null
-              ? 'Loading...'
-              : `${currentLocation.address.city},${currentLocation.address.street} ${currentLocation.address.streetNumber}`}
-          </Text>
+          <View className="flex-row justify-between items-center">
+            <Text className="font-JakartaBold text-left font-light my-1 px-4 self-start text-black">
+              {currentLocation == null
+                ? 'Loading...'
+                : `${currentLocation.address.city},${currentLocation.address.street} ${currentLocation.address.streetNumber}`}
+            </Text>
+            <ShakeDetector
+              onShake={() => {
+                setReload(true)
+                console.log('Shake')
+              }}
+            />
+          </View>
+
           <View className="h-px bg-gray-300 my-1" />
 
           <View className="flex-1 justify-center items-center my-1">
@@ -204,7 +221,7 @@ export default function Page() {
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Daily Recommends
             </Text>
-            {dailyRecommends == null ? (
+            {dailyRecommends == null || reload == true ? (
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
