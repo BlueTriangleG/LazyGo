@@ -106,14 +106,13 @@ export const FavoriteComponent = () => {
     fetchFavoritesFromApi();
   }, []);
 
-  // 点击按钮的处理函数
   const handleAddFavorite = (item) => {
     console.log('handle detail button:', item);
     setSelectedItem(item); // Set the selected item
     setModalVisible(true); // Open modal
   };
 
-  // 渲染卡片
+  // fav card
   const renderFavoriteCard = ({ item }) => (
     <View style={styles.cardContainer}>
       <Image
@@ -121,7 +120,7 @@ export const FavoriteComponent = () => {
         style={styles.image}
         resizeMode="cover"
       />
-      <Text style={styles.titleText}>{item.transportation || "N/A"}</Text>
+      <Text style={styles.titleText}>{item.title || "N/A"}</Text>
       <Text style={styles.descriptionText}>
         {item.description || "No description available."}
       </Text>
