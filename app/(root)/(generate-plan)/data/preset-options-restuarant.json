@@ -1,0 +1,70 @@
+[
+    {
+        "keyword": "init",
+        "options": [
+            {
+                "content": "Budget",
+                "key": "price_level"
+            }, 
+            {
+                "content": "Transportation",
+                "key": "travel_mode"
+            }, 
+            {
+                "content": "Departure Time",
+                "key": "departure_time"
+            }
+        ]
+    },
+    {
+        "keyword": "price_level",
+        "options": [
+            {
+                "content": "20 - 50",
+                "key": "20,50"
+            }, 
+            {
+                "content": "50 - 100",
+                "key": "50,100"
+            }, 
+            {
+                "content": "100+",
+                "key": "100,-1"
+            }
+        ]
+    },
+    {
+        "keyword": "travel_mode",
+        "options": [
+            {
+                "content": "Walking",
+                "key": "walking"
+            }, 
+            {
+                "content": "Transit",
+                "key": "transit"
+            }, 
+            {
+                "content": "Driving",
+                "key": "driving"
+            }
+        ]
+    },
+    {
+        "keyword": "departure_time",
+        "options": [
+            {
+                "content": "20 minutes",
+                "key": "20"
+            }, 
+            {
+                "content": "40 minutes",
+                "key": "40"
+            }, 
+            {
+                "content": "60 minutes",
+                "key": "60"
+            }
+        ]
+    }
+]

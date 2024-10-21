@@ -24,26 +24,37 @@ import star from '@/assets/icons/star.png'
 import target from '@/assets/icons/target.png'
 import to from '@/assets/icons/to.png'
 import check from '@/assets/images/check.png'
-import getStarted from '@/assets/images/get-started.png'
 import message from '@/assets/images/message.png'
 import noResult from '@/assets/images/no-result.png'
 import onboarding1 from '@/assets/images/onboarding1.png'
 import onboarding2 from '@/assets/images/onboarding2.png'
 import onboarding3 from '@/assets/images/onboarding3.png'
-import signUpCar from '@/assets/images/signup-car.png'
-
+import profileBackground from '@/assets/images/profile-background.jpg'
+import Avatar from '@/assets/images/Avatar.png'
+import logOut from '@/assets/icons/log-out.png'
+import entertainment from '@/assets/icons/entertainment.png'
+import restaurant from '@/assets/icons/restaurant.png'
+import coffee from '@/assets/icons/coffee.png'
+import tour from '@/assets/icons/tour.png'
+import milkTea from '@/assets/icons/milk-tea.png'
 export const images = {
   onboarding1,
   onboarding2,
   onboarding3,
-  getStarted,
-  signUpCar,
   check,
   noResult,
   message,
+  profileBackground,
+  Avatar,
 }
 
 export const icons = {
+  milkTea,
+  tour,
+  entertainment,
+  coffee,
+  restaurant,
+  logOut,
   arrowDown,
   arrowUp,
   backArrow,

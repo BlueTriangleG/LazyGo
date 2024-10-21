@@ -7,9 +7,14 @@ import CustomButton from '@/components/CustomButton'
 import InputField from '@/components/InputField'
 import { icons, images } from '@/constants'
 import { fetchAPI } from '@/lib/fetch'
+import { useSignUp } from '@clerk/clerk-expo'
+import { useRouter } from 'expo-router'
+import { clerk } from '@clerk/clerk-expo/dist/provider/singleton'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
 const SignUp = () => {
   const [showSuccessModal, setShowSuccessModal] = useState(false)
+  const { isLoaded, signUp, setActive } = useSignUp()
 
   const [form, setForm] = useState({
     name: '',
@@ -21,7 +26,60 @@ const SignUp = () => {
     error: '',
     code: '',
   })
+  const onSignUpPress = async () => {
+    if (!isLoaded) {
+      return
+    }
 
+    try {
+      await signUp.create({
+        emailAddress: form.email,
+        password: form.password,
+      })
+
+      await signUp.prepareEmailAddressVerification({ strategy: 'email_code' })
+
+      setVerification({ ...verification, state: 'pending' })
+    } catch (err: any) {
+      Alert.alert('Error', err.errors[0].longMessage)
+    }
+  }
+
+  const onPressVerify = async () => {
+    if (!isLoaded) return
+
+    try {
+      const completeSignUp = await signUp.attemptEmailAddressVerification({
+        code: verification.code,
+      })
+
+      if (completeSignUp.status === 'complete') {
+        // Create database user
+        await fetchAPI('/(api)/user', {
+          method: 'POST',
+          body: JSON.stringify({
+            name: form.name,
+            email: form.email,
+            clerkId: completeSignUp.createdUserId,
+          }),
+        })
+        await setActive({ session: completeSignUp.createdSessionId })
+        setVerification({ ...verification, state: 'success' })
+      } else {
+        setVerification({
+          ...verification,
+          state: 'failed',
+          error: 'Verification failed',
+        })
+      }
+    } catch (err: any) {
+      setVerification({
+        ...verification,
+        state: 'failed',
+        error: err.errors[0].longmessage,
+      })
+    }
+  }
   return (
     <ScrollView className="flex-1 bg-white">
       <View className="flex-1 bg-white">
@@ -55,12 +113,16 @@ const SignUp = () => {
             value={form.password}
             onChangeText={(value) => setForm({ ...form, password: value })}
           />
-          <CustomButton title="Sign Up" className="mt-6" />
+          <CustomButton
+            title="Sign Up"
+            className="mt-6 bg-red-300"
+            onPress={onSignUpPress}
+          />
           <Link
             href="/sign-in"
             className="text-lg text-center text-general-200 mt-10">
             Already have an account?{' '}
-            <Text className="text-primary-500">Log In</Text>
+            <Text className="text-red-300">Log In</Text>
           </Link>
         </View>
         <ReactNativeModal
@@ -96,6 +158,7 @@ const SignUp = () => {
               </Text>
             )}
             <CustomButton
+              onPress={onPressVerify}
               title="Verify Email"
               className="mt-5 bg-success-500"
             />
@@ -115,7 +178,11 @@ const SignUp = () => {
             </Text>
             <CustomButton
               title="Browse Home"
-              onPress={() => router.push(`/(root)/(tabs)/home`)}
+              onPress={async () => {
+                setShowSuccessModal(false)
+                router.push(`/(root)/(tabs)/home`)
+                await AsyncStorage.setItem('userEmail', form.email)
+              }}
               className="mt-5"
             />
           </View>
