@@ -19,6 +19,12 @@ export async function getNearbyEntertainment(currentLocation: string, radius: nu
     return res.json();
 }
 
+export async function getNearbyMilkTea(currentLocation: string, radius: number){
+    const url = GOOGLE_MAP_API_BASE_URL + '&location=' + currentLocation + '&radius=' + radius + `&keyword=milktea` + `&opennow=true`;
+    let res = await fetch(url);
+    return res.json();
+}
+
 // Get the distance matrix between the origins and destinations.
 export async function getDistanceMatrix(origins: string[], destinations: string[], mode?: string, departureTime?: string) {
     if (!mode) {

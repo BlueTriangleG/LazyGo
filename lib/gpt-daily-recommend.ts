@@ -3,6 +3,7 @@ import { data } from '@/constants'
 import {
   getDistanceMatrix,
   getNearbyEntertainment,
+  getNearbyMilkTea,
   getNearbyPlaces,
 } from './google-map-api'
 import {
@@ -38,7 +39,7 @@ const recommend_example = [
   },
 ]
 
-const Types = ['restaurant', 'cafe', 'tourist_attraction', 'entertainment']
+const Types = ['restaurant', 'milktea','cafe', 'tourist_attraction', 'entertainment']
 
 async function getRecommends(
   requestMessage: string
@@ -156,6 +157,10 @@ export async function generateDailyRecommends(
           const filteredPlacesJson_ent = filterGoogleMapData(placesJson_ent)
           data_string += `${type}: ${JSON.stringify(filteredPlacesJson_ent)};`
           break
+        case 'milktea':
+          const placesJson_mkt = await getNearbyMilkTea(currentLocation, 2500)
+          const filteredPlacesJson_mkt = filterGoogleMapData(placesJson_mkt)
+          data_string += `${type}: ${JSON.stringify(filteredPlacesJson_mkt)};`
         default:
           const placesJson = await getNearbyPlaces(currentLocation, 2500, type)
           const filteredPlacesJson = filterGoogleMapData(placesJson)

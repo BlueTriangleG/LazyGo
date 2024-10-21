@@ -11,6 +11,8 @@ import presetChats_ent from './data/preset-chats-entertainment.json'
 import presetOptions_ent from './data/preset-options-entertainment.json'
 import presetChats_att from './data/preset-chats-attractions.json'
 import presetOptions_att from './data/preset-options-attractions.json'
+import presetChats_mkt from './data/preset-chats-milktea.json'
+import presetOptions_mkt from './data/preset-options-milktea.json'
 
 import CustomButton from '@/components/CustomButton'
 import { Icon, ProgressBar } from 'react-native-paper'
@@ -21,6 +23,7 @@ import {
   generatePlan_attractions,
   generatePlan_cafe,
   generatePlan_entertainment,
+  generatePlan_milktea,
   generatePlan_restaurant,
   Plan,
 } from '@/lib/gpt-plan-generate'
@@ -80,6 +83,9 @@ const Chat = (props: ChatProps) => {
   } else if (chatParams.placeType === 'cafe') {
     presetChats = presetChats_caf
     presetOptions = presetOptions_caf
+  } else if (chatParams.placeType === 'milktea'){
+    presetChats = presetChats_mkt
+    presetOptions = presetOptions_mkt
   }
 
   // Initialize chats and options, use JSON.parse(JSON.stringify()) to deep copy the object
@@ -299,6 +305,13 @@ const Chat = (props: ChatProps) => {
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
+          )
+          break
+        case 'milktea':
+          result = await generatePlan_milktea(
+            locationString,
+            userConfig.departureTime,
+            userConfig.transportation
           )
           break
         case 'cafe':

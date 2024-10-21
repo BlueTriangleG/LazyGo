@@ -149,7 +149,7 @@ export default function Page() {
                   <Image source={icons.restaurant} className="w-11 h-11" />
                 </TouchableOpacity>
                 <Text className="font-Jakarta font-light text-center mt-1 text-xs">
-                  Cafe
+                  Restaurant
                 </Text>
               </View>
               <View className="items-center">
@@ -157,7 +157,7 @@ export default function Page() {
                   onPress={() =>
                     router.push({
                       pathname: '/(root)/(generate-plan)/chat',
-                      params: { placeType: 'restaurant' },
+                      params: { placeType: 'milktea' },
                     })
                   }>
                   <Image source={icons.milkTea} className="w-11 h-11" />
