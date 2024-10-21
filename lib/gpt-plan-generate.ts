@@ -48,6 +48,48 @@ interface GoogleMapPlace {
 interface GoogleMapResponse {
   results: GoogleMapPlace[]
 }
+// utils/sanitizeActivity.ts
+
+export const sanitizeActivity = (activity: Partial<Activity>): Activity => {
+  return {
+    date: typeof activity.date === 'string' ? activity.date : '1970-01-01',
+    time: typeof activity.time === 'string' ? activity.time : '00:00',
+    duration:
+      typeof activity.duration === 'string' ? activity.duration : '0 mins',
+    destination:
+      typeof activity.destination === 'string'
+        ? activity.destination
+        : 'Unknown Destination',
+    destinationDescrib:
+      typeof activity.destinationDescrib === 'string'
+        ? activity.destinationDescrib
+        : 'No Description',
+    destinationDuration:
+      typeof activity.destinationDuration === 'string'
+        ? activity.destinationDuration
+        : '0',
+    transportation:
+      typeof activity.transportation === 'string'
+        ? activity.transportation
+        : 'Car',
+    distance:
+      typeof activity.distance === 'string' ? activity.distance : '0 km',
+    estimatedPrice:
+      typeof activity.estimatedPrice === 'string'
+        ? activity.estimatedPrice
+        : '0 AUD',
+    startLocation:
+      typeof activity.startLocation === 'string'
+        ? activity.startLocation
+        : '0,0',
+    endLocation:
+      typeof activity.endLocation === 'string' ? activity.endLocation : '0,0',
+    photo_reference:
+      typeof activity.photo_reference === 'string'
+        ? activity.photo_reference
+        : '',
+  }
+}
 
 export const filterGoogleMapData = (data: GoogleMapResponse) => {
   try {

@@ -51,16 +51,16 @@ const ShakeDetector: React.FC<ShakeDetectorProps> = ({ onShake, disabled }) => {
         const newCount = prevCount + 1
 
         if (newCount >= shakeThreshold) {
-          resetShakeCount() // 重置计数器
-          onShake() // 直接调用传入的函数
+          resetShakeCount()
+          onShake()
         }
 
-        resetShakeCountTimer() // 每次摇动后重置计时器
-        return newCount // 返回新的摇动计数
+        resetShakeCountTimer()
+        return newCount
       })
     }
 
-    setLastAccelerometer({ x, y, z }) // 更新最后的加速度数据
+    setLastAccelerometer({ x, y, z })
   }
 
   let resetShakeCountTimerId: NodeJS.Timeout | null = null
