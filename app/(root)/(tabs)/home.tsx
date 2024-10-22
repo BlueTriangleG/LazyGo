@@ -32,6 +32,7 @@ import { photoUrlBase } from '@/lib/google-map-api'
 import { useMyContext } from '@/app/context/MyContext'
 import ShakeDetector from '@/app/(root)/(generate-plan)/shake'
 import { set } from 'date-fns'
+import { Activity } from '@/lib/gpt-plan-generate'
 
 interface Coordinates {
   latitude: number
@@ -41,9 +42,9 @@ export default function Page() {
   const { currentLocation, sensorData, weatherData, isLoading, error } =
     useMyContext()
   const { user } = useUser()
-  const [recommend, setRecommned] = useState<string>('')
+  const [tip, setTip] = useState<string>('')
   const [dailyRecommends, setDailyRecommends] = useState<
-    RecommendDetail[] | null
+    Activity[] | null
   >(null)
   const [reload, setReload] = useState<boolean>(false)
   // const openGoogleMaps = () => {
@@ -55,11 +56,11 @@ export default function Page() {
     const fetchData = async () => {
       try {
         if (!isLoading && currentLocation && sensorData && weatherData) {
-          console.log('Data from useContext loaded!!!!!!!:', {
-            currentLocation,
-            sensorData,
-            weatherData,
-          })
+          // console.log('Data from useContext loaded!!!!!!!:', {
+          //   currentLocation,
+          //   sensorData,
+          //   weatherData,
+          // })
           // Combine sensorData and weatherData into a single JSON object
           const combinedData = {
             sensorData,
@@ -79,8 +80,8 @@ export default function Page() {
             .then((recommnedTips) => {
               if (recommnedTips) {
                 const formattedRecommend = recommnedTips.replace(/\\n/g, '\n')
-                console.log('recommnedTips:', recommnedTips)
-                setRecommned(formattedRecommend)
+                // console.log('recommnedTips:', recommnedTips)
+                setTip(formattedRecommend)
               } else {
                 console.error('Failed to get recommnedTips')
                 alert('Failed to get recommnedTips')
@@ -296,13 +297,23 @@ export default function Page() {
                           fontSize: 14,
                           color: '#666',
                           paddingHorizontal: 8,
-                          paddingBottom: 8,
+                          paddingBottom: 4,
                         }}>
-                        {recommend.distance} - {recommend.destinationDescrib}
+                        {recommend.distance}
+                      </Text>
+                      <Text
+                        style={{
+                          fontSize: 14,
+                          color: '#666',
+                          paddingHorizontal: 8,
+                          paddingBottom: 4,
+                        }}>
+                        Rating: {recommend.rating !== null ? recommend.rating : 'N/A'} ({recommend.user_ratings_total !== null ? recommend.user_ratings_total : 0} ratings)
                       </Text>
                     </View>
                   ))}
               </ScrollView>
+
             )}
           </View>
 
@@ -314,10 +325,10 @@ export default function Page() {
               Tips from Lazy Go
             </Text>
             <ScrollView className="w-max h-64 m-2 p-2 bg-white rounded-lg shadow my-1">
-              {recommend !== '' ? (
+              {tip !== '' ? (
                 <View className="w-full h-full">
                   <Text className="text-gray-900 m-1 font-Jakarta text-sm">
-                    {recommend}
+                    {tip}
                   </Text>
                 </View>
               ) : (

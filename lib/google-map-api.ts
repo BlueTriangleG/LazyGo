@@ -6,8 +6,11 @@ export const photoUrlBase: string = 'https://maps.googleapis.com/maps/api/place/
 
 // Get the nearby places based on the coordinates and radius.
 export async function getNearbyPlaces(currentLocation: string, radius: number, placeType: string, minPrice?: number, maxPrice?: number) {
-    const url = GOOGLE_MAP_API_BASE_URL + '&location=' + currentLocation + '&radius=' + radius + '&type=' + placeType + 
+    let url = GOOGLE_MAP_API_BASE_URL + '&location=' + currentLocation + '&radius=' + radius + '&type=' + placeType + 
                 (minPrice ? '&minprice=' + minPrice : '') + (maxPrice ? '&maxprice=' + maxPrice : '')+`&opennow=true`;
+    if (placeType=='cafe'){
+        url += `&keyword=coffee`
+    }
     let res = await fetch(url);
     return res.json();
 }

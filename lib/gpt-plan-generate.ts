@@ -10,25 +10,27 @@ import { getHistory, plusVisited } from './history-management'
 
 const GPT_KEY = process.env.EXPO_PUBLIC_GPT_KEY
 export interface Activity {
-  date: string
-  time: string
-  duration: string
-  destination: string
-  destinationDescrib: string
-  destinationDuration: string
-  transportation: string
-  distance: string
-  estimatedPrice: string
-  startLocation: string
-  endLocation: string
-  photo_reference: string
+  date: string | null
+  time: string | null
+  duration: string | null
+  destination: string | null
+  destinationDescrib: string | null
+  destinationDuration: string | null
+  transportation: string | null
+  distance: string | null
+  estimatedPrice: string | null
+  startLocation: string | null
+  endLocation: string | null
+  photo_reference: string | null
+  rating: number | null
+  user_ratings_total : number | null
 }
 
 export interface Plan {
   [key: number]: Activity[]
 }
 
-interface GoogleMapPlace {
+export interface GoogleMapPlace {
   name?: string
   vicinity?: string
   rating?: number
@@ -46,7 +48,7 @@ interface GoogleMapPlace {
   }[]
 }
 
-interface GoogleMapResponse {
+export interface GoogleMapResponse {
   results: GoogleMapPlace[]
 }
 
@@ -106,6 +108,8 @@ const json_sample: Plan = {
       startLocation: '48.8566,2.3522',
       endLocation: '48.8606,2.3376',
       photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+      rating: 4.5,
+      user_ratings_total: 2000
     },
     {
       date: '2024-09-29',
@@ -120,6 +124,8 @@ const json_sample: Plan = {
       startLocation: '48.8566,2.3522',
       endLocation: '48.8606,2.3376',
       photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+      rating: 4.5,
+      user_ratings_total: 2000
     },
   ],
   2: [
@@ -136,6 +142,8 @@ const json_sample: Plan = {
       startLocation: '48.8566,2.3522',
       endLocation: '48.8606,2.3376',
       photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
+      rating: 4.5,
+      user_ratings_total: 2000
     },
   ],
 }
@@ -232,7 +240,7 @@ export async function generatePlan_restaurant(
           {
             role: 'system',
             content: `You are a robot to decide which restuarant to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data. 
                         Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
                         Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON. If the given data of places around is empty, you must return {} (empty json).
                         [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
@@ -350,7 +358,7 @@ export async function generatePlan_cafe(
           {
             role: 'system',
             content: `You are a robot to decide which cafe to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data.
                         Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
                         Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json).
                         [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
@@ -466,7 +474,7 @@ export async function generatePlan_entertainment(
           {
             role: 'system',
             content: `You are a robot to decide which place to go for entertainment based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data. 
                         Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
                         Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json).
                         [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
@@ -580,7 +588,7 @@ export async function generatePlan_milktea(
             {
               role: 'system',
               content: `You are a robot to decide which place to go to drink milk tea based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                          "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                          "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data.
                           Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
                           Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json).
                           [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
@@ -693,7 +701,7 @@ export async function generatePlan_attractions(
           {
             role: 'system',
             content: `You are a robot to decide which tourist attraction to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "startLocation" and "endLocation" of the destination based on the given map data. 
+                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data. 
                         Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
                         You must follow the rules :1. If there 5 or 4 tourist attractions remaining to go, please give me a plan to go to an attraction in the morning and "time" must be a reasonable time from 9 am to 12 am. 2.If there are 3 or 2 tourist attractions remaining to go, please give me a plan to go to an attraction in the afternoon and "time" must be a reasonable time from 1pm to 6pm.
                         3.If there is only 1 tourist attraction remaining to go, please give me a plan to go to an attraction at night and "time" must be a reasonable time from 7 pm to 22 pm. 4.You must filter the places given and decide the most appropriate tourist attraction at the "time".
@@ -735,47 +743,47 @@ export async function generatePlan_attractions(
   }
 }
 
-export async function askAboutPlan(
-  question: string,
-  plan: Plan
-): Promise<string | void> {
-  if (!GPT_KEY) {
-    console.error('GPT_KEY is not defined.')
-    return
-  }
+// export async function askAboutPlan(
+//   question: string,
+//   plan: Plan
+// ): Promise<string | void> {
+//   if (!GPT_KEY) {
+//     console.error('GPT_KEY is not defined.')
+//     return
+//   }
 
-  const url = 'https://api.openai.com/v1/chat/completions'
+//   const url = 'https://api.openai.com/v1/chat/completions'
 
-  const requestMessage = `User Question: ${question}. The current plan: ${plan}`
-  const requestBody = {
-    model: 'gpt-4o-mini',
-    messages: [
-      {
-        role: 'system',
-        content: `You are a robot to answer questions about the plan. You only need to reply in one or two sentences in text not in json.
-                "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. 
-                "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.
-                Do not return anything beyond the given plan data.`,
-      },
-      { role: 'user', content: requestMessage },
-    ],
-    max_tokens: 1000,
-  }
+//   const requestMessage = `User Question: ${question}. The current plan: ${plan}`
+//   const requestBody = {
+//     model: 'gpt-4o-mini',
+//     messages: [
+//       {
+//         role: 'system',
+//         content: `You are a robot to answer questions about the plan. You only need to reply in one or two sentences in text not in json.
+//                 "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. 
+//                 "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.
+//                 Do not return anything beyond the given plan data.`,
+//       },
+//       { role: 'user', content: requestMessage },
+//     ],
+//     max_tokens: 1000,
+//   }
 
-  try {
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        Authorization: `Bearer ${GPT_KEY}`,
-      },
-      body: JSON.stringify(requestBody),
-    })
+//   try {
+//     const response = await fetch(url, {
+//       method: 'POST',
+//       headers: {
+//         'Content-Type': 'application/json',
+//         Authorization: `Bearer ${GPT_KEY}`,
+//       },
+//       body: JSON.stringify(requestBody),
+//     })
 
-    const data = await response.json()
-    console.log(data.choices[0].message.content)
-    return data.choices[0].message.content
-  } catch (error) {
-    console.error('Error calling GPT API:', error)
-  }
-}
+//     const data = await response.json()
+//     console.log(data.choices[0].message.content)
+//     return data.choices[0].message.content
+//   } catch (error) {
+//     console.error('Error calling GPT API:', error)
+//   }
+// }

@@ -40,6 +40,8 @@ const TravelCard: React.FC<TravelCardProps> = ({
   startLocation,
   endLocation,
   detailedinfo,
+  rating,
+  user_ratings_total,
   photoReference,
 }) => {
   const [lineHeight, setLineHeight] = useState(0)
@@ -106,8 +108,8 @@ const TravelCard: React.FC<TravelCardProps> = ({
     return Math.floor(Math.random() * (3000 - 300 + 1)) + 300; // Generates a random integer between 300 and 3000
   };
 
-  const randomRating = getRandomRating();
-  const randomComments = getRandomComments();
+  // const randomRating = getRandomRating();
+  // const randomComments = getRandomComments();
 
   return (
     <View style={styles.container}>
@@ -157,8 +159,8 @@ const TravelCard: React.FC<TravelCardProps> = ({
             </Text>
           </View>
           <View className="flex-row items-center mt-1 mb-2">
-            <RatingStars rating={parseFloat(randomRating)} />
-            <Text className="text-xs text-gray-500 ml-2">{randomComments} comments</Text>
+            <RatingStars rating={parseFloat(rating)} />
+            <Text className="text-xs text-gray-500 ml-2">{user_ratings_total} comments</Text>
           </View>
 
           {/* click show more */}
@@ -201,7 +203,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
           distance={distance}
           estimatedPrice={estimatedPrice}
           photoReference={photoReference}
-          tips={randomRating}
+          tips={rating}
         />
       </Modal>
 

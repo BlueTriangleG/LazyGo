@@ -380,6 +380,8 @@ const Chat = (props: ChatProps) => {
                     startLocation={data.startLocation}
                     endLocation={data.endLocation}
                     photoReference={data.photo_reference}
+                    rating={data.rating}
+                    user_ratings_total={data.user_ratings_total}
                   />
                 </View>
               ))}
