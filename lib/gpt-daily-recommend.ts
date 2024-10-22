@@ -186,14 +186,24 @@ export async function generateDailyRecommends(
     })
     await Promise.all(promises)
 
-    function getRandomElement<T>(arr: T[]): T | null {
-      return arr.length > 0 ? arr[Math.floor(Math.random() * arr.length)] : null
+    function weightedRandomSelect(arr: RecommendDetail[]): RecommendDetail | null {
+      const totalWeight = arr.reduce((sum, item) => sum + (item.rating || 0), 0);
+      const random = Math.random() * totalWeight;
+      let cumulativeWeight = 0;
+
+      for (const item of arr) {
+        cumulativeWeight += item.rating || 0;
+        if (random <= cumulativeWeight) {
+          return item;
+        }
+      }
     }
-    const randomRestaurant = convertToRecommendDetail(getRandomElement(restaurants), currentLocation)
-    const randomMilktea = convertToRecommendDetail(getRandomElement(milkteas), currentLocation)
-    const randomCafe = convertToRecommendDetail(getRandomElement(cafes),currentLocation)
-    const randomEntertainment = convertToRecommendDetail(getRandomElement(entertainments),currentLocation)
-    const randomAttraction = convertToRecommendDetail(getRandomElement(attractions),currentLocation)
+
+    const randomRestaurant = convertToRecommendDetail(weightedRandomSelect(restaurants), currentLocation)
+    const randomMilktea = convertToRecommendDetail(weightedRandomSelect(milkteas), currentLocation)
+    const randomCafe = convertToRecommendDetail(weightedRandomSelect(cafes),currentLocation)
+    const randomEntertainment = convertToRecommendDetail(weightedRandomSelect(entertainments),currentLocation)
+    const randomAttraction = convertToRecommendDetail(weightedRandomSelect(attractions),currentLocation)
 
     let recommends = []
 
