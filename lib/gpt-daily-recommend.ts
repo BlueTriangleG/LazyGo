@@ -64,7 +64,7 @@ function convertToRecommendDetail(place, currentLocation:string) {
     destination: place.name || 'Unknown Name',
     destinationDescrib: null, 
     vicinity: place.vicinity || 'Unknown Vicinity',
-    distance: '',
+    distance: null,
     rating: place.rating,
     user_ratings_total : place.user_ratings_total,
     photo_reference: place.photo_reference || '',
@@ -81,7 +81,7 @@ function convertToActivity(recommend: RecommendDetail): Activity {
     destinationDescrib: recommend.destinationDescrib || null,
     destinationDuration: null,
     transportation: null, 
-    distance: recommend.distance || null,
+    distance: null,
     estimatedPrice: null,
     startLocation: recommend.startLocation || null,
     endLocation: recommend.endLocation || null,
@@ -237,14 +237,18 @@ export async function generateDailyRecommends(
 
     let output: Activity[] = []
     for (let i = 0; i < recommends.length; i++) {
-      recommends[i].distance = filteredDistanceMatrix[0][i].distance
-      let activity = convertToActivity(recommends[i])
-      output.push(activity)
+      // If distance is not returned by google map, do not add it into the output
+      if (filteredDistanceMatrix[0][i].distance != null){
+        recommends[i].distance = filteredDistanceMatrix[0][i].distance
+        let activity = convertToActivity(recommends[i])
+        output.push(activity)
+      }
     }
 
     return output
   } catch (error) {
-    console.error('Error generating plan:', error)
+    console.error('Error generating recommends:', error)
+    console.error(error.stack)
     return
   }
 }

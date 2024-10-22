@@ -95,7 +95,7 @@ export default function Page() {
           dailyRecommendsPromise
             .then((dailyRecommends) => {
               if (dailyRecommends) {
-                console.log('dailyRecommends:', dailyRecommends)
+                // console.log('dailyRecommends:', dailyRecommends)
                 setDailyRecommends(dailyRecommends)
               } else {
                 console.error('Failed to get dailyRecommends')
