@@ -139,11 +139,11 @@ export async function generateDailyRecommends(
   currentLocation: string
 ): Promise<Activity[] | void> {
   try {
-    let restaurants
-    let milkteas
-    let cafes
-    let entertainments
-    let attractions
+    let restaurants = []
+    let milkteas = []
+    let cafes = []
+    let entertainments = []
+    let attractions = []
 
     const promises = Types.map(async (type) => {
       switch (type) {
@@ -199,11 +199,25 @@ export async function generateDailyRecommends(
       }
     }
 
-    const randomRestaurant = convertToRecommendDetail(weightedRandomSelect(restaurants), currentLocation)
-    const randomMilktea = convertToRecommendDetail(weightedRandomSelect(milkteas), currentLocation)
-    const randomCafe = convertToRecommendDetail(weightedRandomSelect(cafes),currentLocation)
-    const randomEntertainment = convertToRecommendDetail(weightedRandomSelect(entertainments),currentLocation)
-    const randomAttraction = convertToRecommendDetail(weightedRandomSelect(attractions),currentLocation)
+    const randomRestaurant = restaurants.length > 0 
+    ? convertToRecommendDetail(weightedRandomSelect(restaurants), currentLocation) 
+    : null;
+
+  const randomMilktea = milkteas.length > 0 
+    ? convertToRecommendDetail(weightedRandomSelect(milkteas), currentLocation) 
+    : null;
+
+  const randomCafe = cafes.length > 0 
+    ? convertToRecommendDetail(weightedRandomSelect(cafes), currentLocation) 
+    : null;
+
+  const randomEntertainment = entertainments.length > 0 
+    ? convertToRecommendDetail(weightedRandomSelect(entertainments), currentLocation) 
+    : null;
+
+  const randomAttraction = attractions.length > 0 
+    ? convertToRecommendDetail(weightedRandomSelect(attractions), currentLocation) 
+    : null;
 
     let recommends = []
 
