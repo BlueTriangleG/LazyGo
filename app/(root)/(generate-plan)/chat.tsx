@@ -46,7 +46,7 @@ type Message = {
 export type UserConfig = {
   minPrice?: number
   maxPrice?: number
-  departureTime: string
+  timeSpent: number
   transportation: string
   placeType?: string
   people?: string
@@ -98,7 +98,7 @@ const Chat = (props: ChatProps) => {
   const [currentChat, setCurrentChat] = useState<string>('')
   const [progress, setProgress] = useState<number>(0)
   const [userConfig, setUserConfig] = useState<UserConfig>({
-    departureTime: '',
+    timeSpent: 10,
     transportation: '',
     placeType: chatParams.placeType,
   })
@@ -130,7 +130,7 @@ const Chat = (props: ChatProps) => {
     console.log('userConfig', userConfig)
     let initMsgContent = chatsArray.find((chat) => chat.keyword === 'init')
     setUserConfig({
-      departureTime: '',
+      timeSpent: 10,
       transportation: '',
       placeType: chatParams.placeType,
     })
@@ -227,14 +227,18 @@ const Chat = (props: ChatProps) => {
         userConfig.maxPrice = maxPrice === -1 ? undefined : maxPrice
         setUserConfig({ ...userConfig })
         break
-      case 'departure_time':
-        userConfig.departureTime = key
+      case 'time_spent':
+        let timeSpent = parseInt(key)
+        userConfig.timeSpent = timeSpent
         setUserConfig({ ...userConfig })
         break
       case 'travel_mode':
         userConfig.transportation = key
         setUserConfig({ ...userConfig })
         break
+      case 'people':
+        userConfig.people = key
+        setUserConfig({ ...userConfig})
       default:
         break
     }
@@ -287,21 +291,13 @@ const Chat = (props: ChatProps) => {
       console.log('userConfig', userConfig)
 
       const locationString = `${currentLocation.latitude},${currentLocation.longitude}`
-      const now = new Date()
-      const futureTime = new Date(
-        now.getTime() + Number(userConfig.departureTime) * 60 * 1000
-      )
-      const departureTime = new Date(
-        futureTime.getTime() - futureTime.getTimezoneOffset() * 60000
-      ).toISOString()
-
       // Call API to generate plan
       let result: Plan | void
       switch (chatParams.placeType) {
         case 'restaurant':
           result = await generatePlan_restaurant(
             locationString,
-            Number(userConfig.departureTime),
+            userConfig.timeSpent,
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
@@ -310,14 +306,14 @@ const Chat = (props: ChatProps) => {
         case 'milktea':
           result = await generatePlan_milktea(
             locationString,
-            userConfig.departureTime,
+            userConfig.timeSpent,
             userConfig.transportation
           )
           break
         case 'cafe':
           result = await generatePlan_cafe(
             locationString,
-            departureTime,
+            userConfig.timeSpent,
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
@@ -326,7 +322,7 @@ const Chat = (props: ChatProps) => {
         case 'attraction':
           result = await generatePlan_attractions(
             locationString,
-            departureTime,
+            userConfig.timeSpent,
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
@@ -341,7 +337,7 @@ const Chat = (props: ChatProps) => {
           }
           result = await generatePlan_entertainment(
             locationString,
-            departureTime,
+            userConfig.timeSpent,
             userConfig.transportation,
             keywords
           )

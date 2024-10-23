@@ -156,38 +156,27 @@ export async function generatePlan_restaurant(
   minPrice?: number,
   maxPrice?: number
 ): Promise<Plan | void> {
-  console.log(TimeSpend)
   const now = new Date()
-  const futureTime = new Date(now.getTime() + TimeSpend * 60 * 1000)
   const departureTime = new Date(
-    futureTime.getTime() - futureTime.getTimezoneOffset() * 60000
+    now.getTime() - now.getTimezoneOffset() * 60000
   ).toISOString()
-
+  console.log(departureTime)
   let currentLocation = gps_location
   const time = departureTime.slice(11, 19)
   const hours = parseInt(time.slice(0, 2))
   const minutes = parseInt(time.slice(3, 5))
   console.log(`Current time: ${hours}:${minutes}`)
   let numMeals = 1
-  // if (hours >= 5 && hours < 9) {
-  //     numMeals = 3; // 5 am - 9 am
-  // } else if (hours >= 9 && hours < 14) {
-  //     numMeals = 2; // 9 am - 2 pm
-  // } else if (hours >= 14 && hours < 21) {
-  //     numMeals = 1; // 2 pm - 9 pm
-  // } else {
-  //     numMeals =3; // 9 pm - 5 am
-  // }
   let radius = 0
   switch (travel_mode) {
     case 'driving':
-      radius = TimeSpend * 800
+      radius = TimeSpend * 350
       break
     case 'walking':
       radius = TimeSpend * 84
       break
     case 'transit':
-      radius = TimeSpend * 500
+      radius = TimeSpend * 200
       break
   }
   try {
@@ -283,37 +272,37 @@ export async function generatePlan_restaurant(
 // Function to generate cafe plan
 export async function generatePlan_cafe(
   gps_location: string,
-  currentTime: string,
+  TimeSpend: number,
   travel_mode: string,
   minPrice?: number,
   maxPrice?: number
 ): Promise<Plan | void> {
   let currentLocation = gps_location
   let numMeals = 1
-  const time = currentTime.slice(11, 19)
+
+  const now = new Date()
+  const departureTime = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  ).toISOString()
+  console.log(departureTime)
+  const time = departureTime.slice(11, 19)
   const hours = parseInt(time.slice(0, 2))
-  // if (hours >= 5 && hours < 10) {
-  //     numMeals = 2;
-  // } else if (hours >= 9 && hours < 17) {
-  //     numMeals = 1;
-  // } else {
-  //     numMeals =2;
-  // }
+  const minutes = parseInt(time.slice(3, 5))
+  console.log(`Current time: ${hours}:${minutes}`)
   let radius = 0
   switch (travel_mode) {
     case 'driving':
-      radius = 5000
+      radius = TimeSpend * 300
       break
     case 'walking':
-      radius = 1000
+      radius = TimeSpend * 60
       break
     case 'transit':
-      radius = 2500
+      radius = TimeSpend * 150
       break
   }
   try {
     const history = await getHistory()
-    // console.log(`History: ${JSON.stringify(history)}`)
     let planJson: Plan = { 1: [] }
     for (let i = 0; i < numMeals; i++) {
       const placesJson = await getNearbyPlaces(
@@ -349,7 +338,7 @@ export async function generatePlan_cafe(
       // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
       // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
       // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
-      const requestMessage = `It's ${currentTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
+      const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
             The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
       const requestBody = {
@@ -402,31 +391,32 @@ export async function generatePlan_cafe(
 // keywords can be : party: ["bar", "karaoke", "escaperoom","boardgame","bowling"], single:["spa","arcade","cinema","museum","park"]
 export async function generatePlan_entertainment(
   gps_location: string,
-  currentTime: string,
+  TimeSpend: number,
   travel_mode: string,
   keywords: string[]
 ): Promise<Plan | void> {
   let currentLocation = gps_location
   let numMeals = 1
-  const time = currentTime.slice(11, 19)
+  const now = new Date()
+  const departureTime = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  ).toISOString()
+  console.log(departureTime)
+  const time = departureTime.slice(11, 19)
   const hours = parseInt(time.slice(0, 2))
-  // if (hours >= 5 && hours < 10) {
-  //     numMeals = 2;
-  // } else if (hours >= 9 && hours < 17) {
-  //     numMeals = 1;
-  // } else {
-  //     numMeals =2;
-  // }
+  const minutes = parseInt(time.slice(3, 5))
+  console.log(`Current time: ${hours}:${minutes}`)
+
   let radius = 0
   switch (travel_mode) {
     case 'driving':
-      radius = 5000
+      radius = TimeSpend * 300
       break
     case 'walking':
-      radius = 1000
+      radius = TimeSpend * 60
       break
     case 'transit':
-      radius = 2500
+      radius = TimeSpend * 150
       break
   }
   try {
@@ -465,7 +455,7 @@ export async function generatePlan_entertainment(
       // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
       // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
       // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
-      const requestMessage = `It's ${currentTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
+      const requestMessage = `It's ${TimeSpend} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
             The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
       const requestBody = {
@@ -518,32 +508,33 @@ export async function generatePlan_entertainment(
 
 export async function generatePlan_milktea(
     gps_location: string,
-    currentTime: string,
+    TimeSpend: number,
     travel_mode: string,
   ): Promise<Plan | void> {
     let currentLocation = gps_location
     let numMeals = 1
-    const time = currentTime.slice(11, 19)
-    const hours = parseInt(time.slice(0, 2))
-    // if (hours >= 5 && hours < 10) {
-    //     numMeals = 2;
-    // } else if (hours >= 9 && hours < 17) {
-    //     numMeals = 1;
-    // } else {
-    //     numMeals =2;
-    // }
-    let radius = 0
-    switch (travel_mode) {
-      case 'driving':
-        radius = 5000
-        break
-      case 'walking':
-        radius = 1000
-        break
-      case 'transit':
-        radius = 2500
-        break
-    }
+    const now = new Date()
+  const departureTime = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  ).toISOString()
+  console.log(departureTime)
+  const time = departureTime.slice(11, 19)
+  const hours = parseInt(time.slice(0, 2))
+  const minutes = parseInt(time.slice(3, 5))
+  console.log(`Current time: ${hours}:${minutes}`)
+
+  let radius = 0
+  switch (travel_mode) {
+    case 'driving':
+      radius = TimeSpend * 300
+      break
+    case 'walking':
+      radius = TimeSpend * 60
+      break
+    case 'transit':
+      radius = TimeSpend * 150
+      break
+  }
     try {
       const history = await getHistory()
       console.log(`History: ${JSON.stringify(history)}`)
@@ -579,7 +570,7 @@ export async function generatePlan_milktea(
         // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
         // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
         // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
-        const requestMessage = `It's ${currentTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
+        const requestMessage = `It's ${TimeSpend} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
               All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
               The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
         const requestBody = {
@@ -630,32 +621,33 @@ export async function generatePlan_milktea(
 
 export async function generatePlan_attractions(
   gps_location: string,
-  currentTime: string,
+  TimeSpend: number,
   travel_mode: string,
   minPrice?: number,
   maxPrice?: number
 ): Promise<Plan | void> {
   let currentLocation = gps_location
   let numAttractions = 0
-  const time = currentTime.slice(11, 19)
+  const now = new Date()
+  const departureTime = new Date(
+    now.getTime() - now.getTimezoneOffset() * 60000
+  ).toISOString()
+  console.log(departureTime)
+  const time = departureTime.slice(11, 19)
   const hours = parseInt(time.slice(0, 2))
-  if (hours >= 12 && hours < 18) {
-    numAttractions = 3
-  } else if (hours >= 18 && hours < 22) {
-    numAttractions = 1
-  } else {
-    numAttractions = 5
-  }
+  const minutes = parseInt(time.slice(3, 5))
+  console.log(`Current time: ${hours}:${minutes}`)
+
   let radius = 0
   switch (travel_mode) {
     case 'driving':
-      radius = 5000
+      radius = TimeSpend * 300
       break
     case 'walking':
-      radius = 1000
+      radius = TimeSpend * 60
       break
     case 'transit':
-      radius = 2500
+      radius = TimeSpend * 150
       break
   }
   try {
@@ -692,7 +684,7 @@ export async function generatePlan_attractions(
       }
 
       const url = 'https://api.openai.com/v1/chat/completions'
-      const requestMessage = `It's ${currentTime} now. If the current time exceed 22 pm, Give me the plan to go to tourist attractions next day.  Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).There are ${numAttractions - i} tourist attractions remaining to go.
+      const requestMessage = `It's ${departureTime} now. If the current time exceed 22 pm, Give me the plan to go to tourist attractions next day.  Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).There are ${numAttractions - i} tourist attractions remaining to go.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
             The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
       const requestBody = {

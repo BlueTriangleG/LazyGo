@@ -11,8 +11,8 @@
                 "key": "travel_mode"
             }, 
             {
-                "content": "Departure Time",
-                "key": "departure_time"
+                "content": "Time spent on transportaion",
+                "key": "time_spent"
             }
         ]
     },
@@ -20,16 +20,16 @@
         "keyword": "price_level",
         "options": [
             {
+                "content": "Less than 20",
+                "key": "0,20"
+            }, 
+            {
                 "content": "20 - 50",
                 "key": "20,50"
             }, 
             {
-                "content": "50 - 100",
-                "key": "50,100"
-            }, 
-            {
-                "content": "100+",
-                "key": "100,-1"
+                "content": "50+",
+                "key": "50,-1"
             }
         ]
     },
@@ -51,19 +51,19 @@
         ]
     },
     {
-        "keyword": "departure_time",
+        "keyword": "time_spent",
         "options": [
+            {
+                "content": "10 minutes",
+                "key": "10"
+            }, 
             {
                 "content": "20 minutes",
                 "key": "20"
             }, 
             {
-                "content": "40 minutes",
-                "key": "40"
-            }, 
-            {
-                "content": "60 minutes",
-                "key": "60"
+                "content": "20+ minutes",
+                "key": "30"
             }
         ]
     }

@@ -9,7 +9,7 @@
     "keyword": "travel_mode"
   },
   {
-    "content": "How long do you want to spend on this trip?",
-    "keyword": "departure_time"
+    "content": "How long do you want to spend on transportation among attractions?",
+    "keyword": "time_spent"
   }
 ]

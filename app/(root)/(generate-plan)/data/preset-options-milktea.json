@@ -7,8 +7,8 @@
                 "key": "travel_mode"
             }, 
             {
-                "content": "Departure Time",
-                "key": "departure_time"
+                "content": "Time spent on transportation",
+                "key": "time_spent"
             }
         ]
     },
@@ -30,19 +30,19 @@
         ]
     },
     {
-        "keyword": "departure_time",
+        "keyword": "time_spent",
         "options": [
+            {
+                "content": "10 minutes",
+                "key": "10"
+            }, 
             {
                 "content": "20 minutes",
                 "key": "20"
             }, 
             {
-                "content": "40 minutes",
-                "key": "40"
-            }, 
-            {
-                "content": "60 minutes",
-                "key": "60"
+                "content": "20+ minutes",
+                "key": "30"
             }
         ]
     }
