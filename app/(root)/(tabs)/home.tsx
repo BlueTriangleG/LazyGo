@@ -1,6 +1,6 @@
 import CustomButton from '@/components/CustomButton'
 import { Link, router } from 'expo-router'
-import { StyleSheet, Platform } from 'react-native'
+import { StyleSheet, Platform, Alert } from 'react-native'
 
 import React, { useState, useEffect } from 'react'
 import MapView, {
@@ -82,68 +82,101 @@ export default function Page(props: CardProps) {
   const [selectedRecommend, setSelectedRecommend] = useState<Activity | null>(
     null
   )
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        if (!isLoading && currentLocation && sensorData && weatherData) {
-          // console.log('Data from useContext loaded!!!!!!!:', {
-          //   currentLocation,
-          //   sensorData,
-          //   weatherData,
-          // })
-          // Combine sensorData and weatherData into a single JSON object
-          const combinedData = {
-            sensorData,
-            weatherData,
-          }
-
-          // Initiate both asynchronous operations
-          const recommendTipsPromise = getRecommendsTips(
-            JSON.stringify(combinedData)
-          )
-          const dailyRecommendsPromise = generateDailyRecommends(
-            `${currentLocation.latitude},${currentLocation.longitude}`
-          )
-
-          // Handle recommendTips as it resolves
-          recommendTipsPromise
-            .then((recommnedTips) => {
-              if (recommnedTips) {
-                const formattedRecommend = recommnedTips.replace(/\\n/g, '\n')
-                // console.log('recommnedTips:', recommnedTips)
-                setTip(formattedRecommend)
-              } else {
-                console.error('Failed to get recommnedTips')
-                alert('Failed to get recommnedTips')
-              }
-            })
-            .catch((error) => {
-              console.error('Error fetching recommendTips:', error)
-            })
-
-          // Handle dailyRecommends as it resolves
-          dailyRecommendsPromise
-            .then((dailyRecommends) => {
-              if (dailyRecommends) {
-                // console.log('dailyRecommends:', dailyRecommends)
-                setDailyRecommends(dailyRecommends)
-              } else {
-                console.error('Failed to get dailyRecommends')
-              }
-            })
-            .catch((error) => {
-              console.error('Error fetching dailyRecommends:', error)
-            })
-        }
-      } catch (error) {
-        console.error('Error fetching data:', error)
+  const [isGpsEnabled, setIsGpsEnabled] = useState(false);
+  
+  const requestLocationPermission = async () => {
+    try {
+      const { status } = await Location.requestForegroundPermissionsAsync();
+      if (status === 'granted') {
+        setIsGpsEnabled(true);
+        // if gps permission is granted, execute fetchData immediately
+        fetchData();
+      } else {
+        setIsGpsEnabled(false);
+        promptEnableGps();
       }
+    } catch (error) {
+      console.error('Error requesting location permission:', error);
     }
+  };
+  
+  const promptEnableGps = () => {
+    Alert.alert(
+      'Enable GPS',
+      'Please enable GPS and restart the app',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Open Settings',
+          onPress: () => {
+            if (Platform.OS === 'ios') {
+              Linking.openURL('App-Prefs:root=Privacy&path=LOCATION');
+            } else {
+              Linking.openSettings();
+            }
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+  };
+  
+  const fetchData = async () => {
+    try {
+      if (!isLoading && currentLocation && sensorData && weatherData) {
+        // Combine sensorData and weatherData into a single JSON object
+        const combinedData = {
+          sensorData,
+          weatherData,
+        };
+  
+        // Initiate both asynchronous operations
+        const recommendTipsPromise = getRecommendsTips(
+          JSON.stringify(combinedData)
+        );
+        const dailyRecommendsPromise = generateDailyRecommends(
+          `${currentLocation.latitude},${currentLocation.longitude}`
+        );
+  
+        // Handle recommendTips as it resolves
+        recommendTipsPromise
+          .then((recommnedTips) => {
+            if (recommnedTips) {
+              const formattedRecommend = recommnedTips.replace(/\\n/g, '\n');
+              setTip(formattedRecommend);
+            } else {
+              console.error('Failed to get recommnedTips');
+              alert('Failed to get recommnedTips');
+            }
+          })
+          .catch((error) => {
+            console.error('Error fetching recommendTips:', error);
+          });
+  
+        // Handle dailyRecommends as it resolves
+        dailyRecommendsPromise
+          .then((dailyRecommends) => {
+            if (dailyRecommends) {
+              setDailyRecommends(dailyRecommends);
+            } else {
+              console.error('Failed to get dailyRecommends');
+            }
+          })
+          .catch((error) => {
+            console.error('Error fetching dailyRecommends:', error);
+          });
+      }
+    } catch (error) {
+      console.error('Error fetching data:', error);
+    }
+  };
+  
+  useEffect(() => {
     if (!isLoading) {
-      fetchData()
-      setReload(false)
+      requestLocationPermission();
+      setReload(false);
     }
-  }, [isLoading, currentLocation, sensorData, weatherData, reload])
+  }, [isLoading, currentLocation, sensorData, weatherData, reload]);
   const mapProvider =
     Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
 
