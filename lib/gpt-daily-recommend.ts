@@ -238,11 +238,12 @@ export async function generateDailyRecommends(
     let output: Activity[] = []
     for (let i = 0; i < recommends.length; i++) {
       // If distance is not returned by google map, do not add it into the output
-      if (filteredDistanceMatrix[0][i].distance != null){
-        recommends[i].distance = filteredDistanceMatrix[0][i].distance
-        let activity = convertToActivity(recommends[i])
-        output.push(activity)
+      if (filteredDistanceMatrix[0][i]?.distance != null) {
+        recommends[i].distance = filteredDistanceMatrix[0][i].distance;
+        let activity = convertToActivity(recommends[i]);
+        output.push(activity);
       }
+      
     }
 
     return output
