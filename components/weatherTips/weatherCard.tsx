@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image } from 'react-native';
 
-// 根据天气情况获取对应的天气图标
+// weather with icon
 const getWeatherIcon = (condition: string) => {
   switch (condition.toLowerCase()) {
     case 'clear sky':
@@ -13,61 +13,56 @@ const getWeatherIcon = (condition: string) => {
     case 'rain':
       return require('@/assets/images/weather/rain.png');
     default:
-      return require('@/assets/images/weather/default.png'); // 默认图标
+      return require('@/assets/images/weather/default.png'); 
   }
 };
 
-// 根据天气情况获取对应的穿戴建议图标
+// weather with outfit
 const getAccessoryIcon = (condition: string) => {
   switch (condition.toLowerCase()) {
     case 'clear sky':
-      return require('@/assets/images/weather/sunglasses.png'); // 太阳镜
+      return require('@/assets/images/weather/sunglasses.png'); 
     case 'overcast clouds':
-      return require('@/assets/images/weather/hat.png'); // 帽子
+      return require('@/assets/images/weather/hat.png');
     case 'rain':
-      return require('@/assets/images/weather/umbrella.png'); // 雨伞
+      return require('@/assets/images/weather/umbrella.png');
     default:
-      return require('@/assets/images/weather/neutral.png'); // 中性图标
+      return require('@/assets/images/weather/neutral.png'); 
   }
 };
 
-// 根据温度获取穿衣建议图标
+// temp with cloth
 const getClothingIcon = (temp: number) => {
   if (temp < 5) {
-    return require('@/assets/images/weather/heavy_clothes.png'); // 厚衣服
+    return require('@/assets/images/weather/heavy_clothes.png'); 
   } else if (temp >= 5 && temp <= 20) {
-    return require('@/assets/images/weather/medium_clothes.png'); // 中等厚度衣服
+    return require('@/assets/images/weather/medium_clothes.png'); 
   } else {
-    return require('@/assets/images/weather/light_clothes.png'); // 轻薄的衣服
+    return require('@/assets/images/weather/light_clothes.png'); 
   }
 };
 
 interface WeatherCardProps {
-  weatherData: string; // 接收 JSON 字符串形式的天气数据
+  weatherData: string; // get json from home.tsx line 470
 }
 
 const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
-  // 解析传入的 weatherData
   let parsedWeatherData;
   try {
     parsedWeatherData = JSON.parse(weatherData);
   } catch (error) {
     console.error('Invalid weatherData:', error);
-    return <Text>Invalid weather data</Text>; // 数据无效时的提示
+    return <Text>Invalid weather data</Text>; 
   }
 
-  // 提取当前天气、今日预报和小时预报（仅第一条）
   const { currentTemperature, currentCondition, HourForecast } =
     parsedWeatherData || {};
 
-  // 检查是否有 HourForecast 并获取第一条
   const firstHourForecast = HourForecast && HourForecast.length > 0 ? HourForecast[0] : null;
 
   return (
     <View style={styles.container}>
-      {/* 当前天气状态、穿戴建议、穿衣建议在一行展示 */}
       <View style={styles.rowContainer}>
-        {/* 当前天气状态 */}
         <View style={styles.currentWeatherContainer}>
           <Image
             source={getWeatherIcon(currentCondition)}

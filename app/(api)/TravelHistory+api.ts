@@ -17,7 +17,7 @@ export async function POST(request: Request) {
       detailedInfo,
       email,
       photoReference,
-      user_ratings_total = 0, // 新增字段，默认为 0
+      user_ratings_total = 0, 
     } = await request.json();
 
     if (
@@ -39,7 +39,7 @@ export async function POST(request: Request) {
       );
     }
 
-    // 检查数据库是否已有相同的 destination，且不区分大小写
+    // check if destination already in database
     const existingDestinationRecord = await sql`
       SELECT * FROM TravelHistory WHERE LOWER(destination) = LOWER(${destination})
     `;
@@ -47,11 +47,11 @@ export async function POST(request: Request) {
     if (existingDestinationRecord.length > 0) {
       return new Response(
         JSON.stringify({ error: 'Record with this destination already exists' }),
-        { status: 409 } // 409 Conflict 状态码，表示请求冲突
+        { status: 409 } 
       );
     }
 
-    // 插入数据到 TravelHistory 表
+
     const response = await sql`
       INSERT INTO TravelHistory (
         duration,
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
         detailedInfo,
         email,
         photoReference,
-        user_ratings_total -- 新增字段
+        user_ratings_total 
       ) VALUES (
         ${duration},
         ${destination},
@@ -80,12 +80,10 @@ export async function POST(request: Request) {
         ${detailedInfo},
         ${email},
         ${photoReference},
-        ${user_ratings_total} -- 新增字段
+        ${user_ratings_total} 
       )
       RETURNING *
     `;
-
-    // 返回成功响应
     return new Response(JSON.stringify({ data: response }), { status: 201 });
 
   } catch (error) {

@@ -188,10 +188,10 @@ const ResDetail: React.FC<ResDetailProps> = ({
               <Image
                 source={{ uri: photoUrlBase + photoReference }} // show pic
                 style={{
-                  width: 280,
+                  width: '102%',
                   height: 280,
                   borderRadius: 10,
-                  marginRight: 10,
+                  margin:-5,
                 }}
                 resizeMode="cover"
               />
