@@ -81,7 +81,7 @@ function convertToActivity(recommend: RecommendDetail): Activity {
     destinationDescrib: recommend.destinationDescrib || null,
     destinationDuration: null,
     transportation: null, 
-    distance: null,
+    distance: recommend.distance,
     estimatedPrice: null,
     startLocation: recommend.startLocation || null,
     endLocation: recommend.endLocation || null,
@@ -235,7 +235,6 @@ export async function generateDailyRecommends(
     let vicinities: string[] = recommends.map(recommend => recommend.vicinity)
     const distanceMatrix = await getDistanceMatrix([currentLocation], vicinities)
     const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix)
-
     let output: Activity[] = []
     for (let i = 0; i < recommends.length; i++) {
       // If distance is not returned by google map, do not add it into the output
