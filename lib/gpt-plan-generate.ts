@@ -55,9 +55,11 @@ export interface GoogleMapResponse {
 
 export const filterGoogleMapData = (data: GoogleMapResponse, currentLocation: string) => {
   try {
+    console.log("checking data")
     if (!data || !data.results) {
       return []
     }
+    console.log("data", data.results)
     const filteredResults = data.results
       .filter((place) => {
         return place.photos && place.photos.length > 0
@@ -226,7 +228,7 @@ export async function generatePlan_restaurant(
       // If 3 meals remaining, give me the breakfast plan, "time" must be a reasonable breakfast time. If 2 meals remaining, give me the lunch plan, "time" must be a reasonable lunch time. If 1 meal remaining, give me dinner plan,"time" must be a reasonable dinner time.
       // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
       // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
-      const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter). Let the "time" of the plan be the current time.
+      const requestMessage = `It's ${TimeSpendMax} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter). Let the "time" of the plan be the current time.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}. You don't need to change the photo_reference from the given data, just use the photo_reference in the given data.
             The current plan is ${JSON.stringify(planJson)}. The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
 
@@ -350,7 +352,7 @@ export async function generatePlan_cafe(
       // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
       // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
       // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
-      const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
+      const requestMessage = `It's ${TimeSpendMax} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
             The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
       const requestBody = {
@@ -473,7 +475,7 @@ export async function generatePlan_entertainment(
       // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
       // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
       // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
-      const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
+      const requestMessage = `It's ${TimeSpendMax} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
             The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
       const requestBody = {
@@ -593,7 +595,7 @@ export async function generatePlan_milktea(
         // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
         // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
         // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
-        const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
+        const requestMessage = `It's ${TimeSpendMax} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
               All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
               The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
         const requestBody = {
@@ -662,6 +664,14 @@ export async function generatePlan_attractions(
   const minutes = parseInt(time.slice(3, 5))
   console.log(`Current time: ${hours}:${minutes}`)
 
+  if (hours >= 12 && hours < 18) {
+    numAttractions = 3
+  } else if (hours >= 18 && hours < 22) {
+    numAttractions = 1
+  } else {
+    numAttractions = 5
+  }
+
   let minRadius = 0
   let maxRadius = 0
   switch (travel_mode) {
@@ -690,7 +700,8 @@ export async function generatePlan_attractions(
         minPrice,
         maxPrice
       )
-      let filteredPlacesJson = filterGoogleMapDataByMinRadius(filterGoogleMapData(placesJson, currentLocation), minRadius)
+      let filteredPlacesJson = filterGoogleMapData(placesJson, currentLocation)
+
       // console.log(filteredPlacesJson);
       const locations: string[] = []
       filteredPlacesJson.forEach((place) => {
@@ -712,7 +723,7 @@ export async function generatePlan_attractions(
       }
 
       const url = 'https://api.openai.com/v1/chat/completions'
-      const requestMessage = `It's ${departureTime} now. If the current time exceed 22 pm, Give me the plan to go to tourist attractions next day.  Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).There are ${numAttractions - i} tourist attractions remaining to go.
+      const requestMessage = `It's ${TimeSpendMax} now. If the current time exceed 22 pm, Give me the plan to go to tourist attractions next day.  Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).There are ${numAttractions - i} tourist attractions remaining to go.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
             The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
       const requestBody = {
