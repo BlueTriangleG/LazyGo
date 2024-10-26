@@ -55,8 +55,8 @@ export default function Page(props: CardProps) {
   //   Linking.openURL(url).catch((err) => console.error('An error occurred', err))
   // }
   const RatingStars = ({ rating }) => {
-    const fullStars = Math.floor(rating) // 获取完整星星的数量
-    const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
+    const fullStars = Math.floor(rating)
+    const hasHalfStar = rating % 1 !== 0
     const stars = []
 
     for (let i = 0; i < fullStars; i++) {
@@ -439,12 +439,12 @@ export default function Page(props: CardProps) {
             <ScrollView className="w-max h-64 m-2 p-2 bg-white rounded-lg shadow my-1">
               {tip !== '' ? (
                 <View className="w-full h-full">
-                  <Text className="text-gray-900 m-1 font-Jakarta text-sm">
+                  <Text className="text-gray-900 m-1 font-Jakarta text-base">
                     {tip}
                   </Text>
                 </View>
               ) : (
-                <View className="w-full h-64 justify-center items-center">
+                <View className="w-full h-64 justify-center items-center p-1">
                   <LottieView
                     source={require('../../../assets/animation/animation2.json')} // Full-screen success animation path
                     autoPlay

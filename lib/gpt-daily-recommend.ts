@@ -52,45 +52,54 @@ export interface RecommendDetail {
   destination: string
   destinationDescrib: string
   vicinity: string
-  distance:string
+  distance: string
   rating: number
   user_ratings_total: number
   photo_reference: string
   startLocation: string
-  endLocation:string
+  endLocation: string
 }
-function convertToRecommendDetail(place, currentLocation:string) {
+function convertToRecommendDetail(place, currentLocation: string) {
   return {
     destination: place.name || 'Unknown Name',
-    destinationDescrib: null, 
+    destinationDescrib: null,
     vicinity: place.vicinity || 'Unknown Vicinity',
     distance: null,
     rating: place.rating,
-    user_ratings_total : place.user_ratings_total,
+    user_ratings_total: place.user_ratings_total,
     photo_reference: place.photo_reference || '',
-    startLocation: currentLocation, 
-    endLocation: `${place.geometry.lat},${place.geometry.lng}`,   
-  };
+    startLocation: currentLocation,
+    endLocation: `${place.geometry.lat},${place.geometry.lng}`,
+  }
 }
 function convertToActivity(recommend: RecommendDetail): Activity {
   return {
     date: null,
-    time: null, 
-    duration: null, 
+    time: null,
+    duration: null,
     destination: recommend.destination,
     destinationDescrib: recommend.destinationDescrib || null,
     destinationDuration: null,
-    transportation: null, 
+    transportation: null,
     distance: recommend.distance,
     estimatedPrice: null,
     startLocation: recommend.startLocation || null,
     endLocation: recommend.endLocation || null,
     photo_reference: recommend.photo_reference || null,
     rating: recommend.rating !== undefined ? recommend.rating : null,
-    user_ratings_total: recommend.user_ratings_total !== undefined ? recommend.user_ratings_total : null,
-  };
+    user_ratings_total:
+      recommend.user_ratings_total !== undefined
+        ? recommend.user_ratings_total
+        : null,
+  }
 }
-const Types = ['restaurant', 'milktea','cafe', 'tourist_attraction', 'entertainment']
+const Types = [
+  'restaurant',
+  'milktea',
+  'cafe',
+  'tourist_attraction',
+  'entertainment',
+]
 
 export async function getRecommendsTips(
   requestMessage: string
@@ -106,13 +115,13 @@ export async function getRecommendsTips(
     messages: [
       {
         role: 'system',
-        content: `You are playing a cosplay game with me, you are a my cute girlfriend that needs more of this environmental information to give your users some advice. 
+        content: `Please based on the environmental information giving to you to give your users some advice. 
         You will receive a dictionary of environmental information in the format ${SensorData}. And a dictionary about the weather. The time about the weather forcasting is next hour. Giving suggestions according to that time.
         Based on what's on these background informations, you need to 
-        output some natural language suggestions to the user. Don't show the actual data if the data is hard to understand for the user, only show the suggestions. The suggestions should
+        output some genral tips, numberd by 1,2,3... . Only show these tips. Don't show the actual data if the data is hard to understand for the user, only show the suggestions. The suggestions should
         include topics about: Weather and outdoor activities suggestions, Health suggestions related to the environment, and Pedometer data, light suggetions. If you don't receive the required
-        data, dont't show the suggestions about it. These suggestions need to be very useful in everyday life. The Remember you are playing as a people, don't show you are a robot.
-        Only use natural language without formate like bold. ensure you return right formate. You need to focus on caring for me in your language!`,
+        data, dont't show the suggestions about it. These suggestions need to be very useful in everyday life.
+        Eensure you return right formate. Make the suggestion smart and capable and You need to focus on caring for me in your language!`,
       },
       { role: 'user', content: requestMessage },
     ],
@@ -146,7 +155,7 @@ export async function generateDailyRecommends(
     let attractions = []
 
     const promises = Types.map(async (type) => {
-      const radius = 2500;
+      const radius = 2500
       switch (type) {
         case 'entertainment':
           const placesJson_ent = await getNearbyEntertainment(
@@ -164,19 +173,32 @@ export async function generateDailyRecommends(
               'museum',
             ]
           )
-          const filteredPlacesJson_ent = filterGoogleMapData(placesJson_ent, currentLocation)
-          entertainments = filteredPlacesJson_ent  
+          const filteredPlacesJson_ent = filterGoogleMapData(
+            placesJson_ent,
+            currentLocation
+          )
+          entertainments = filteredPlacesJson_ent
           break
         case 'milktea':
           const placesJson_mkt = await getNearbyMilkTea(currentLocation, radius)
-          const filteredPlacesJson_mkt = filterGoogleMapData(placesJson_mkt, currentLocation)
+          const filteredPlacesJson_mkt = filterGoogleMapData(
+            placesJson_mkt,
+            currentLocation
+          )
           milkteas = filteredPlacesJson_mkt
           break
         default:
-          const placesJson = await getNearbyPlaces(currentLocation, radius, type)
-          const filteredPlacesJson = filterGoogleMapData(placesJson, currentLocation)
+          const placesJson = await getNearbyPlaces(
+            currentLocation,
+            radius,
+            type
+          )
+          const filteredPlacesJson = filterGoogleMapData(
+            placesJson,
+            currentLocation
+          )
           if (type == 'restaurant') {
-            restaurants =filteredPlacesJson
+            restaurants = filteredPlacesJson
           } else if (type == 'cafe') {
             cafes = filteredPlacesJson
           } else if (type == 'tourist_attraction') {
@@ -187,38 +209,57 @@ export async function generateDailyRecommends(
     })
     await Promise.all(promises)
 
-    function weightedRandomSelect(arr: RecommendDetail[]): RecommendDetail | null {
-      const totalWeight = arr.reduce((sum, item) => sum + (item.rating || 0), 0);
-      const random = Math.random() * totalWeight;
-      let cumulativeWeight = 0;
+    function weightedRandomSelect(
+      arr: RecommendDetail[]
+    ): RecommendDetail | null {
+      const totalWeight = arr.reduce((sum, item) => sum + (item.rating || 0), 0)
+      const random = Math.random() * totalWeight
+      let cumulativeWeight = 0
 
       for (const item of arr) {
-        cumulativeWeight += item.rating || 0;
+        cumulativeWeight += item.rating || 0
         if (random <= cumulativeWeight) {
-          return item;
+          return item
         }
       }
     }
 
-    const randomRestaurant = restaurants.length > 0 
-    ? convertToRecommendDetail(weightedRandomSelect(restaurants), currentLocation) 
-    : null;
+    const randomRestaurant =
+      restaurants.length > 0
+        ? convertToRecommendDetail(
+            weightedRandomSelect(restaurants),
+            currentLocation
+          )
+        : null
 
-  const randomMilktea = milkteas.length > 0 
-    ? convertToRecommendDetail(weightedRandomSelect(milkteas), currentLocation) 
-    : null;
+    const randomMilktea =
+      milkteas.length > 0
+        ? convertToRecommendDetail(
+            weightedRandomSelect(milkteas),
+            currentLocation
+          )
+        : null
 
-  const randomCafe = cafes.length > 0 
-    ? convertToRecommendDetail(weightedRandomSelect(cafes), currentLocation) 
-    : null;
+    const randomCafe =
+      cafes.length > 0
+        ? convertToRecommendDetail(weightedRandomSelect(cafes), currentLocation)
+        : null
 
-  const randomEntertainment = entertainments.length > 0 
-    ? convertToRecommendDetail(weightedRandomSelect(entertainments), currentLocation) 
-    : null;
+    const randomEntertainment =
+      entertainments.length > 0
+        ? convertToRecommendDetail(
+            weightedRandomSelect(entertainments),
+            currentLocation
+          )
+        : null
 
-  const randomAttraction = attractions.length > 0 
-    ? convertToRecommendDetail(weightedRandomSelect(attractions), currentLocation) 
-    : null;
+    const randomAttraction =
+      attractions.length > 0
+        ? convertToRecommendDetail(
+            weightedRandomSelect(attractions),
+            currentLocation
+          )
+        : null
 
     let recommends = []
 
@@ -232,18 +273,20 @@ export async function generateDailyRecommends(
       return
     }
 
-    let vicinities: string[] = recommends.map(recommend => recommend.vicinity)
-    const distanceMatrix = await getDistanceMatrix([currentLocation], vicinities)
+    let vicinities: string[] = recommends.map((recommend) => recommend.vicinity)
+    const distanceMatrix = await getDistanceMatrix(
+      [currentLocation],
+      vicinities
+    )
     const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix)
     let output: Activity[] = []
     for (let i = 0; i < recommends.length; i++) {
       // If distance is not returned by google map, do not add it into the output
       if (filteredDistanceMatrix[0][i]?.distance != null) {
-        recommends[i].distance = filteredDistanceMatrix[0][i].distance;
-        let activity = convertToActivity(recommends[i]);
-        output.push(activity);
+        recommends[i].distance = filteredDistanceMatrix[0][i].distance
+        let activity = convertToActivity(recommends[i])
+        output.push(activity)
       }
-      
     }
 
     return output
@@ -253,7 +296,6 @@ export async function generateDailyRecommends(
     return
   }
 }
-
 
 // async function getRecommends(
 //   requestMessage: string
@@ -270,11 +312,11 @@ export async function generateDailyRecommends(
 //     messages: [
 //       {
 //         role: 'system',
-//         content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 4 dataset will be given, you must completely randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error. 
+//         content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 4 dataset will be given, you must completely randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error.
 //                 If there are n datasets, the list contain n recommendations. The list can contain <n recommendations. If the dataset is empty, skip that type and do recommendation for the next type.
 //                 "destination" is the true name of the destination in the data given."destination describ" is the description of the destination."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data).
-//                 Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. And the photo_reference is exactly the photo_reference from the given Google Map API data, no need to change it. You should only choose the destinations from the given Google Map API data. YOu must return the json 
-//                 in the form of string without \`\`\`.Do not return anything beyond the given data. Do not return anything besides the JSON.The recommend mustcontain all the keys in the sample form. 
+//                 Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. And the photo_reference is exactly the photo_reference from the given Google Map API data, no need to change it. You should only choose the destinations from the given Google Map API data. YOu must return the json
+//                 in the form of string without \`\`\`.Do not return anything beyond the given data. Do not return anything besides the JSON.The recommend mustcontain all the keys in the sample form.
 //                 `,
 //       },
 //       { role: 'user', content: requestMessage },
