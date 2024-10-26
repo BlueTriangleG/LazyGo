@@ -232,6 +232,8 @@ export default function TabTwoScreen(props: ExploreProps) {
                 endLocation={data.endLocation}
                 photoReference={data.photo_reference}
                 detailedInfo={data.detailedinfo}
+                rating={data.rating}
+                user_ratings_total={data.user_ratings_total}
               />
               {index === travelData[selectedDay].length - 1 && !isFromHistory && (
                 <>
