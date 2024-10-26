@@ -50,6 +50,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
   const [modalVisible, setModalVisible] = useState(false) // 控制模态框的可见性
   const cardRef = useRef<View>(null)
 
+  
   const handleCardLayout = () => {
     if (cardRef.current) {
       cardRef.current.measure((x, y, width, height) => {

@@ -83,6 +83,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
       estimatedPrice,
       photoReference,
       tips,
+      user_ratings_total,
     }
 
     // call favorite api database

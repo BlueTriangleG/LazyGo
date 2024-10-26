@@ -16,7 +16,8 @@ export async function POST(request: Request) {
       endLocation,
       detailedInfo,
       email,
-      photoReference, // 新增字段
+      photoReference,
+      user_ratings_total = 0, // 新增字段，默认为 0
     } = await request.json();
 
     if (
@@ -29,12 +30,24 @@ export async function POST(request: Request) {
       !estimatedPrice ||
       !startLocation ||
       !endLocation ||
-      !email||
+      !email ||
       !photoReference
     ) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }),
         { status: 400 }
+      );
+    }
+
+    // 检查数据库是否已有相同的 destination，且不区分大小写
+    const existingDestinationRecord = await sql`
+      SELECT * FROM TravelHistory WHERE LOWER(destination) = LOWER(${destination})
+    `;
+
+    if (existingDestinationRecord.length > 0) {
+      return new Response(
+        JSON.stringify({ error: 'Record with this destination already exists' }),
+        { status: 409 } // 409 Conflict 状态码，表示请求冲突
       );
     }
 
@@ -52,7 +65,8 @@ export async function POST(request: Request) {
         endLocation,
         detailedInfo,
         email,
-        photoReference
+        photoReference,
+        user_ratings_total -- 新增字段
       ) VALUES (
         ${duration},
         ${destination},
@@ -65,7 +79,8 @@ export async function POST(request: Request) {
         ${endLocation},
         ${detailedInfo},
         ${email},
-        ${photoReference}  -- 新增字段
+        ${photoReference},
+        ${user_ratings_total} -- 新增字段
       )
       RETURNING *
     `;
@@ -78,6 +93,7 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }
+
 
 
 export async function GET(request: Request) {

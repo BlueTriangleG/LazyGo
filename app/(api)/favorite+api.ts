@@ -17,7 +17,8 @@ export async function POST(request: Request) {
       distance, 
       estimatedPrice, 
       photoReference, 
-      tips 
+      tips,
+      user_ratings_total = 0 
     } = await request.json();
 
     // 检查必填字段
@@ -28,7 +29,31 @@ export async function POST(request: Request) {
       );
     }
 
-    // 插入数据到 favorite 表
+    // 查询数据库是否已有相同的 title，且不区分大小写
+    const existingTitleRecord = await sql`
+      SELECT * FROM favorite WHERE LOWER(title) = LOWER(${title})
+    `;
+
+    if (existingTitleRecord.length > 0) {
+      return new Response(
+        JSON.stringify({ error: 'Record with this title already exists' }), 
+        { status: 409 } // 409 Conflict 状态码，表示请求冲突
+      );
+    }
+
+    // 查询数据库是否已有相同的 photoReference
+    const existingPhotoReferenceRecord = await sql`
+      SELECT * FROM favorite WHERE photoReference = ${photoReference}
+    `;
+
+    if (existingPhotoReferenceRecord.length > 0) {
+      return new Response(
+        JSON.stringify({ error: 'Record with this photoReference already exists' }), 
+        { status: 409 } // 409 Conflict 状态码，表示请求冲突
+      );
+    }
+
+    // 如果数据库中没有相同的 title 和 photoReference，插入数据
     const response = await sql`
       INSERT INTO favorite (
         title, 
@@ -42,7 +67,8 @@ export async function POST(request: Request) {
         distance, 
         estimatedPrice, 
         photoReference, 
-        tips
+        tips,
+        user_ratings_total -- 新增字段
       ) VALUES (
         ${title}, 
         ${description}, 
@@ -55,7 +81,8 @@ export async function POST(request: Request) {
         ${distance}, 
         ${estimatedPrice}, 
         ${photoReference}, 
-        ${tips}
+        ${tips},
+        ${user_ratings_total} -- 新增字段
       )
     `;
 
@@ -67,7 +94,6 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }
-
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
