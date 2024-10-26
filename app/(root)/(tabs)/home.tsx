@@ -12,10 +12,10 @@ import {
   Text,
   View,
   ScrollView,
-  Image,
   Linking,
   ImageBackground,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Modal,
 } from 'react-native'
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
@@ -34,24 +34,54 @@ import ShakeDetector from '@/app/(root)/(generate-plan)/shake'
 import { set } from 'date-fns'
 import { Activity } from '@/lib/gpt-plan-generate'
 
-interface Coordinates {
-  latitude: number
-  longitude: number
-}
-export default function Page() {
+import type { CardProps } from 'tamagui'
+import { Button, Card, H2, Image, Paragraph, XStack } from 'tamagui'
+import { color } from '../../../node_modules/style-value-types/lib/color/index'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import { classNames } from '../../../node_modules/@tamagui/remove-scroll/src/RemoveScroll'
+import TravelCard from '@/components/TravelPlanComponent/TravelCard'
+
+export default function Page(props: CardProps) {
   const { currentLocation, sensorData, weatherData, isLoading, error } =
     useMyContext()
   const { user } = useUser()
   const [tip, setTip] = useState<string>('')
-  const [dailyRecommends, setDailyRecommends] = useState<
-    Activity[] | null
-  >(null)
+  const [dailyRecommends, setDailyRecommends] = useState<Activity[] | null>(
+    null
+  )
   const [reload, setReload] = useState<boolean>(false)
   // const openGoogleMaps = () => {
   //   const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving`
   //   Linking.openURL(url).catch((err) => console.error('An error occurred', err))
   // }
+  const RatingStars = ({ rating }) => {
+    const fullStars = Math.floor(rating) // 获取完整星星的数量
+    const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
+    const stars = []
 
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Icon key={i} name="star" size={20} color="gold" />)
+    }
+
+    if (hasHalfStar) {
+      stars.push(
+        <Icon key={fullStars} name="star-half-full" size={20} color="gold" />
+      )
+    }
+
+    const emptyStars = 5 - stars.length
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />
+      )
+    }
+
+    return <View style={{ flexDirection: 'row' }}>{stars}</View>
+  }
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [selectedRecommend, setSelectedRecommend] = useState<Activity | null>(
+    null
+  )
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -217,7 +247,7 @@ export default function Page() {
 
           <View className="h-px bg-gray-300 my-1" />
 
-          {/* 第二部分：推荐部分 */}
+          {/* Part2: recommendation */}
           <View className="px-2 my-1">
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Daily Recommends
@@ -261,65 +291,147 @@ export default function Page() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 className="pl-2 my-1">
-                {dailyRecommends &&
-                  dailyRecommends.map((recommend, index) => (
-                    <View
-                      key={index}
-                      style={{
-                        width: 260,
-                        marginRight: 16,
-                        backgroundColor: 'white',
-                        borderRadius: 8,
-                        overflow: 'hidden',
-                        shadowColor: '#000',
-                        shadowOpacity: 0.1,
-                        shadowRadius: 4,
-                        shadowOffset: { width: 0, height: 2 },
-                        marginVertical: 8,
-                      }}>
-                      <Image
-                        source={{
-                          uri: photoUrlBase + recommend.photo_reference,
+                <XStack
+                  $sm={{ flexDirection: 'row' }}
+                  paddingHorizontal="$1"
+                  space>
+                  {dailyRecommends &&
+                    dailyRecommends.map((recommend, index) => (
+                      <Card
+                        key={index}
+                        onPress={() => {
+                          setSelectedRecommend(recommend)
+                          setIsModalVisible(true)
                         }}
-                        style={{ width: '100%', height: 260 }}
-                        resizeMode="cover"
-                      />
-                      <Text
+                        animation="bouncy"
+                        scale={0.9}
+                        backgroundColor={'#fff'}
+                        hoverStyle={{ scale: 0.925 }}
+                        pressStyle={{ scale: 0.875 }}
                         style={{
-                          fontSize: 18,
-                          fontWeight: 'bold',
-                          padding: 8,
+                          width: 260,
+                          borderRadius: 8,
+                          overflow: 'hidden',
+                          marginVertical: 8,
                         }}>
-                        {recommend.destination}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          color: '#666',
-                          paddingHorizontal: 8,
-                          paddingBottom: 4,
-                        }}>
-                        {recommend.distance}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          color: '#666',
-                          paddingHorizontal: 8,
-                          paddingBottom: 4,
-                        }}>
-                        Rating: {recommend.rating !== null ? recommend.rating : 'N/A'} ({recommend.user_ratings_total !== null ? recommend.user_ratings_total : 0} ratings)
-                      </Text>
-                    </View>
-                  ))}
-              </ScrollView>
+                        {/* 卡片内容 */}
+                        <Image
+                          source={{
+                            uri: photoUrlBase + recommend.photo_reference,
+                          }}
+                          style={{ width: '100%', height: 260 }}
+                        />
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            padding: 8,
+                          }}>
+                          {recommend.destination}
+                        </Text>
+                        <Card.Footer />
 
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            color: '#666',
+                            paddingHorizontal: 8,
+                            paddingBottom: 4,
+                          }}>
+                          {recommend.distance}
+                        </Text>
+                        <View
+                          className="flex-row"
+                          style={{
+                            paddingHorizontal: 8,
+                            paddingBottom: 4,
+                          }}>
+                          {recommend.rating !== null ? (
+                            <RatingStars rating={recommend.rating} />
+                          ) : (
+                            ' '
+                          )}
+                          <Text
+                            style={{
+                              fontSize: 14,
+                              color: '#666',
+                              paddingHorizontal: 8,
+                              paddingBottom: 4,
+                            }}>
+                            {' '}
+                            (
+                            {recommend.user_ratings_total !== null
+                              ? recommend.user_ratings_total
+                              : 0}{' '}
+                            ratings)
+                          </Text>
+                        </View>
+                      </Card>
+                    ))}
+                </XStack>
+              </ScrollView>
             )}
           </View>
+          <Modal
+            visible={isModalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => {
+              setIsModalVisible(false)
+            }}>
+            <TouchableWithoutFeedback onPress={() => setIsModalVisible(false)}>
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <TouchableWithoutFeedback>
+                  <View
+                    style={{
+                      width: '90%',
+                      backgroundColor: '#fff',
+                      borderRadius: 10,
+                      padding: 20,
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => setIsModalVisible(false)}
+                      className="absolute top-1 right-1 z-10 w-11 h-11 rounded-full items-center justify-center">
+                      <Icon name="times" size={24} color="#333" />
+                    </TouchableOpacity>
+                    {selectedRecommend && (
+                      <TravelCard
+                        time={selectedRecommend.time}
+                        duration={selectedRecommend.duration}
+                        destination={selectedRecommend.destination}
+                        destinationDescrib={
+                          selectedRecommend.destinationDescrib
+                        }
+                        destinationDuration={
+                          selectedRecommend.destinationDuration
+                        }
+                        transportation={selectedRecommend.transportation}
+                        distance={selectedRecommend.distance}
+                        estimatedPrice={selectedRecommend.estimatedPrice}
+                        startLocation={selectedRecommend.startLocation}
+                        endLocation={selectedRecommend.endLocation}
+                        photoReference={selectedRecommend.photo_reference}
+                        rating={selectedRecommend.rating}
+                        user_ratings_total={
+                          selectedRecommend.user_ratings_total
+                        }
+                      />
+                    )}
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
 
           <View className="h-px bg-gray-300 my-1" />
 
-          {/* 第三部分：Tips部分，需要下滑才能看到 */}
+          {/* Part3 */}
           <View className="px-2 my-1">
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Tips from Lazy Go

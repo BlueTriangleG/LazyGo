@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react'
 import {
   StyleSheet,
   View,
@@ -7,18 +7,17 @@ import {
   FlatList,
   TouchableOpacity,
   Modal,
-} from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import ResDetail from '@/components/TravelPlanComponent/ResDetailCard/ResDetail'; // Ensure to import your ResDetail component
-import { photoUrlBase } from '@/lib/google-map-api';
-import { useFocusEffect } from '@react-navigation/native';
-
+} from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import ResDetail from '@/components/TravelPlanComponent/ResDetailCard/ResDetail' // Ensure to import your ResDetail component
+import { photoUrlBase } from '@/lib/google-map-api'
+import { useFocusEffect } from '@react-navigation/native'
 
 // Inline RatingStars component with full and half-star images
 const RatingStars = ({ rating, comments }) => {
-  const fullStars = Math.floor(rating); // Number of full stars
-  const hasHalfStar = rating % 1 !== 0; // Check if there's a half star
-  const stars = [];
+  const fullStars = Math.floor(rating) // Number of full stars
+  const hasHalfStar = rating % 1 !== 0 // Check if there's a half star
+  const stars = []
 
   // Add full stars using star.png
   for (let i = 0; i < fullStars; i++) {
@@ -28,7 +27,7 @@ const RatingStars = ({ rating, comments }) => {
         source={require('@/assets/images/TravelCard/star.png')}
         style={{ width: 15, height: 15 }}
       />
-    );
+    )
   }
 
   // Add half star using half_star.png if applicable
@@ -39,17 +38,17 @@ const RatingStars = ({ rating, comments }) => {
         source={require('@/assets/images/TravelCard/half_star.png')}
         style={{ width: 15, height: 15 }}
       />
-    );
+    )
   }
 
   // Add empty stars using Text component to fill up to 5 stars
-  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0);
+  const emptyStars = 5 - fullStars - (hasHalfStar ? 1 : 0)
   for (let i = 0; i < emptyStars; i++) {
     stars.push(
       <Text key={fullStars + 1 + i} style={{ color: '#FFD700', fontSize: 20 }}>
         ☆
       </Text>
-    );
+    )
   }
 
   return (
@@ -57,20 +56,20 @@ const RatingStars = ({ rating, comments }) => {
       {stars}
       <Text style={{ marginLeft: 5 }}>{comments} comments</Text>
     </View>
-  );
-};
+  )
+}
 
 export const FavoriteComponent = () => {
-  const [favorites, setFavorites] = useState([]);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [selectedItem, setSelectedItem] = useState(null); // State to hold the selected item's data
+  const [favorites, setFavorites] = useState([])
+  const [modalVisible, setModalVisible] = useState(false)
+  const [selectedItem, setSelectedItem] = useState(null) // State to hold the selected item's data
 
   const fetchFavoritesFromApi = async () => {
     try {
-      const email = await AsyncStorage.getItem('userEmail'); // Step 1
+      const email = await AsyncStorage.getItem('userEmail') // Step 1
       if (!email) {
-        console.log('Email not found');
-        return;
+        console.log('Email not found')
+        return
       }
 
       // Get favorite data
@@ -79,42 +78,42 @@ export const FavoriteComponent = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Network wrong');
+        throw new Error('Network wrong')
       }
 
-      const result = await response.json(); // Step 3
+      const result = await response.json() // Step 3
 
       if (!Array.isArray(result)) {
-        console.error('Wrong Data:', result);
-        return;
+        console.error('Wrong Data:', result)
+        return
       }
 
       if (result.length === 0) {
-        console.log('NO data found');
-        return;
+        console.log('NO data found')
+        return
       }
 
       // 更新 state 中的 favorites
-      setFavorites(result);
+      setFavorites(result)
     } catch (error) {
-      console.error('Getting favorite Wrong:', error);
+      console.error('Getting favorite Wrong:', error)
     }
-  };
+  }
 
   useFocusEffect(
     React.useCallback(() => {
-      fetchFavoritesFromApi(); // 重新抓取数据库数据
+      fetchFavoritesFromApi() // 重新抓取数据库数据
     }, [])
-  );
+  )
 
   const handleAddFavorite = (item) => {
-    console.log('handle detail button:', item);
-    setSelectedItem(item); // Set the selected item
-    setModalVisible(true); // Open modal
-  };
+    console.log('handle detail button:', item)
+    setSelectedItem(item) // Set the selected item
+    setModalVisible(true) // Open modal
+  }
 
   // fav card
   const renderFavoriteCard = ({ item }) => (
@@ -124,24 +123,23 @@ export const FavoriteComponent = () => {
         style={styles.image}
         resizeMode="cover"
       />
-      <Text style={styles.titleText}>{item.title || "N/A"}</Text>
+      <Text style={styles.titleText}>{item.title || 'N/A'}</Text>
       <Text style={styles.descriptionText}>
-        {item.description || "No description available."}
+        {item.description || 'No description available.'}
       </Text>
-  
+
       {/* Add RatingStars component */}
       <View style={styles.ratingContainer}>
         <RatingStars rating={parseFloat(item.tips) || 0} comments={3000} />
       </View>
-  
+
       <TouchableOpacity
         style={styles.detailButton} // Applying the external styles
         onPress={() => handleAddFavorite(item)}>
         <Text style={styles.detailButtonText}>Detail</Text>
       </TouchableOpacity>
     </View>
-  );
-  
+  )
 
   return (
     <View className="flex-1 ">
@@ -160,8 +158,7 @@ export const FavoriteComponent = () => {
       <Modal
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+        onRequestClose={() => setModalVisible(false)}>
         {selectedItem && (
           <ResDetail
             onClose={() => setModalVisible(false)}
@@ -179,8 +176,8 @@ export const FavoriteComponent = () => {
         )}
       </Modal>
     </View>
-  );
-};
+  )
+}
 const styles = StyleSheet.create({
   cardContainer: {
     backgroundColor: 'white', // White background
@@ -192,7 +189,7 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.1, // Shadow opacity for iOS
     shadowRadius: 4, // Shadow radius for iOS
     elevation: 5, // Shadow for Android
-    // height: 230, 
+    // height: 230,
   },
   image: {
     width: '100%',
@@ -228,7 +225,6 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', // Bold text
     color: '#fff', // White text color
   },
-});
+})
 
-
-export default FavoriteComponent;
+export default FavoriteComponent
