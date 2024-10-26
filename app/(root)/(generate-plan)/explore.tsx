@@ -5,24 +5,16 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Alert,
-  ActivityIndicator,
   ImageBackground,
   Modal,
 } from 'react-native'
-import ParallaxScrollView from '@/components/TravelPlanComponent/ParallaxScrollView'
 import TravelCard from '@/components/TravelPlanComponent/TravelCard'
 import Map from '@/components/TravelPlanComponent/Map'
-import AddMoreRes from '@/components/TravelPlanComponent/AddMoreRes'
-import { generatePlan_restaurant } from '@/lib/gpt-plan-generate'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import LottieView from 'lottie-react-native'
 
-import { getCurrentLocation } from '@/lib/location'
 import { useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { getPhotoByReference } from '@/lib/google-map-api'
-import NFCControl from '@/components/TravelPlanComponent/NFCControl';
 
 export type ExploreProps = {
   date: string
@@ -82,28 +74,28 @@ export default function TabTwoScreen(props: ExploreProps) {
       setLoading(false)
     }
 
-    const fetchRestaurantPlan = async () => {
-      try {
-        let curLocation = await getCurrentLocation()
-        if (!curLocation) {
-          Alert.alert('Please enable location service')
-          return
-        }
-        setCurrentLocation(curLocation)
-        const result = await generatePlan_restaurant(
-          curLocation,
-          '2024-09-29T23:00:00Z',
-          'driving'
-        )
-        // Directly store the result in travelData
-        setTravelData(result)
-      } catch (error) {
-        console.error('Error fetching restaurant plan:', error)
-      } finally {
-        setLoading(false) // Set loading to false when done
-        setShowSuccessAnimation(true) // Trigger success animation after loading
-      }
-    }
+    // const fetchRestaurantPlan = async () => {
+    //   try {
+    //     let curLocation = await getCurrentLocation()
+    //     if (!curLocation) {
+    //       Alert.alert('Please enable location service')
+    //       return
+    //     }
+    //     setCurrentLocation(curLocation)
+    //     const result = await generatePlan_restaurant(
+    //       curLocation,
+    //       '2024-09-29T23:00:00Z',
+    //       'driving'
+    //     )
+    //     // Directly store the result in travelData
+    //     setTravelData(result)
+    //   } catch (error) {
+    //     console.error('Error fetching restaurant plan:', error)
+    //   } finally {
+    //     setLoading(false) // Set loading to false when done
+    //     setShowSuccessAnimation(true) // Trigger success animation after loading
+    //   }
+    // }
 
     // fetchRestaurantPlan();
   }, []) // Empty dependency array to run once on mount

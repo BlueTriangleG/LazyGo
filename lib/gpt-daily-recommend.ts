@@ -81,7 +81,7 @@ function convertToActivity(recommend: RecommendDetail): Activity {
     destinationDescrib: recommend.destinationDescrib || null,
     destinationDuration: null,
     transportation: null, 
-    distance: null,
+    distance: recommend.distance,
     estimatedPrice: null,
     startLocation: recommend.startLocation || null,
     endLocation: recommend.endLocation || null,
@@ -146,11 +146,12 @@ export async function generateDailyRecommends(
     let attractions = []
 
     const promises = Types.map(async (type) => {
+      const radius = 2500;
       switch (type) {
         case 'entertainment':
           const placesJson_ent = await getNearbyEntertainment(
             currentLocation,
-            2500,
+            radius,
             [
               'bar',
               'karaoke',
@@ -163,17 +164,17 @@ export async function generateDailyRecommends(
               'museum',
             ]
           )
-          const filteredPlacesJson_ent = filterGoogleMapData(placesJson_ent)
+          const filteredPlacesJson_ent = filterGoogleMapData(placesJson_ent, currentLocation)
           entertainments = filteredPlacesJson_ent  
           break
         case 'milktea':
-          const placesJson_mkt = await getNearbyMilkTea(currentLocation, 2500)
-          const filteredPlacesJson_mkt = filterGoogleMapData(placesJson_mkt)
+          const placesJson_mkt = await getNearbyMilkTea(currentLocation, radius)
+          const filteredPlacesJson_mkt = filterGoogleMapData(placesJson_mkt, currentLocation)
           milkteas = filteredPlacesJson_mkt
           break
         default:
-          const placesJson = await getNearbyPlaces(currentLocation, 2500, type)
-          const filteredPlacesJson = filterGoogleMapData(placesJson)
+          const placesJson = await getNearbyPlaces(currentLocation, radius, type)
+          const filteredPlacesJson = filterGoogleMapData(placesJson, currentLocation)
           if (type == 'restaurant') {
             restaurants =filteredPlacesJson
           } else if (type == 'cafe') {
@@ -234,7 +235,6 @@ export async function generateDailyRecommends(
     let vicinities: string[] = recommends.map(recommend => recommend.vicinity)
     const distanceMatrix = await getDistanceMatrix([currentLocation], vicinities)
     const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix)
-
     let output: Activity[] = []
     for (let i = 0; i < recommends.length; i++) {
       // If distance is not returned by google map, do not add it into the output
