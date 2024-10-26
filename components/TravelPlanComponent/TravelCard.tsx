@@ -278,14 +278,16 @@ const styles = StyleSheet.create({
   },
   outerCard: {
     padding: 0,
-    margin: 15,
+    marginTop: 15,
+    marginLeft: 15,
+    marginRight: 15,
+    marginBottom: 5,
     width: '100%',
   },
   card: {
     backgroundColor: '#FFFFFF',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 20,
     width: '100%',
   },
   header: {
@@ -339,7 +341,6 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   additionalInfoContainer: {
-    marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
