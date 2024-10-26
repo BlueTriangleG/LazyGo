@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import ResDetail from '@/components/TravelPlanComponent/ResDetailCard/ResDetail' // 导入 ResDetail 模态框
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome'
 import {
   View,
   Text,
@@ -12,20 +12,19 @@ import {
 } from 'react-native'
 import { photoUrlBase } from '@/lib/google-map-api'
 
-
 type TravelCardProps = {
-  time: string
-  duration: string
-  destination: string
-  destinationDescrib: string
-  destinationDuration: string
-  transportation: string
-  distance: string
-  estimatedPrice: string
-  startLocation: string
-  endLocation: string
-  detailedinfo: string
-  photoReference: string
+  time: string | null
+  duration: string | null
+  destination: string | null
+  destinationDescrib: string | null
+  destinationDuration: string | null
+  transportation: string | null
+  distance: string | null
+  estimatedPrice: string | null
+  startLocation: string | null
+  endLocation: string | null
+  detailedinfo: string | null
+  photoReference: string | null
 }
 
 const TravelCard: React.FC<TravelCardProps> = ({
@@ -57,29 +56,32 @@ const TravelCard: React.FC<TravelCardProps> = ({
     }
   }
   const RatingStars = ({ rating }) => {
-    const fullStars = Math.floor(rating); // 获取完整星星的数量
-    const hasHalfStar = rating % 1 !== 0; // 判断是否有半颗星
-    const stars = [];
+    const fullStars = Math.floor(rating) // 获取完整星星的数量
+    const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
+    const stars = []
 
     // 添加完整的星星
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<Icon key={i} name="star" size={20} color="gold" />);
+      stars.push(<Icon key={i} name="star" size={20} color="gold" />)
     }
 
     // 添加半颗星
     if (hasHalfStar) {
-      stars.push(<Icon key={fullStars} name="star-half-full" size={20} color="gold" />);
+      stars.push(
+        <Icon key={fullStars} name="star-half-full" size={20} color="gold" />
+      )
     }
 
     // 添加空星星
-    const emptyStars = 5 - stars.length;
+    const emptyStars = 5 - stars.length
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />);
+      stars.push(
+        <Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />
+      )
     }
 
-    return <View style={{ flexDirection: 'row' }}>{stars}</View>;
-  };
-
+    return <View style={{ flexDirection: 'row' }}>{stars}</View>
+  }
 
   const renderTransportationIcons = () => {
     switch (transportation) {
@@ -100,13 +102,13 @@ const TravelCard: React.FC<TravelCardProps> = ({
   }
 
   const getRandomRating = () => {
-    return (Math.random() * (5 - 3.5) + 3.5).toFixed(1); // Generates a random number between 3.5 and 5
-  };
+    return (Math.random() * (5 - 3.5) + 3.5).toFixed(1) // Generates a random number between 3.5 and 5
+  }
 
   // Function to generate a random number of comments between 300 and 3000
   const getRandomComments = () => {
-    return Math.floor(Math.random() * (3000 - 300 + 1)) + 300; // Generates a random integer between 300 and 3000
-  };
+    return Math.floor(Math.random() * (3000 - 300 + 1)) + 300 // Generates a random integer between 300 and 3000
+  }
 
   // const randomRating = getRandomRating();
   // const randomComments = getRandomComments();
@@ -140,7 +142,6 @@ const TravelCard: React.FC<TravelCardProps> = ({
                 <Text style={styles.priceText}>{estimatedPrice}</Text>
               </View>
             </View>
-
           </View>
 
           <Text style={styles.location}>
@@ -160,7 +161,9 @@ const TravelCard: React.FC<TravelCardProps> = ({
           </View>
           <View className="flex-row items-center mt-1 mb-2">
             <RatingStars rating={parseFloat(rating)} />
-            <Text className="text-xs text-gray-500 ml-2">{user_ratings_total} comments</Text>
+            <Text className="text-xs text-gray-500 ml-2">
+              {user_ratings_total} comments
+            </Text>
           </View>
 
           {/* click show more */}
@@ -182,7 +185,6 @@ const TravelCard: React.FC<TravelCardProps> = ({
               Distance: {distance} / {transportation} ({duration})
             </Text>
           </View>
-
         </View>
       </View>
 
@@ -190,8 +192,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
       <Modal
         transparent={true}
         visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
+        onRequestClose={() => setModalVisible(false)}>
         <ResDetail
           onClose={() => setModalVisible(false)}
           title={destination}
@@ -206,8 +207,7 @@ const TravelCard: React.FC<TravelCardProps> = ({
           tips={rating}
         />
       </Modal>
-
-    </View >
+    </View>
   )
 }
 
