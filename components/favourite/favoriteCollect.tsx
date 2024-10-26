@@ -130,7 +130,7 @@ export const FavoriteComponent = () => {
 
       {/* Add RatingStars component */}
       <View style={styles.ratingContainer}>
-        <RatingStars rating={parseFloat(item.tips) || 0} comments={3000} />
+        <RatingStars rating={parseFloat(item.tips) || 0} comments={item.user_ratings_total} />
       </View>
 
       <TouchableOpacity

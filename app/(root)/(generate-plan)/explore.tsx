@@ -73,31 +73,6 @@ export default function TabTwoScreen(props: ExploreProps) {
     if (Object.keys(newLatData1).length > 0) {
       setLoading(false)
     }
-
-    // const fetchRestaurantPlan = async () => {
-    //   try {
-    //     let curLocation = await getCurrentLocation()
-    //     if (!curLocation) {
-    //       Alert.alert('Please enable location service')
-    //       return
-    //     }
-    //     setCurrentLocation(curLocation)
-    //     const result = await generatePlan_restaurant(
-    //       curLocation,
-    //       '2024-09-29T23:00:00Z',
-    //       'driving'
-    //     )
-    //     // Directly store the result in travelData
-    //     setTravelData(result)
-    //   } catch (error) {
-    //     console.error('Error fetching restaurant plan:', error)
-    //   } finally {
-    //     setLoading(false) // Set loading to false when done
-    //     setShowSuccessAnimation(true) // Trigger success animation after loading
-    //   }
-    // }
-
-    // fetchRestaurantPlan();
   }, []) // Empty dependency array to run once on mount
 
   const handleAddDestination = () => {
@@ -130,6 +105,7 @@ export default function TabTwoScreen(props: ExploreProps) {
       startLocation: data.startLocation,
       endLocation: data.endLocation,
       detailedInfo: data.detailedInfo || '4.7',
+      user_ratings_total: data.user_ratings_total,
       photoReference: data.photo_reference,
       email,
     }
@@ -241,7 +217,7 @@ export default function TabTwoScreen(props: ExploreProps) {
                     style={styles.addButton}
                     onPress={() => addToHistory(data)} // call addToHistory
                   >
-                    <Text style={styles.addButtonText}>Add to History</Text>
+                    <Text style={styles.addButtonText}>Save Plan</Text>
                   </TouchableOpacity>
                 </>
               )}
