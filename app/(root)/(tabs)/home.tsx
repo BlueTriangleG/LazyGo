@@ -12,7 +12,6 @@ import {
   Text,
   View,
   ScrollView,
-  Image,
   Linking,
   ImageBackground,
   TouchableOpacity,
@@ -34,23 +33,52 @@ import ShakeDetector from '@/app/(root)/(generate-plan)/shake'
 import { set } from 'date-fns'
 import { Activity } from '@/lib/gpt-plan-generate'
 
-interface Coordinates {
-  latitude: number
-  longitude: number
-}
-export default function Page() {
+import type { CardProps } from 'tamagui'
+import { Button, Card, H2, Image, Paragraph, XStack } from 'tamagui'
+import { color } from '../../../node_modules/style-value-types/lib/color/index'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import { classNames } from '../../../node_modules/@tamagui/remove-scroll/src/RemoveScroll'
+
+export default function Page(props: CardProps) {
   const { currentLocation, sensorData, weatherData, isLoading, error } =
     useMyContext()
   const { user } = useUser()
   const [tip, setTip] = useState<string>('')
-  const [dailyRecommends, setDailyRecommends] = useState<
-    Activity[] | null
-  >(null)
+  const [dailyRecommends, setDailyRecommends] = useState<Activity[] | null>(
+    null
+  )
   const [reload, setReload] = useState<boolean>(false)
   // const openGoogleMaps = () => {
   //   const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving`
   //   Linking.openURL(url).catch((err) => console.error('An error occurred', err))
   // }
+  const RatingStars = ({ rating }) => {
+    const fullStars = Math.floor(rating) // 获取完整星星的数量
+    const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
+    const stars = []
+
+    // 添加完整的星星
+    for (let i = 0; i < fullStars; i++) {
+      stars.push(<Icon key={i} name="star" size={20} color="gold" />)
+    }
+
+    // 添加半颗星
+    if (hasHalfStar) {
+      stars.push(
+        <Icon key={fullStars} name="star-half-full" size={20} color="gold" />
+      )
+    }
+
+    // 添加空星星
+    const emptyStars = 5 - stars.length
+    for (let i = 0; i < emptyStars; i++) {
+      stars.push(
+        <Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />
+      )
+    }
+
+    return <View style={{ flexDirection: 'row' }}>{stars}</View>
+  }
 
   useEffect(() => {
     const fetchData = async () => {
@@ -217,7 +245,7 @@ export default function Page() {
 
           <View className="h-px bg-gray-300 my-1" />
 
-          {/* 第二部分：推荐部分 */}
+          {/* Part2: recommendation */}
           <View className="px-2 my-1">
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Daily Recommends
@@ -261,65 +289,87 @@ export default function Page() {
                 horizontal
                 showsHorizontalScrollIndicator={false}
                 className="pl-2 my-1">
-                {dailyRecommends &&
-                  dailyRecommends.map((recommend, index) => (
-                    <View
-                      key={index}
-                      style={{
-                        width: 260,
-                        marginRight: 16,
-                        backgroundColor: 'white',
-                        borderRadius: 8,
-                        overflow: 'hidden',
-                        shadowColor: '#000',
-                        shadowOpacity: 0.1,
-                        shadowRadius: 4,
-                        shadowOffset: { width: 0, height: 2 },
-                        marginVertical: 8,
-                      }}>
-                      <Image
-                        source={{
-                          uri: photoUrlBase + recommend.photo_reference,
-                        }}
-                        style={{ width: '100%', height: 260 }}
-                        resizeMode="cover"
-                      />
-                      <Text
+                <XStack
+                  $sm={{ flexDirection: 'row' }}
+                  paddingHorizontal="$1"
+                  space>
+                  {dailyRecommends &&
+                    dailyRecommends.map((recommend, index) => (
+                      <Card
+                        key={index}
+                        animation="bouncy"
+                        scale={0.9}
+                        backgroundColor={'#fff'}
+                        hoverStyle={{ scale: 0.925 }}
+                        pressStyle={{ scale: 0.875 }}
                         style={{
-                          fontSize: 18,
-                          fontWeight: 'bold',
-                          padding: 8,
+                          width: 260,
+                          // backgroundColor: 'white',
+                          borderRadius: 8,
+                          overflow: 'hidden',
+                          marginVertical: 8,
                         }}>
-                        {recommend.destination}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          color: '#666',
-                          paddingHorizontal: 8,
-                          paddingBottom: 4,
-                        }}>
-                        {recommend.distance}
-                      </Text>
-                      <Text
-                        style={{
-                          fontSize: 14,
-                          color: '#666',
-                          paddingHorizontal: 8,
-                          paddingBottom: 4,
-                        }}>
-                        Rating: {recommend.rating !== null ? recommend.rating : 'N/A'} ({recommend.user_ratings_total !== null ? recommend.user_ratings_total : 0} ratings)
-                      </Text>
-                    </View>
-                  ))}
-              </ScrollView>
+                        <Image
+                          source={{
+                            uri: photoUrlBase + recommend.photo_reference,
+                          }}
+                          style={{ width: '100%', height: 260 }}
+                        />
+                        <Text
+                          style={{
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            padding: 8,
+                          }}>
+                          {recommend.destination}
+                        </Text>
+                        <Card.Footer />
 
+                        <Text
+                          style={{
+                            fontSize: 14,
+                            color: '#666',
+                            paddingHorizontal: 8,
+                            paddingBottom: 4,
+                          }}>
+                          {recommend.distance}
+                        </Text>
+                        <View
+                          className="flex-row"
+                          style={{
+                            paddingHorizontal: 8,
+                            paddingBottom: 4,
+                          }}>
+                          {recommend.rating !== null ? (
+                            <RatingStars rating={recommend.rating} />
+                          ) : (
+                            ' '
+                          )}
+                          <Text
+                            style={{
+                              fontSize: 14,
+                              color: '#666',
+                              paddingHorizontal: 8,
+                              paddingBottom: 4,
+                            }}>
+                            {' '}
+                            (
+                            {recommend.user_ratings_total !== null
+                              ? recommend.user_ratings_total
+                              : 0}{' '}
+                            ratings)
+                          </Text>
+                        </View>
+                      </Card>
+                    ))}
+                </XStack>
+              </ScrollView>
             )}
           </View>
 
           <View className="h-px bg-gray-300 my-1" />
 
-          {/* 第三部分：Tips部分，需要下滑才能看到 */}
+          {/* Part3 */}
           <View className="px-2 my-1">
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Tips from Lazy Go
