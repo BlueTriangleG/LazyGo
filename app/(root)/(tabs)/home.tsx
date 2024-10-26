@@ -15,6 +15,7 @@ import {
   Linking,
   ImageBackground,
   TouchableOpacity,
+  TouchableWithoutFeedback,
   Modal,
 } from 'react-native'
 import { SignedIn, SignedOut, useUser } from '@clerk/clerk-expo'
@@ -38,6 +39,7 @@ import { Button, Card, H2, Image, Paragraph, XStack } from 'tamagui'
 import { color } from '../../../node_modules/style-value-types/lib/color/index'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { classNames } from '../../../node_modules/@tamagui/remove-scroll/src/RemoveScroll'
+import TravelCard from '@/components/TravelPlanComponent/TravelCard'
 
 export default function Page(props: CardProps) {
   const { currentLocation, sensorData, weatherData, isLoading, error } =
@@ -57,19 +59,16 @@ export default function Page(props: CardProps) {
     const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
     const stars = []
 
-    // 添加完整的星星
     for (let i = 0; i < fullStars; i++) {
       stars.push(<Icon key={i} name="star" size={20} color="gold" />)
     }
 
-    // 添加半颗星
     if (hasHalfStar) {
       stars.push(
         <Icon key={fullStars} name="star-half-full" size={20} color="gold" />
       )
     }
 
-    // 添加空星星
     const emptyStars = 5 - stars.length
     for (let i = 0; i < emptyStars; i++) {
       stars.push(
@@ -79,7 +78,10 @@ export default function Page(props: CardProps) {
 
     return <View style={{ flexDirection: 'row' }}>{stars}</View>
   }
-
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [selectedRecommend, setSelectedRecommend] = useState<Activity | null>(
+    null
+  )
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -297,6 +299,10 @@ export default function Page(props: CardProps) {
                     dailyRecommends.map((recommend, index) => (
                       <Card
                         key={index}
+                        onPress={() => {
+                          setSelectedRecommend(recommend)
+                          setIsModalVisible(true)
+                        }}
                         animation="bouncy"
                         scale={0.9}
                         backgroundColor={'#fff'}
@@ -304,11 +310,11 @@ export default function Page(props: CardProps) {
                         pressStyle={{ scale: 0.875 }}
                         style={{
                           width: 260,
-                          // backgroundColor: 'white',
                           borderRadius: 8,
                           overflow: 'hidden',
                           marginVertical: 8,
                         }}>
+                        {/* 卡片内容 */}
                         <Image
                           source={{
                             uri: photoUrlBase + recommend.photo_reference,
@@ -366,6 +372,62 @@ export default function Page(props: CardProps) {
               </ScrollView>
             )}
           </View>
+          <Modal
+            visible={isModalVisible}
+            animationType="slide"
+            transparent={true}
+            onRequestClose={() => {
+              setIsModalVisible(false)
+            }}>
+            <TouchableWithoutFeedback onPress={() => setIsModalVisible(false)}>
+              <View
+                style={{
+                  flex: 1,
+                  backgroundColor: 'rgba(0,0,0,0.5)',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                }}>
+                <TouchableWithoutFeedback>
+                  <View
+                    style={{
+                      width: '90%',
+                      backgroundColor: '#fff',
+                      borderRadius: 10,
+                      padding: 20,
+                    }}>
+                    <TouchableOpacity
+                      onPress={() => setIsModalVisible(false)}
+                      className="absolute top-1 right-1 z-10 w-11 h-11 rounded-full items-center justify-center">
+                      <Icon name="times" size={24} color="#333" />
+                    </TouchableOpacity>
+                    {selectedRecommend && (
+                      <TravelCard
+                        time={selectedRecommend.time}
+                        duration={selectedRecommend.duration}
+                        destination={selectedRecommend.destination}
+                        destinationDescrib={
+                          selectedRecommend.destinationDescrib
+                        }
+                        destinationDuration={
+                          selectedRecommend.destinationDuration
+                        }
+                        transportation={selectedRecommend.transportation}
+                        distance={selectedRecommend.distance}
+                        estimatedPrice={selectedRecommend.estimatedPrice}
+                        startLocation={selectedRecommend.startLocation}
+                        endLocation={selectedRecommend.endLocation}
+                        photoReference={selectedRecommend.photo_reference}
+                        rating={selectedRecommend.rating}
+                        user_ratings_total={
+                          selectedRecommend.user_ratings_total
+                        }
+                      />
+                    )}
+                  </View>
+                </TouchableWithoutFeedback>
+              </View>
+            </TouchableWithoutFeedback>
+          </Modal>
 
           <View className="h-px bg-gray-300 my-1" />
 

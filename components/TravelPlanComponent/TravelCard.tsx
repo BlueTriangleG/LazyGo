@@ -8,6 +8,7 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  TouchableWithoutFeedback,
   Modal,
 } from 'react-native'
 import { photoUrlBase } from '@/lib/google-map-api'
@@ -25,6 +26,8 @@ type TravelCardProps = {
   endLocation: string | null
   detailedinfo: string | null
   photoReference: string | null
+  rating: number | null
+  user_ratings_total: number | null
 }
 
 const TravelCard: React.FC<TravelCardProps> = ({
@@ -115,7 +118,8 @@ const TravelCard: React.FC<TravelCardProps> = ({
 
   return (
     <View style={styles.container}>
-      {/* 左边时间线，带有标记和线 */}
+      {/* 左边时间线 */}
+      {/* ...时间线的代码... */}
       <View style={styles.timelineContainer}>
         <Image
           source={require('@/assets/images/start.png')}
@@ -125,88 +129,120 @@ const TravelCard: React.FC<TravelCardProps> = ({
           <View style={styles.dashedLine} />
         </View>
       </View>
-
       {/* 外部卡片 */}
       <View style={styles.outerCard} ref={cardRef} onLayout={handleCardLayout}>
         {/* 内部卡片 */}
         <View style={styles.card}>
           <View style={styles.header}>
-            {/* 包裹 Image 的 View */}
-            <View style={styles.imageContainer}>
-              <Image
-                source={{ uri: photoUrlBase + photoReference }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-              <View style={styles.priceTag}>
-                <Text style={styles.priceText}>{estimatedPrice}</Text>
+            {/* 图片 */}
+            {photoReference && (
+              <View style={styles.imageContainer}>
+                <Image
+                  source={{ uri: photoUrlBase + photoReference }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+                {estimatedPrice && (
+                  <View style={styles.priceTag}>
+                    <Text style={styles.priceText}>{estimatedPrice}</Text>
+                  </View>
+                )}
               </View>
+            )}
+          </View>
+
+          {/* 目的地和出发时间 */}
+          {destination && (
+            <Text style={styles.location}>
+              {destination}
+              {'\n'}
+              {time && (
+                <Text style={styles.departureTime}>Depart at: {time}</Text>
+              )}
+            </Text>
+          )}
+
+          {/* 停留时间 */}
+          {destinationDuration && (
+            <View style={styles.durationContainer}>
+              <Image
+                source={require('@/assets/images/TravelCard/time.png')}
+                style={styles.icon}
+              />
+              <Text style={styles.destinationDuration}>
+                Stay Duration: {destinationDuration} min
+              </Text>
             </View>
-          </View>
+          )}
 
-          <Text style={styles.location}>
-            {destination}
-            {'\n'}
-            <Text style={styles.departureTime}>Depart at: {time}</Text>
-          </Text>
-
-          <View style={styles.durationContainer}>
-            <Image
-              source={require('@/assets/images/TravelCard/time.png')}
-              style={styles.icon}
-            />
-            <Text style={styles.destinationDuration}>
-              Stay Duration: {destinationDuration} min
-            </Text>
-          </View>
-          <View className="flex-row items-center mt-1 mb-2">
-            <RatingStars rating={parseFloat(rating)} />
-            <Text className="text-xs text-gray-500 ml-2">
-              {user_ratings_total} comments
-            </Text>
-          </View>
-
+          {/* 评分和评论 */}
+          {rating !== null && user_ratings_total !== null && (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 1,
+                marginBottom: 2,
+              }}>
+              <RatingStars rating={parseFloat(rating)} />
+              <Text style={{ fontSize: 12, color: '#666666', marginLeft: 8 }}>
+                {user_ratings_total} comments
+              </Text>
+            </View>
+          )}
           {/* click show more */}
           <View style={styles.transportInfoContainer}>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={styles.transportInfo}>More Detail...</Text>
             </TouchableOpacity>
           </View>
+
+          {/* click for more detail */}
+          <Modal
+            transparent={true}
+            animationType="slide"
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}>
+            <ResDetail
+              onClose={() => setModalVisible(false)}
+              title={destination}
+              description={destinationDescrib}
+              coords={endLocation}
+              duration={duration}
+              destinationDuration={destinationDuration}
+              transportation={transportation}
+              distance={distance}
+              estimatedPrice={estimatedPrice}
+              photoReference={photoReference}
+              rating={rating}
+              tips={rating}
+              user_ratings_total={user_ratings_total}
+            />
+          </Modal>
         </View>
 
-        {/* Navigation Info */}
+        {/* 导航信息 */}
         <View style={styles.additionalInfoContainer}>
           <Text style={styles.sectionTitle}>Navigation Info</Text>
           <TouchableOpacity onPress={openGoogleMaps}>
             <Text style={styles.detailedInfo}>Click to google map</Text>
           </TouchableOpacity>
-          <View style={styles.transportIcons}>
-            <Text>
-              Distance: {distance} / {transportation} ({duration})
-            </Text>
-          </View>
+          {(distance || transportation || duration) && (
+            <View style={styles.transportIcons}>
+              <Text>
+                {distance ? `Distance: ${distance}` : ''}
+                {distance && transportation ? ' / ' : ''}
+                {transportation || ''}
+                {(distance || transportation) && duration ? ' ' : ''}
+                {duration ? `(${duration})` : ''}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
 
-      {/* click for more detail */}
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}>
-        <ResDetail
-          onClose={() => setModalVisible(false)}
-          title={destination}
-          description={destinationDescrib}
-          coords={endLocation}
-          duration={duration}
-          destinationDuration={destinationDuration}
-          transportation={transportation}
-          distance={distance}
-          estimatedPrice={estimatedPrice}
-          photoReference={photoReference}
-          tips={rating}
-        />
-      </Modal>
+      {/* 模态框 */}
+      {/* ...模态框的代码... */}
     </View>
   )
 }
