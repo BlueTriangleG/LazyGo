@@ -33,7 +33,7 @@
         "keyword": "time_spent",
         "options": [
             {
-                "content": "within 10",
+                "content": "within 10 minutes",
                 "key": "0,10"
             }, 
             {
