@@ -40,6 +40,7 @@ import { color } from '../../../node_modules/style-value-types/lib/color/index'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { classNames } from '../../../node_modules/@tamagui/remove-scroll/src/RemoveScroll'
 import TravelCard from '@/components/TravelPlanComponent/TravelCard'
+import WeatherCard from '@/components/weatherTips/weatherCard'
 
 export default function Page(props: CardProps) {
   const { currentLocation, sensorData, weatherData, isLoading, error } =
@@ -50,10 +51,7 @@ export default function Page(props: CardProps) {
     null
   )
   const [reload, setReload] = useState<boolean>(false)
-  // const openGoogleMaps = () => {
-  //   const url = `https://www.google.com/maps/dir/?api=1&origin=${startLocation}&destination=${endLocation}&travelmode=driving`
-  //   Linking.openURL(url).catch((err) => console.error('An error occurred', err))
-  // }
+
   const RatingStars = ({ rating }) => {
     const fullStars = Math.floor(rating)
     const hasHalfStar = rating % 1 !== 0
@@ -78,28 +76,28 @@ export default function Page(props: CardProps) {
 
     return <View style={{ flexDirection: 'row' }}>{stars}</View>
   }
+
   const [isModalVisible, setIsModalVisible] = useState(false)
   const [selectedRecommend, setSelectedRecommend] = useState<Activity | null>(
     null
   )
-  const [isGpsEnabled, setIsGpsEnabled] = useState(false);
-  
+  const [isGpsEnabled, setIsGpsEnabled] = useState(false)
+
   const requestLocationPermission = async () => {
     try {
-      const { status } = await Location.requestForegroundPermissionsAsync();
+      const { status } = await Location.requestForegroundPermissionsAsync()
       if (status === 'granted') {
-        setIsGpsEnabled(true);
-        // if gps permission is granted, execute fetchData immediately
-        fetchData();
+        setIsGpsEnabled(true)
+        fetchData() // 位置权限允许后调用 fetchData
       } else {
-        setIsGpsEnabled(false);
-        promptEnableGps();
+        setIsGpsEnabled(false)
+        promptEnableGps()
       }
     } catch (error) {
-      console.error('Error requesting location permission:', error);
+      console.error('Error requesting location permission:', error)
     }
-  };
-  
+  }
+
   const promptEnableGps = () => {
     Alert.alert(
       'Enable GPS',
@@ -110,73 +108,78 @@ export default function Page(props: CardProps) {
           text: 'Open Settings',
           onPress: () => {
             if (Platform.OS === 'ios') {
-              Linking.openURL('App-Prefs:root=Privacy&path=LOCATION');
+              Linking.openURL('App-Prefs:root=Privacy&path=LOCATION')
             } else {
-              Linking.openSettings();
+              Linking.openSettings()
             }
           },
         },
       ],
       { cancelable: false }
-    );
-  };
-  
+    )
+  }
+
   const fetchData = async () => {
     try {
       if (!isLoading && currentLocation && sensorData && weatherData) {
-        // Combine sensorData and weatherData into a single JSON object
+        console.log('Current Location:', currentLocation)
+        console.log('Sensor Data:', sensorData)
+        console.log('Weather Data:', weatherData)
+
         const combinedData = {
           sensorData,
           weatherData,
-        };
-  
-        // Initiate both asynchronous operations
+        }
+
+        console.log('Combined Data:', combinedData)
+
         const recommendTipsPromise = getRecommendsTips(
           JSON.stringify(combinedData)
-        );
+        )
         const dailyRecommendsPromise = generateDailyRecommends(
           `${currentLocation.latitude},${currentLocation.longitude}`
-        );
-  
-        // Handle recommendTips as it resolves
+        )
+
         recommendTipsPromise
-          .then((recommnedTips) => {
-            if (recommnedTips) {
-              const formattedRecommend = recommnedTips.replace(/\\n/g, '\n');
-              setTip(formattedRecommend);
+          .then((recommendTips) => {
+            if (recommendTips) {
+              console.log('Recommend Tips:', recommendTips)
+              const formattedRecommend = recommendTips.replace(/\\n/g, '\n')
+              setTip(formattedRecommend)
             } else {
-              console.error('Failed to get recommnedTips');
-              alert('Failed to get recommnedTips');
+              console.error('Failed to get recommendTips')
+              alert('Failed to get recommendTips')
             }
           })
           .catch((error) => {
-            console.error('Error fetching recommendTips:', error);
-          });
-  
-        // Handle dailyRecommends as it resolves
+            console.error('Error fetching recommendTips:', error)
+          })
+
         dailyRecommendsPromise
           .then((dailyRecommends) => {
             if (dailyRecommends) {
-              setDailyRecommends(dailyRecommends);
+              console.log('Daily Recommends:', dailyRecommends)
+              setDailyRecommends(dailyRecommends)
             } else {
-              console.error('Failed to get dailyRecommends');
+              console.error('Failed to get dailyRecommends')
             }
           })
           .catch((error) => {
-            console.error('Error fetching dailyRecommends:', error);
-          });
+            console.error('Error fetching dailyRecommends:', error)
+          })
       }
     } catch (error) {
-      console.error('Error fetching data:', error);
+      console.error('Error fetching data:', error)
     }
-  };
-  
+  }
+
   useEffect(() => {
     if (!isLoading) {
-      requestLocationPermission();
-      setReload(false);
+      requestLocationPermission()
+      setReload(false)
     }
-  }, [isLoading, currentLocation, sensorData, weatherData, reload]);
+  }, [isLoading, currentLocation, sensorData, weatherData, reload])
+
   const mapProvider =
     Platform.OS === 'android' ? PROVIDER_GOOGLE : PROVIDER_DEFAULT
 
@@ -291,30 +294,29 @@ export default function Page(props: CardProps) {
                 showsHorizontalScrollIndicator={false}
                 className="pl-2 my-1">
                 {/* card1 */}
-
                 <View className="w-[260px] mr-4 h-80 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
                   <LottieView
-                    source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
+                    source={require('../../../assets/animation/loading.json')}
                     autoPlay
-                    style={{ width: 200, height: 200 }} // Customize size
+                    style={{ width: 200, height: 200 }}
                   />
                   <Text className="text-xl font-bold p-2">Loading...</Text>
                 </View>
                 {/* card2 */}
                 <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
                   <LottieView
-                    source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
+                    source={require('../../../assets/animation/loading.json')}
                     autoPlay
-                    style={{ width: 200, height: 200 }} // Customize size
+                    style={{ width: 200, height: 200 }}
                   />
                   <Text className="text-xl font-bold p-2">Loading...</Text>
                 </View>
                 {/* card3 */}
                 <View className="w-[260px] mr-4 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
                   <LottieView
-                    source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
+                    source={require('../../../assets/animation/loading.json')}
                     autoPlay
-                    style={{ width: 200, height: 200 }} // Customize size
+                    style={{ width: 200, height: 200 }}
                   />
                   <Text className="text-xl font-bold p-2">Loading...</Text>
                 </View>
@@ -363,7 +365,6 @@ export default function Page(props: CardProps) {
                           {recommend.destination}
                         </Text>
                         <Card.Footer />
-
                         <Text
                           style={{
                             fontSize: 14,
@@ -466,6 +467,19 @@ export default function Page(props: CardProps) {
 
           {/* Part3 */}
           <View className="px-2 my-1">
+            {weatherData ? (
+              <WeatherCard weatherData={weatherData} />
+            ) : (
+              <View className="w-[260px] h-80 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
+                <LottieView
+                  source={require('../../../assets/animation/loading.json')}
+                  autoPlay
+                  style={{ width: 200, height: 200 }}
+                />
+                <Text className="text-xl font-bold p-2">Loading Weather...</Text>
+              </View>
+            )}
+
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Tips from Lazy Go
             </Text>
@@ -479,9 +493,9 @@ export default function Page(props: CardProps) {
               ) : (
                 <View className="w-full h-64 justify-center items-center p-1">
                   <LottieView
-                    source={require('../../../assets/animation/animation2.json')} // Full-screen success animation path
+                    source={require('../../../assets/animation/animation2.json')}
                     autoPlay
-                    style={{ width: 120, height: 120 }} // Customize size
+                    style={{ width: 120, height: 120 }}
                   />
                 </View>
               )}
@@ -490,9 +504,9 @@ export default function Page(props: CardProps) {
               {isLoading || currentLocation == null ? (
                 <View className="flex-1 justify-center items-center w-max h-max">
                   <LottieView
-                    source={require('../../../assets/animation/loading.json')} // Full-screen success animation path
+                    source={require('../../../assets/animation/loading.json')}
                     autoPlay
-                    style={{ width: 120, height: 120 }} // Customize size
+                    style={{ width: 120, height: 120 }}
                   />
                 </View>
               ) : (
@@ -521,13 +535,6 @@ export default function Page(props: CardProps) {
             </View>
           </View>
           <View className="h-8 my-1"></View>
-          {/* <CustomButton
-            className="mt-6 bg-red-300"
-            title="Generate Plan"
-            onPress={async () => {
-              router.push('/(root)/(generate-plan)/gpt_test')
-            }}
-          /> */}
         </SignedIn>
         <SignedOut>
           <Text>
