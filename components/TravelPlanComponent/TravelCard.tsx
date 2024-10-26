@@ -104,18 +104,6 @@ const TravelCard: React.FC<TravelCardProps> = ({
     Linking.openURL(url).catch((err) => console.error('An error occurred', err))
   }
 
-  const getRandomRating = () => {
-    return (Math.random() * (5 - 3.5) + 3.5).toFixed(1) // Generates a random number between 3.5 and 5
-  }
-
-  // Function to generate a random number of comments between 300 and 3000
-  const getRandomComments = () => {
-    return Math.floor(Math.random() * (3000 - 300 + 1)) + 300 // Generates a random integer between 300 and 3000
-  }
-
-  // const randomRating = getRandomRating();
-  // const randomComments = getRandomComments();
-
   return (
     <View style={styles.container}>
       {/* 左边时间线 */}
@@ -175,7 +163,6 @@ const TravelCard: React.FC<TravelCardProps> = ({
             </View>
           )}
 
-          {/* 评分和评论 */}
           {rating !== null && user_ratings_total !== null && (
             <View
               style={{
