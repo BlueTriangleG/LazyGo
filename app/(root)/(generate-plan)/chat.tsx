@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text, View, ScrollView, Alert, Image } from 'react-native'
+import { Text, View, ScrollView, Alert } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { useCallback, useContext, useEffect, useState } from 'react'
 
@@ -35,6 +35,7 @@ import * as Location from 'expo-location'
 import Header from './header'
 import { icons, images } from '@/constants'
 import LottieView from 'lottie-react-native'
+import { Button, Card, H2, Image, Paragraph, XStack } from 'tamagui'
 
 import { useMyContext } from '@/app/context/MyContext'
 
@@ -84,7 +85,7 @@ const Chat = (props: ChatProps) => {
   } else if (chatParams.placeType === 'cafe') {
     presetChats = presetChats_caf
     presetOptions = presetOptions_caf
-  } else if (chatParams.placeType === 'milktea'){
+  } else if (chatParams.placeType === 'milktea') {
     presetChats = presetChats_mkt
     presetOptions = presetOptions_mkt
   }
@@ -243,7 +244,7 @@ const Chat = (props: ChatProps) => {
         break
       case 'people':
         userConfig.people = key
-        setUserConfig({ ...userConfig})
+        setUserConfig({ ...userConfig })
       default:
         break
     }
@@ -371,10 +372,30 @@ const Chat = (props: ChatProps) => {
           content: (
             <View>
               <View className="h-px bg-gray-300 my-6" />
-              <Text>Day {key}</Text>
-              {activities.map((data, index) => (
-                <View style={{ width: '90%', marginLeft: 20 }} key={index}>
+              <Card
+                onPress={() => handleCheckDetails(key, result)}
+                animation="bouncy"
+                scale={0.9}
+                backgroundColor={'#fff'}
+                hoverStyle={{ scale: 0.925 }}
+                pressStyle={{ scale: 0.875 }}
+                className="p-2"
+                style={{
+                  width: '95%',
+                  borderRadius: 8,
+                  marginVertical: 8,
+                  marginLeft: 10,
+                  // Shadow properties
+
+                  shadowColor: '#000', // iOS
+                  shadowOffset: { width: 0, height: 2 }, // iOS
+                  shadowOpacity: 0.25, // iOS
+                  shadowRadius: 3.84, // iOS
+                  elevation: 5, // Android
+                }}>
+                {activities.map((data, index) => (
                   <TravelCard
+                    key={index}
                     time={data.time}
                     duration={data.duration}
                     destination={data.destination}
@@ -389,13 +410,9 @@ const Chat = (props: ChatProps) => {
                     rating={data.rating}
                     user_ratings_total={data.user_ratings_total}
                   />
-                </View>
-              ))}
-              <CustomButton
-                title={'Check Details'}
-                className="mt-6 bg-red-300"
-                onPress={() => handleCheckDetails(key, result)}
-              />
+                ))}
+              </Card>
+
               <View className="h-px bg-gray-300 my-6" />
             </View>
           ),

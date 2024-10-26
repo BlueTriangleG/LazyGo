@@ -203,21 +203,29 @@ const TravelCard: React.FC<TravelCardProps> = ({
             animationType="slide"
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)}>
-            <ResDetail
-              onClose={() => setModalVisible(false)}
-              title={destination}
-              description={destinationDescrib}
-              coords={endLocation}
-              duration={duration}
-              destinationDuration={destinationDuration}
-              transportation={transportation}
-              distance={distance}
-              estimatedPrice={estimatedPrice}
-              photoReference={photoReference}
-              rating={rating}
-              tips={rating}
-              user_ratings_total={user_ratings_total}
-            />
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <ResDetail
+                onClose={() => setModalVisible(false)}
+                title={destination}
+                description={destinationDescrib}
+                coords={endLocation}
+                duration={duration}
+                destinationDuration={destinationDuration}
+                transportation={transportation}
+                distance={distance}
+                estimatedPrice={estimatedPrice}
+                photoReference={photoReference}
+                rating={rating}
+                tips={rating}
+                user_ratings_total={user_ratings_total}
+              />
+            </View>
           </Modal>
         </View>
 
@@ -278,14 +286,16 @@ const styles = StyleSheet.create({
   },
   outerCard: {
     padding: 0,
-    margin: 15,
+    marginTop: 15,
+    marginLeft: 15,
+    marginRight: 15,
+    marginBottom: 5,
     width: '100%',
   },
   card: {
     backgroundColor: '#FFFFFF',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 20,
     width: '100%',
   },
   header: {
@@ -339,7 +349,6 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   additionalInfoContainer: {
-    marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',
