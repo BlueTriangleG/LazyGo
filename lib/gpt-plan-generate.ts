@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import {
+  fastDistance,
   getDistanceMatrix,
   getNearbyEntertainment,
   getNearbyMilkTea,
@@ -52,7 +53,7 @@ export interface GoogleMapResponse {
   results: GoogleMapPlace[]
 }
 
-export const filterGoogleMapData = (data: GoogleMapResponse) => {
+export const filterGoogleMapData = (data: GoogleMapResponse, currentLocation: string) => {
   try {
     if (!data || !data.results) {
       return []
@@ -71,6 +72,7 @@ export const filterGoogleMapData = (data: GoogleMapResponse) => {
         types: place.types || [],
         geometry: place.geometry?.location || { lat: 0, lng: 0 },
         photo_reference: place.photos?.[0]?.photo_reference || '',
+        distance: fastDistance(parseFloat(currentLocation.split(',')[0]), parseFloat(currentLocation.split(',')[1]), place.geometry?.location?.lat || 0, place.geometry?.location?.lng || 0)
       }))
 
     return filteredResults
@@ -151,7 +153,8 @@ const json_sample: Plan = {
 // Function to generate meal plan for the day or the next day, including breakfast, lunch, dinner
 export async function generatePlan_restaurant(
   gps_location: string,
-  TimeSpend: number,
+  TimeSpendMin: number,
+  TimeSpendMax: number,
   travel_mode: string,
   minPrice?: number,
   maxPrice?: number
@@ -167,16 +170,20 @@ export async function generatePlan_restaurant(
   const minutes = parseInt(time.slice(3, 5))
   console.log(`Current time: ${hours}:${minutes}`)
   let numMeals = 1
-  let radius = 0
+  let minRadius = 0
+  let maxRadius = 0
   switch (travel_mode) {
     case 'driving':
-      radius = TimeSpend * 350
+      minRadius = TimeSpendMin * 350
+      maxRadius = TimeSpendMax * 350
       break
     case 'walking':
-      radius = TimeSpend * 84
+      minRadius = TimeSpendMin * 84
+      maxRadius = TimeSpendMax * 84
       break
     case 'transit':
-      radius = TimeSpend * 200
+      minRadius = TimeSpendMin * 200
+      maxRadius = TimeSpendMax * 200
       break
   }
   try {
@@ -187,12 +194,12 @@ export async function generatePlan_restaurant(
     for (let i = 0; i < numMeals; i++) {
       const placesJson = await getNearbyPlaces(
         currentLocation,
-        radius,
+        maxRadius,
         'restaurant',
         undefined,
         maxPrice
       )
-      let filteredPlacesJson = filterGoogleMapData(placesJson)
+      let filteredPlacesJson = filterGoogleMapDataByMinRadius(filterGoogleMapData(placesJson, currentLocation), minRadius)
       // console.log(filteredPlacesJson);
 
       const locations: string[] = []
@@ -264,7 +271,7 @@ export async function generatePlan_restaurant(
     }
     return planJson
   } catch (error) {
-    console.error('Error generating plan:', error)
+    console.error('Error generating plan1:', error)
     return
   }
 }
@@ -272,7 +279,8 @@ export async function generatePlan_restaurant(
 // Function to generate cafe plan
 export async function generatePlan_cafe(
   gps_location: string,
-  TimeSpend: number,
+  TimeSpendMin: number,
+  TimeSpendMax: number,
   travel_mode: string,
   minPrice?: number,
   maxPrice?: number
@@ -289,16 +297,20 @@ export async function generatePlan_cafe(
   const hours = parseInt(time.slice(0, 2))
   const minutes = parseInt(time.slice(3, 5))
   console.log(`Current time: ${hours}:${minutes}`)
-  let radius = 0
+  let minRadius = 0
+  let maxRadius = 0
   switch (travel_mode) {
     case 'driving':
-      radius = TimeSpend * 300
+      minRadius = TimeSpendMin * 300
+      maxRadius = TimeSpendMax * 300
       break
     case 'walking':
-      radius = TimeSpend * 60
+      minRadius = TimeSpendMin * 60
+      maxRadius = TimeSpendMax * 60
       break
     case 'transit':
-      radius = TimeSpend * 150
+      minRadius = TimeSpendMin * 150
+      maxRadius = TimeSpendMax * 150
       break
   }
   try {
@@ -307,12 +319,12 @@ export async function generatePlan_cafe(
     for (let i = 0; i < numMeals; i++) {
       const placesJson = await getNearbyPlaces(
         currentLocation,
-        radius,
+        maxRadius,
         'cafe',
         minPrice,
         maxPrice
       )
-      let filteredPlacesJson = filterGoogleMapData(placesJson)
+      let filteredPlacesJson = filterGoogleMapDataByMinRadius(filterGoogleMapData(placesJson, currentLocation), minRadius)
       // console.log(filteredPlacesJson);
       const locations: string[] = []
       filteredPlacesJson.forEach((place) => {
@@ -382,7 +394,7 @@ export async function generatePlan_cafe(
     }
     return planJson
   } catch (error) {
-    console.error('Error generating plan:', error)
+    console.error('Error generating plan2:', error)
     return
   }
 }
@@ -391,7 +403,8 @@ export async function generatePlan_cafe(
 // keywords can be : party: ["bar", "karaoke", "escaperoom","boardgame","bowling"], single:["spa","arcade","cinema","museum","park"]
 export async function generatePlan_entertainment(
   gps_location: string,
-  TimeSpend: number,
+  TimeSpendMin: number,
+  TimeSpendMax: number,
   travel_mode: string,
   keywords: string[]
 ): Promise<Plan | void> {
@@ -407,16 +420,20 @@ export async function generatePlan_entertainment(
   const minutes = parseInt(time.slice(3, 5))
   console.log(`Current time: ${hours}:${minutes}`)
 
-  let radius = 0
+  let minRadius = 0
+  let maxRadius = 0
   switch (travel_mode) {
     case 'driving':
-      radius = TimeSpend * 300
+      minRadius = TimeSpendMin * 300
+      maxRadius = TimeSpendMax * 300
       break
     case 'walking':
-      radius = TimeSpend * 60
+      minRadius = TimeSpendMin * 60
+      maxRadius = TimeSpendMax * 60
       break
     case 'transit':
-      radius = TimeSpend * 150
+      minRadius = TimeSpendMin * 150
+      maxRadius = TimeSpendMax * 150
       break
   }
   try {
@@ -426,11 +443,12 @@ export async function generatePlan_entertainment(
     for (let i = 0; i < numMeals; i++) {
       const placesJson = await getNearbyEntertainment(
         currentLocation,
-        radius,
+        maxRadius,
         keywords
       )
-      let filteredPlacesJson = filterGoogleMapData(placesJson)
-      // console.log(filteredPlacesJson);
+
+      let filteredPlacesJson = filterGoogleMapDataByMinRadius(filterGoogleMapData(placesJson, currentLocation), minRadius)
+      console.log("filteredPlacesJson", filteredPlacesJson);
       const locations: string[] = []
       filteredPlacesJson.forEach((place) => {
         const location = place.vicinity
@@ -455,7 +473,7 @@ export async function generatePlan_entertainment(
       // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
       // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
       // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
-      const requestMessage = `It's ${TimeSpend} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
+      const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
             All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
             The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
       const requestBody = {
@@ -499,7 +517,7 @@ export async function generatePlan_entertainment(
     }
     return planJson
   } catch (error) {
-    console.error('Error generating plan:', error)
+    console.error('Error generating plan3:', error)
     return
   }
 }
@@ -508,7 +526,8 @@ export async function generatePlan_entertainment(
 
 export async function generatePlan_milktea(
     gps_location: string,
-    TimeSpend: number,
+    TimeSpendMin: number,
+    TimeSpendMax: number,
     travel_mode: string,
   ): Promise<Plan | void> {
     let currentLocation = gps_location
@@ -523,16 +542,20 @@ export async function generatePlan_milktea(
   const minutes = parseInt(time.slice(3, 5))
   console.log(`Current time: ${hours}:${minutes}`)
 
-  let radius = 0
+  let minRadius = 0
+  let maxRadius = 0
   switch (travel_mode) {
     case 'driving':
-      radius = TimeSpend * 300
+      minRadius = TimeSpendMin * 300
+      maxRadius = TimeSpendMax * 300
       break
     case 'walking':
-      radius = TimeSpend * 60
+      minRadius = TimeSpendMin * 60
+      maxRadius = TimeSpendMax * 60
       break
     case 'transit':
-      radius = TimeSpend * 150
+      minRadius = TimeSpendMin * 150
+      maxRadius = TimeSpendMax * 150
       break
   }
     try {
@@ -542,9 +565,9 @@ export async function generatePlan_milktea(
       for (let i = 0; i < numMeals; i++) {
         const placesJson = await getNearbyMilkTea(
           currentLocation,
-          radius,
+          maxRadius,
         )
-        let filteredPlacesJson = filterGoogleMapData(placesJson)
+        let filteredPlacesJson = filterGoogleMapDataByMinRadius(filterGoogleMapData(placesJson, currentLocation), minRadius)
         // console.log(filteredPlacesJson);
         const locations: string[] = []
         filteredPlacesJson.forEach((place) => {
@@ -570,7 +593,7 @@ export async function generatePlan_milktea(
         // If there are 2 cafe to go, give me a plan to go a cafe in the morning, "time" must be a reasonable breakfast time. If there is 1 cafe to go, give me a plan to go a cafe in the afternoon, "time" must be a reasonable afternoon tea time.
         // All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
         // The current plan is ${JSON.stringify(planJson)}. [Important] 1.Don't let me go to the same attraction twice.2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan.`
-        const requestMessage = `It's ${TimeSpend} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
+        const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
               All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
               The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
         const requestBody = {
@@ -614,14 +637,15 @@ export async function generatePlan_milktea(
       }
       return planJson
     } catch (error) {
-      console.error('Error generating plan:', error)
+      console.error('Error generating plan4:', error)
       return
     }
   }
 
 export async function generatePlan_attractions(
   gps_location: string,
-  TimeSpend: number,
+  TimeSpendMin: number,
+  TimeSpendMax: number,
   travel_mode: string,
   minPrice?: number,
   maxPrice?: number
@@ -638,16 +662,20 @@ export async function generatePlan_attractions(
   const minutes = parseInt(time.slice(3, 5))
   console.log(`Current time: ${hours}:${minutes}`)
 
-  let radius = 0
+  let minRadius = 0
+  let maxRadius = 0
   switch (travel_mode) {
     case 'driving':
-      radius = TimeSpend * 300
+      minRadius = TimeSpendMin * 300
+      maxRadius = TimeSpendMax * 300
       break
     case 'walking':
-      radius = TimeSpend * 60
+      minRadius = TimeSpendMin * 60
+      maxRadius = TimeSpendMax * 60
       break
     case 'transit':
-      radius = TimeSpend * 150
+      minRadius = TimeSpendMin * 150
+      maxRadius = TimeSpendMax * 150
       break
   }
   try {
@@ -657,12 +685,12 @@ export async function generatePlan_attractions(
     for (let i = 0; i < numAttractions; i++) {
       const placesJson = await getNearbyPlaces(
         currentLocation,
-        radius,
+        maxRadius,
         'tourist_attraction',
         minPrice,
         maxPrice
       )
-      let filteredPlacesJson = filterGoogleMapData(placesJson)
+      let filteredPlacesJson = filterGoogleMapDataByMinRadius(filterGoogleMapData(placesJson, currentLocation), minRadius)
       // console.log(filteredPlacesJson);
       const locations: string[] = []
       filteredPlacesJson.forEach((place) => {
@@ -730,9 +758,18 @@ export async function generatePlan_attractions(
     }
     return planJson
   } catch (error) {
-    console.error('Error generating plan:', error)
+    console.error('Error generating plan5:', error)
     return
   }
+}
+
+function filterGoogleMapDataByMinRadius(filteredPlacesJson: any[], minRadius:number): any[] {
+  let farthestPlace = filteredPlacesJson.reduce((max, current) => max.distance > current.distance ? max : current);
+  filteredPlacesJson = filteredPlacesJson.filter(place => place.distance >= minRadius / 1000)
+  if (filteredPlacesJson.length === 0) {
+    filteredPlacesJson = [farthestPlace]
+  }
+  return filteredPlacesJson
 }
 
 // export async function askAboutPlan(

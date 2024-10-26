@@ -50,16 +50,16 @@
         "keyword": "time_spent",
         "options": [
             {
-                "content": "10 minutes",
-                "key": "10"
+                "content": "within 10 minutes",
+                "key": "0,10"
             }, 
             {
-                "content": "20 minutes",
-                "key": "20"
+                "content": "10 ~ 25 minutes",
+                "key": "10,25"
             }, 
             {
-                "content": "20+ minutes",
-                "key": "30"
+                "content": "25 ~ 40 minutes",
+                "key": "25,40"
             }
         ]
     }

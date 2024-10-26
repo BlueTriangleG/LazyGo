@@ -46,7 +46,8 @@ type Message = {
 export type UserConfig = {
   minPrice?: number
   maxPrice?: number
-  timeSpent: number
+  timeSpentMin: number
+  timeSpentMax: number
   transportation: string
   placeType?: string
   people?: string
@@ -98,7 +99,8 @@ const Chat = (props: ChatProps) => {
   const [currentChat, setCurrentChat] = useState<string>('')
   const [progress, setProgress] = useState<number>(0)
   const [userConfig, setUserConfig] = useState<UserConfig>({
-    timeSpent: 10,
+    timeSpentMin: 0,
+    timeSpentMax: 10,
     transportation: '',
     placeType: chatParams.placeType,
   })
@@ -130,7 +132,8 @@ const Chat = (props: ChatProps) => {
     console.log('userConfig', userConfig)
     let initMsgContent = chatsArray.find((chat) => chat.keyword === 'init')
     setUserConfig({
-      timeSpent: 10,
+      timeSpentMin: 0,
+      timeSpentMax: 10,
       transportation: '',
       placeType: chatParams.placeType,
     })
@@ -228,8 +231,10 @@ const Chat = (props: ChatProps) => {
         setUserConfig({ ...userConfig })
         break
       case 'time_spent':
-        let timeSpent = parseInt(key)
-        userConfig.timeSpent = timeSpent
+        let timeSpentMin = parseInt(key.split(',')[0])
+        let timeSpentMax = parseInt(key.split(',')[1])
+        userConfig.timeSpentMin = timeSpentMin
+        userConfig.timeSpentMax = timeSpentMax
         setUserConfig({ ...userConfig })
         break
       case 'travel_mode':
@@ -297,7 +302,8 @@ const Chat = (props: ChatProps) => {
         case 'restaurant':
           result = await generatePlan_restaurant(
             locationString,
-            userConfig.timeSpent,
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
@@ -306,14 +312,16 @@ const Chat = (props: ChatProps) => {
         case 'milktea':
           result = await generatePlan_milktea(
             locationString,
-            userConfig.timeSpent,
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation
           )
           break
         case 'cafe':
           result = await generatePlan_cafe(
             locationString,
-            userConfig.timeSpent,
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
@@ -322,7 +330,8 @@ const Chat = (props: ChatProps) => {
         case 'attraction':
           result = await generatePlan_attractions(
             locationString,
-            userConfig.timeSpent,
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
@@ -337,7 +346,8 @@ const Chat = (props: ChatProps) => {
           }
           result = await generatePlan_entertainment(
             locationString,
-            userConfig.timeSpent,
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation,
             keywords
           )
