@@ -203,21 +203,29 @@ const TravelCard: React.FC<TravelCardProps> = ({
             animationType="slide"
             visible={modalVisible}
             onRequestClose={() => setModalVisible(false)}>
-            <ResDetail
-              onClose={() => setModalVisible(false)}
-              title={destination}
-              description={destinationDescrib}
-              coords={endLocation}
-              duration={duration}
-              destinationDuration={destinationDuration}
-              transportation={transportation}
-              distance={distance}
-              estimatedPrice={estimatedPrice}
-              photoReference={photoReference}
-              rating={rating}
-              tips={rating}
-              user_ratings_total={user_ratings_total}
-            />
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <ResDetail
+                onClose={() => setModalVisible(false)}
+                title={destination}
+                description={destinationDescrib}
+                coords={endLocation}
+                duration={duration}
+                destinationDuration={destinationDuration}
+                transportation={transportation}
+                distance={distance}
+                estimatedPrice={estimatedPrice}
+                photoReference={photoReference}
+                rating={rating}
+                tips={rating}
+                user_ratings_total={user_ratings_total}
+              />
+            </View>
           </Modal>
         </View>
 

@@ -372,30 +372,30 @@ const Chat = (props: ChatProps) => {
           content: (
             <View>
               <View className="h-px bg-gray-300 my-6" />
-              {activities.map((data, index) => (
-                <Card
-                  key={index}
-                  onPress={() => handleCheckDetails(key, result)}
-                  animation="bouncy"
-                  scale={0.9}
-                  backgroundColor={'#fff'}
-                  hoverStyle={{ scale: 0.925 }}
-                  pressStyle={{ scale: 0.875 }}
-                  className="p-2"
-                  style={{
-                    width: '95%',
-                    borderRadius: 8,
-                    marginVertical: 8,
-                    marginLeft: 10,
-                    // Shadow properties
+              <Card
+                onPress={() => handleCheckDetails(key, result)}
+                animation="bouncy"
+                scale={0.9}
+                backgroundColor={'#fff'}
+                hoverStyle={{ scale: 0.925 }}
+                pressStyle={{ scale: 0.875 }}
+                className="p-2"
+                style={{
+                  width: '95%',
+                  borderRadius: 8,
+                  marginVertical: 8,
+                  marginLeft: 10,
+                  // Shadow properties
 
-                    shadowColor: '#000', // iOS
-                    shadowOffset: { width: 0, height: 2 }, // iOS
-                    shadowOpacity: 0.25, // iOS
-                    shadowRadius: 3.84, // iOS
-                    elevation: 5, // Android
-                  }}>
+                  shadowColor: '#000', // iOS
+                  shadowOffset: { width: 0, height: 2 }, // iOS
+                  shadowOpacity: 0.25, // iOS
+                  shadowRadius: 3.84, // iOS
+                  elevation: 5, // Android
+                }}>
+                {activities.map((data, index) => (
                   <TravelCard
+                    key={index}
                     time={data.time}
                     duration={data.duration}
                     destination={data.destination}
@@ -410,8 +410,8 @@ const Chat = (props: ChatProps) => {
                     rating={data.rating}
                     user_ratings_total={data.user_ratings_total}
                   />
-                </Card>
-              ))}
+                ))}
+              </Card>
 
               <View className="h-px bg-gray-300 my-6" />
             </View>
