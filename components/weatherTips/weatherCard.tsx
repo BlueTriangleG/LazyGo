@@ -1,67 +1,68 @@
-import React from 'react';
-import { View, Text, StyleSheet, Image } from 'react-native';
+import React from 'react'
+import { View, Text, StyleSheet, Image } from 'react-native'
 
 // weather with icon
 const getWeatherIcon = (condition: string) => {
   switch (condition.toLowerCase()) {
     case 'clear sky':
-      return require('@/assets/images/weather/sun.png');
+      return require('@/assets/images/weather/sun.png')
     case 'broken clouds':
-      return require('@/assets/images/weather/cloud.png');
+      return require('@/assets/images/weather/cloud.png')
     case 'overcast clouds':
-      return require('@/assets/images/weather/cloudy.png');
+      return require('@/assets/images/weather/cloudy.png')
     case 'rain':
-      return require('@/assets/images/weather/rain.png');
+      return require('@/assets/images/weather/rain.png')
     default:
-      return require('@/assets/images/weather/default.png'); 
+      return require('@/assets/images/weather/default.png')
   }
-};
+}
 
 // weather with outfit
 const getAccessoryIcon = (condition: string) => {
   switch (condition.toLowerCase()) {
     case 'clear sky':
-      return require('@/assets/images/weather/sunglasses.png'); 
+      return require('@/assets/images/weather/sunglasses.png')
     case 'overcast clouds':
-      return require('@/assets/images/weather/hat.png');
+      return require('@/assets/images/weather/hat.png')
     case 'rain':
-      return require('@/assets/images/weather/umbrella.png');
+      return require('@/assets/images/weather/umbrella.png')
     default:
-      return require('@/assets/images/weather/neutral.png'); 
+      return require('@/assets/images/weather/neutral.png')
   }
-};
+}
 
 // temp with cloth
 const getClothingIcon = (temp: number) => {
   if (temp < 5) {
-    return require('@/assets/images/weather/heavy_clothes.png'); 
+    return require('@/assets/images/weather/heavy_clothes.png')
   } else if (temp >= 5 && temp <= 20) {
-    return require('@/assets/images/weather/medium_clothes.png'); 
+    return require('@/assets/images/weather/medium_clothes.png')
   } else {
-    return require('@/assets/images/weather/light_clothes.png'); 
+    return require('@/assets/images/weather/light_clothes.png')
   }
-};
+}
 
 interface WeatherCardProps {
-  weatherData: string; // get json from home.tsx line 470
+  weatherData: string // get json from home.tsx line 470
 }
 
 const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
-  let parsedWeatherData;
+  let parsedWeatherData
   try {
-    parsedWeatherData = JSON.parse(weatherData);
+    parsedWeatherData = JSON.parse(weatherData)
   } catch (error) {
-    console.error('Invalid weatherData:', error);
-    return <Text>Invalid weather data</Text>; 
+    console.error('Invalid weatherData:', error)
+    return <Text>Invalid weather data</Text>
   }
 
   const { currentTemperature, currentCondition, HourForecast } =
-    parsedWeatherData || {};
+    parsedWeatherData || {}
 
-  const firstHourForecast = HourForecast && HourForecast.length > 0 ? HourForecast[0] : null;
+  const firstHourForecast =
+    HourForecast && HourForecast.length > 0 ? HourForecast[0] : null
 
   return (
-    <View style={styles.container}>
+    <View style={styles.container} className="m-2">
       <View style={styles.rowContainer}>
         <View style={styles.currentWeatherContainer}>
           <Image
@@ -76,30 +77,31 @@ const WeatherCard: React.FC<WeatherCardProps> = ({ weatherData }) => {
 
         {/* item recom */}
         <View style={styles.iconWrapper}>
-          <Image source={getAccessoryIcon(currentCondition)} style={styles.icon} />
-
+          <Image
+            source={getAccessoryIcon(currentCondition)}
+            style={styles.icon}
+          />
         </View>
 
         {/* cloth recom */}
         <View style={styles.iconWrapper}>
-          <Image source={getClothingIcon(currentTemperature)} style={styles.icon} />
-
+          <Image
+            source={getClothingIcon(currentTemperature)}
+            style={styles.icon}
+          />
         </View>
-
-
       </View>
     </View>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   container: {
     padding: 15,
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#fff',
     borderRadius: 12,
     alignItems: 'center',
     justifyContent: 'space-between',
-    marginBottom: 10,
   },
   rowContainer: {
     flexDirection: 'row',
@@ -152,6 +154,6 @@ const styles = StyleSheet.create({
     height: 30,
     marginTop: 5,
   },
-});
+})
 
-export default WeatherCard;
+export default WeatherCard
