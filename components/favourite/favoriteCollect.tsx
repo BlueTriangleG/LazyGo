@@ -3,7 +3,6 @@ import {
   StyleSheet,
   View,
   Text,
-  Image,
   FlatList,
   TouchableOpacity,
   Modal,
@@ -12,6 +11,8 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import ResDetail from '@/components/TravelPlanComponent/ResDetailCard/ResDetail' // Ensure to import your ResDetail component
 import { photoUrlBase } from '@/lib/google-map-api'
 import { useFocusEffect } from '@react-navigation/native'
+import type { CardProps } from 'tamagui'
+import { Button, Card, H2, Image, Paragraph, XStack } from 'tamagui'
 
 // Inline RatingStars component with full and half-star images
 const RatingStars = ({ rating, comments }) => {
@@ -130,7 +131,10 @@ export const FavoriteComponent = () => {
 
       {/* Add RatingStars component */}
       <View style={styles.ratingContainer}>
-        <RatingStars rating={parseFloat(item.tips) || 0} comments={item.user_ratings_total} />
+        <RatingStars
+          rating={parseFloat(item.tips) || 0}
+          comments={item.user_ratings_total}
+        />
       </View>
 
       <TouchableOpacity
