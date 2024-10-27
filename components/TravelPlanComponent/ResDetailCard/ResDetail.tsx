@@ -47,7 +47,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
   distance,
   estimatedPrice,
   photoReference,
-  rate,
+  rate = 4.5,
   tips,
 }) => {
   const [email, setEmail] = useState<string | null>(null)
@@ -108,8 +108,8 @@ const ResDetail: React.FC<ResDetailProps> = ({
     }
   }
   const RatingStars = ({ rating }) => {
-    const fullStars = Math.floor(rating) // 获取完整星星的数量
-    const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
+    const fullStars = Math.floor(rating)
+    const hasHalfStar = rating % 1 !== 0
     const stars = []
 
     // 添加完整的星星
@@ -232,7 +232,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
             {/* rating */}
             {rate && (
               <View className="flex-row items-center mt-2 mb-4">
-                <RatingStars rating={rate} />
+                <RatingStars rating={rate}} />
                 {/* 如果评论数是动态的，可以在此添加条件渲染 */}
                 <Text className="text-xs text-gray-500 ml-2">
                   {user_ratings_total} comments
