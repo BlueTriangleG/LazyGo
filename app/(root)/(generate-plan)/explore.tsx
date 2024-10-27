@@ -36,7 +36,7 @@ export default function TabTwoScreen(props: ExploreProps) {
   const [latData1, setLatData1] = useState({}) // Initialize as an object
   const [email, setEmail] = useState<string | null>(null)
 
-  const [isFromHistory, setIsFromHistory] = useState<boolean>(false);
+  const [isFromHistory, setIsFromHistory] = useState<boolean>(false)
 
   useEffect(() => {
     // console.log("Explore page params: date: [", exploreParams.date, "], plan: [", exploreParams.plan, "]");
@@ -53,7 +53,7 @@ export default function TabTwoScreen(props: ExploreProps) {
     const parsedPlan = JSON.parse(exploreParams.plan)
     setTravelData(parsedPlan)
     // console.log("explore.tsx++++++=======++++++++", parsedPlan)
-    setIsFromHistory(!!exploreParams.fromHistory);
+    setIsFromHistory(!!exploreParams.fromHistory)
     const newLatData1 = {}
     // Extract required information
     for (const [key, travels] of Object.entries(parsedPlan)) {
@@ -84,14 +84,19 @@ export default function TabTwoScreen(props: ExploreProps) {
   }
 
   const addToHistory = async (data) => {
-    // 调用 handleTravelHistory 函数以更新 TravelHistory 数据库
-    await handleTravelHistory(data)
+    const success = await handleTravelHistory(data)
+    if (success) {
+      setShowSuccessAnimation(true)
+    } else {
+      console.error('Failed to save plan')
+      // 你可以在这里添加一个错误提示给用户
+    }
   }
 
   const handleTravelHistory = async (data) => {
     if (!email) {
       console.error('No Email Found')
-      return
+      return false
     }
 
     const travelData = {
@@ -124,11 +129,14 @@ export default function TabTwoScreen(props: ExploreProps) {
       if (response.ok) {
         setShowSuccess(true);
         console.log('Travel history added:', result)
+        return true
       } else {
         console.error('Travel history failed:', result)
+        return false
       }
     } catch (error) {
       console.error('Wrong request:', error)
+      return false
     }
   }
 
@@ -159,16 +167,16 @@ export default function TabTwoScreen(props: ExploreProps) {
       {/* Full-Screen Lottie Animation Modal */}
       {showSuccessAnimation && (
         <Modal
-          transparent={false}
+          transparent={true}
           animationType="fade"
           visible={showSuccessAnimation}>
           <View style={styles.modalBackground}>
             <LottieView
-              source={require('../../../assets/animation/success.json')} // Full-screen success animation path
+              source={require('../../../assets/animation/success2.json')}
               autoPlay
-              loop={false} // Play the animation once
-              onAnimationFinish={handleAnimationFinish} // Hide animation when it finishes
-              style={{ width: 300, height: 300 }} // Customize size
+              loop={false}
+              onAnimationFinish={handleAnimationFinish}
+              style={{ width: 100, height: 100 }}
             />
           </View>
         </Modal>
@@ -212,10 +220,12 @@ export default function TabTwoScreen(props: ExploreProps) {
                 rating={data.rating}
                 user_ratings_total={data.user_ratings_total}
               />
+
               {index === travelData[selectedDay].length - 1 && !isFromHistory && (
                 <>
                   <TouchableOpacity
                     style={styles.addButton}
+                    className="mx-3"
                     onPress={() => addToHistory(data)} // call addToHistory
                   >
                     <Text style={styles.addButtonText}>Save Plan</Text>
@@ -224,6 +234,7 @@ export default function TabTwoScreen(props: ExploreProps) {
 
               )}
               {showSuccess && <SuccessPopup onHide={() => setShowSuccess(false)} />}
+
             </React.Fragment>
           ))}
           {/* {isFromHistory && <NFCControl />} */}
@@ -281,7 +292,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   loadingContainer: {
     flex: 1,

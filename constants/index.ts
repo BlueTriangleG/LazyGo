@@ -29,6 +29,7 @@ import noResult from '@/assets/images/no-result.png'
 import onboarding1 from '@/assets/images/onboarding1.png'
 import onboarding2 from '@/assets/images/onboarding2.png'
 import onboarding3 from '@/assets/images/onboarding3.png'
+import onboarding4 from '@/assets/images/onboarding4.png'
 import profileBackground from '@/assets/images/profile-background.jpg'
 import Avatar from '@/assets/images/Avatar.png'
 import logOut from '@/assets/icons/log-out.png'
@@ -41,6 +42,7 @@ export const images = {
   onboarding1,
   onboarding2,
   onboarding3,
+  onboarding4,
   check,
   noResult,
   message,
@@ -85,24 +87,31 @@ export const icons = {
 export const onboarding = [
   {
     id: 1,
-    title: 'A fast and customize plan is just a tap away!',
+    title: 'Give daily recommandation just for you',
     description:
-      'Choose what your like, and we will give you a explicit recommendation and plan!',
+      'Quickly discover interesting nearby locations and receive personalized recommendations just open the app.',
     image: images.onboarding1,
   },
   {
     id: 2,
-    title: 'Enter your preferences and let us give you a plan just for you!',
+    title: 'Enter your perferences',
     description:
-      'Give you customised preference options based on different goals',
+      'We generate targeted recommendations based on your submitted preferences.',
     image: images.onboarding2,
   },
   {
     id: 3,
-    title: 'The brief plan with accurate graphics saves you a lot of time!',
+    title: 'A detailed plan will be created.',
     description:
-      'Follow up with lazygo so you can modify the plan or get more details about the plan!',
+      'Use our customized algorithms to recommend the best places around you!',
     image: images.onboarding3,
+  },
+  {
+    id: 4,
+    title: 'Get started!',
+    description:
+      'Discover more exciting features, Start your journey with lazygo now!',
+    image: images.onboarding4,
   },
 ]
 

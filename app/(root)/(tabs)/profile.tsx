@@ -77,7 +77,7 @@ const Profile = () => {
   return (
     <View className="flex-1 justify-between">
       <View className="mt-0">{header()}</View>
-      <View className="relative flex-1 bg-[#fff3f3] ">
+      <View className="relative flex-1 mb-14 bg-[#fff3f3] ">
         <FavoriteComponent />
       </View>
     </View>
