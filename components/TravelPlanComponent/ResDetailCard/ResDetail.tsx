@@ -13,6 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { photoUrlBase } from '@/lib/google-map-api'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { Button } from 'tamagui'
+import SuccessPopup from '@/components/favourite/successPopup'
 type ResDetailProps = {
   onClose: () => void
   onFavorite: () => void
@@ -51,7 +52,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
 }) => {
   const [email, setEmail] = useState<string | null>(null)
   const [tempLat, tempLong] = coords.split(',').map(Number)
-
+  const [showSuccess, setShowSuccess] = useState(false);
   // get local email
   useEffect(() => {
     const fetchEmail = async () => {
@@ -98,6 +99,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
 
       const result = await response.json()
       if (response.ok) {
+        setShowSuccess(true);
         console.log('favorite added:', result)
       } else {
         console.error('favorite failed:', result)
@@ -111,7 +113,6 @@ const ResDetail: React.FC<ResDetailProps> = ({
     const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
     const stars = []
 
-    // 添加完整的星星
     for (let i = 0; i < fullStars; i++) {
       stars.push(<Icon key={i} name="star" size={20} color="gold" />)
     }
@@ -191,7 +192,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
                   width: '102%',
                   height: 280,
                   borderRadius: 10,
-                  margin:-5,
+                  margin: -5,
                 }}
                 resizeMode="cover"
               />
@@ -217,6 +218,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
                   Favorite
                 </Text>
               </TouchableOpacity>
+              {showSuccess && <SuccessPopup onHide={() => setShowSuccess(false)} />}
               <TouchableOpacity
                 onPress={handleVisited}
                 className="flex-1 bg-blue-100 rounded-full py-2">

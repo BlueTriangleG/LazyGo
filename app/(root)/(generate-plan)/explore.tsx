@@ -15,7 +15,7 @@ import LottieView from 'lottie-react-native'
 
 import { useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
+import SuccessPopup from '@/components/favourite/successPopup'
 export type ExploreProps = {
   date: string
   plan: string
@@ -28,7 +28,7 @@ export default function TabTwoScreen(props: ExploreProps) {
   const [selectedDay, setSelectedDay] = useState(1)
   const [modalVisible, setModalVisible] = useState(false)
   const [currentLocation, setCurrentLocation] = useState<string>('')
-
+  const [showSuccess, setShowSuccess] = useState(false);
   // Initialize TravelData as an empty array or your expected data structure
   const [travelData, setTravelData] = useState([])
   const [loading, setLoading] = useState(true) // Loading state
@@ -122,6 +122,7 @@ export default function TabTwoScreen(props: ExploreProps) {
 
       const result = await response.json()
       if (response.ok) {
+        setShowSuccess(true);
         console.log('Travel history added:', result)
       } else {
         console.error('Travel history failed:', result)
@@ -220,7 +221,9 @@ export default function TabTwoScreen(props: ExploreProps) {
                     <Text style={styles.addButtonText}>Save Plan</Text>
                   </TouchableOpacity>
                 </>
+
               )}
+              {showSuccess && <SuccessPopup onHide={() => setShowSuccess(false)} />}
             </React.Fragment>
           ))}
           {/* {isFromHistory && <NFCControl />} */}
