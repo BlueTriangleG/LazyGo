@@ -292,7 +292,7 @@ export default function Page(props: CardProps) {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                className="pl-2 my-1">
+                className="pl-2">
                 {/* card1 */}
                 <View className="w-[260px] mr-4 h-80 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
                   <LottieView
@@ -325,7 +325,7 @@ export default function Page(props: CardProps) {
               <ScrollView
                 horizontal
                 showsHorizontalScrollIndicator={false}
-                className="pl-2 my-1">
+                className="pl-2">
                 <XStack
                   $sm={{ flexDirection: 'row' }}
                   paddingHorizontal="$1"
@@ -467,22 +467,22 @@ export default function Page(props: CardProps) {
 
           {/* Part3 */}
           <View className="px-2 my-1">
-            {weatherData ? (
-              <WeatherCard weatherData={weatherData} />
-            ) : (
-              <View className="w-[260px] h-80 bg-white rounded-lg overflow-hidden shadow my-1 justify-center items-center">
-                <LottieView
-                  source={require('../../../assets/animation/loading.json')}
-                  autoPlay
-                  style={{ width: 200, height: 200 }}
-                />
-                <Text className="text-xl font-bold p-2">Loading Weather...</Text>
-              </View>
-            )}
-
             <Text className="font-JakartaBold text-left text-lg font-bold px-2 self-start text-black">
               Tips from Lazy Go
             </Text>
+            {weatherData ? (
+              <WeatherCard weatherData={weatherData} />
+            ) : (
+              <View className="w-max m-2 h-24 bg-white rounded-lg shadow my-3">
+                <View className="flex-1 justify-center items-center w-max h-max">
+                  <LottieView
+                    source={require('../../../assets/animation/loading.json')}
+                    autoPlay
+                    style={{ width: 90, height: 90 }}
+                  />
+                </View>
+              </View>
+            )}
             <ScrollView className="w-max h-64 m-2 p-2 bg-white rounded-lg shadow my-1">
               {tip !== '' ? (
                 <View className="w-full h-full">
@@ -500,7 +500,7 @@ export default function Page(props: CardProps) {
                 </View>
               )}
             </ScrollView>
-            <View className="w-max m-2 h-36 bg-white rounded-lg shadow my-3">
+            <View className="w-max m-2 mb-14 h-36 bg-white rounded-lg shadow my-3">
               {isLoading || currentLocation == null ? (
                 <View className="flex-1 justify-center items-center w-max h-max">
                   <LottieView
