@@ -52,7 +52,7 @@ export default function TabTwoScreen(props: ExploreProps) {
     // Parse travel plan
     const parsedPlan = JSON.parse(exploreParams.plan)
     setTravelData(parsedPlan)
-    // console.log("explore.tsx++++++=======++++++++", parsedPlan)
+    console.log('explore.tsx++++++=======++++++++', parsedPlan)
     setIsFromHistory(!!exploreParams.fromHistory)
     const newLatData1 = {}
     // Extract required information
@@ -112,6 +112,7 @@ export default function TabTwoScreen(props: ExploreProps) {
       detailedInfo: data.detailedInfo || '4.7',
       user_ratings_total: data.user_ratings_total,
       photoReference: data.photo_reference,
+      // rating: data.rating || '4.7',
       email,
     }
 
