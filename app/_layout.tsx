@@ -8,6 +8,8 @@ import { tokenCache } from '@/lib/auth'
 import { MyProvider } from './context/MyContext'
 import { TamaguiProvider, createTamagui } from '@tamagui/core'
 import { config } from '@tamagui/config'
+import { LogBox } from 'react-native'
+LogBox.ignoreAllLogs(true)
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync()

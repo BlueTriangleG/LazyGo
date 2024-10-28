@@ -14,8 +14,6 @@ import { photoUrlBase } from '@/lib/google-map-api'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { Button } from 'tamagui'
 import { classNames } from '../../../node_modules/@tamagui/remove-scroll/src/RemoveScroll'
-import SuccessPopup from '@/components/favourite/successPopup'
-
 type ResDetailProps = {
   onClose: () => void
   onFavorite: () => void
@@ -49,12 +47,12 @@ const ResDetail: React.FC<ResDetailProps> = ({
   distance,
   estimatedPrice,
   photoReference,
-  rate,
+  rate = 4.5,
   tips,
 }) => {
   const [email, setEmail] = useState<string | null>(null)
   const [tempLat, tempLong] = coords.split(',').map(Number)
-  const [showSuccess, setShowSuccess] = useState(false);
+
   // get local email
   useEffect(() => {
     const fetchEmail = async () => {
@@ -101,7 +99,6 @@ const ResDetail: React.FC<ResDetailProps> = ({
 
       const result = await response.json()
       if (response.ok) {
-        setShowSuccess(true);
         console.log('favorite added:', result)
       } else {
         console.error('favorite failed:', result)
@@ -111,10 +108,11 @@ const ResDetail: React.FC<ResDetailProps> = ({
     }
   }
   const RatingStars = ({ rating }) => {
-    const fullStars = Math.floor(rating) // 获取完整星星的数量
-    const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
+    const fullStars = Math.floor(rating)
+    const hasHalfStar = rating % 1 !== 0
     const stars = []
 
+    // 添加完整的星星
     for (let i = 0; i < fullStars; i++) {
       stars.push(<Icon key={i} name="star" size={20} color="gold" />)
     }
@@ -202,7 +200,6 @@ const ResDetail: React.FC<ResDetailProps> = ({
               </View>
             )}
 
-
             {/* title */}
             {title && (
               <View className="mt-4">
@@ -211,7 +208,6 @@ const ResDetail: React.FC<ResDetailProps> = ({
                 </Text>
               </View>
             )}
-
             {/* favorite and visited */}
             {title && (
               <View className="flex-row space-x-4 mb-4">
@@ -239,14 +235,6 @@ const ResDetail: React.FC<ResDetailProps> = ({
                 {/* 如果评论数是动态的，可以在此添加条件渲染 */}
                 <Text className="text-xs text-gray-500 ml-2">
                   {user_ratings_total} comments
-
-              </TouchableOpacity>
-              {showSuccess && <SuccessPopup onHide={() => setShowSuccess(false)} />}
-              <TouchableOpacity
-                onPress={handleVisited}
-                className="flex-1 bg-blue-100 rounded-full py-2">
-                <Text className="text-blue-500 text-center text-sm font-semibold">
-                  Mark as Visited
                 </Text>
               </View>
             )}

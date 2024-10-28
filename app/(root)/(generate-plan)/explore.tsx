@@ -15,7 +15,7 @@ import LottieView from 'lottie-react-native'
 
 import { useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import SuccessPopup from '@/components/favourite/successPopup'
+
 export type ExploreProps = {
   date: string
   plan: string
@@ -28,7 +28,7 @@ export default function TabTwoScreen(props: ExploreProps) {
   const [selectedDay, setSelectedDay] = useState(1)
   const [modalVisible, setModalVisible] = useState(false)
   const [currentLocation, setCurrentLocation] = useState<string>('')
-  const [showSuccess, setShowSuccess] = useState(false);
+
   // Initialize TravelData as an empty array or your expected data structure
   const [travelData, setTravelData] = useState([])
   const [loading, setLoading] = useState(true) // Loading state
@@ -52,7 +52,7 @@ export default function TabTwoScreen(props: ExploreProps) {
     // Parse travel plan
     const parsedPlan = JSON.parse(exploreParams.plan)
     setTravelData(parsedPlan)
-    // console.log("explore.tsx++++++=======++++++++", parsedPlan)
+    console.log('explore.tsx++++++=======++++++++', parsedPlan)
     setIsFromHistory(!!exploreParams.fromHistory)
     const newLatData1 = {}
     // Extract required information
@@ -112,6 +112,7 @@ export default function TabTwoScreen(props: ExploreProps) {
       detailedInfo: data.detailedInfo || '4.7',
       user_ratings_total: data.user_ratings_total,
       photoReference: data.photo_reference,
+      // rating: data.rating || '4.7',
       email,
     }
 
@@ -127,7 +128,6 @@ export default function TabTwoScreen(props: ExploreProps) {
 
       const result = await response.json()
       if (response.ok) {
-        setShowSuccess(true);
         console.log('Travel history added:', result)
         return true
       } else {
@@ -220,21 +220,18 @@ export default function TabTwoScreen(props: ExploreProps) {
                 rating={data.rating}
                 user_ratings_total={data.user_ratings_total}
               />
-
-              {index === travelData[selectedDay].length - 1 && !isFromHistory && (
-                <>
-                  <TouchableOpacity
-                    style={styles.addButton}
-                    className="mx-3"
-                    onPress={() => addToHistory(data)} // call addToHistory
-                  >
-                    <Text style={styles.addButtonText}>Save Plan</Text>
-                  </TouchableOpacity>
-                </>
-
-              )}
-              {showSuccess && <SuccessPopup onHide={() => setShowSuccess(false)} />}
-
+              {index === travelData[selectedDay].length - 1 &&
+                !isFromHistory && (
+                  <>
+                    <TouchableOpacity
+                      style={styles.addButton}
+                      className="mx-3"
+                      onPress={() => addToHistory(data)} // call addToHistory
+                    >
+                      <Text style={styles.addButtonText}>Save Plan</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
             </React.Fragment>
           ))}
           {/* {isFromHistory && <NFCControl />} */}
