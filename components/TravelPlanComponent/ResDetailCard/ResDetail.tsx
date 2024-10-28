@@ -232,7 +232,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
             {/* rating */}
             {rate && (
               <View className="flex-row items-center mt-2 mb-4">
-                <RatingStars rating={rate}} />
+                <RatingStars rating={rate} />
                 {/* 如果评论数是动态的，可以在此添加条件渲染 */}
                 <Text className="text-xs text-gray-500 ml-2">
                   {user_ratings_total} comments
