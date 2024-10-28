@@ -1,46 +1,56 @@
-import React, { useCallback, useState } from 'react';
-import { Text, View, FlatList, StyleSheet, ImageBackground, ActivityIndicator, TouchableOpacity } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import Icon from 'react-native-vector-icons/Ionicons';
-import { useNavigation, useFocusEffect } from '@react-navigation/native';
-import { router } from 'expo-router';
-import { photoUrlBase } from '@/lib/google-map-api';
+import React, { useCallback, useState } from 'react'
+import {
+  Text,
+  View,
+  FlatList,
+  StyleSheet,
+  ImageBackground,
+  ActivityIndicator,
+  TouchableOpacity,
+} from 'react-native'
+import { SafeAreaView } from 'react-native-safe-area-context'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import Icon from 'react-native-vector-icons/Ionicons'
+import { useNavigation, useFocusEffect } from '@react-navigation/native'
+import { router } from 'expo-router'
+import { photoUrlBase } from '@/lib/google-map-api'
 
 const History = () => {
-  const navigation = useNavigation();
-  const [travelHistory, setTravelHistory] = useState([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-  const [wrappedData, setWrappedData] = useState<{ [key: string]: any } | null>(null);
+  const navigation = useNavigation()
+  const [travelHistory, setTravelHistory] = useState([])
+  const [loading, setLoading] = useState(true)
+  const [error, setError] = useState('')
+  const [wrappedData, setWrappedData] = useState<{ [key: string]: any } | null>(
+    null
+  )
 
   function wrapData(inputData: any) {
     return {
-      "1": [inputData]
-    };
+      '1': [inputData],
+    }
   }
 
   const images = [
     require('../../../assets/images/TravelCard/his1.jpg'),
     require('../../../assets/images/TravelCard/his2.jpg'),
-  ];
+  ]
 
   const getRandomImage = () => {
-    const randomIndex = Math.floor(Math.random() * images.length);
-    return images[randomIndex];
-  };
+    const randomIndex = Math.floor(Math.random() * images.length)
+    return images[randomIndex]
+  }
 
   const handleCheckDetails = (item) => {
-    const { 
-      endlocation, 
-      destinationdescrib, 
-      destinationduration, 
-      estimatedprice, 
-      startlocation, 
-      detailedinfo, 
-      photoreference, 
-      ...rest 
-    } = item;
+    const {
+      endlocation,
+      destinationdescrib,
+      destinationduration,
+      estimatedprice,
+      startlocation,
+      detailedinfo,
+      photoreference,
+      ...rest
+    } = item
 
     const updatedItem = {
       ...rest,
@@ -51,23 +61,23 @@ const History = () => {
       startLocation: startlocation,
       detailedInfo: detailedinfo || '4.7',
       photo_reference: photoreference,
-    };
+    }
 
-    const wrapped = wrapData(updatedItem);
-    setWrappedData(wrapped);
+    const wrapped = wrapData(updatedItem)
+    setWrappedData(wrapped)
 
     router.push({
       pathname: '/(root)/(generate-plan)/explore',
       params: { date: 1, plan: JSON.stringify(wrapped), fromHistory: true },
-    });
-  };
+    })
+  }
 
   const fetchTravelHistoryFromApi = async () => {
     try {
-      const email = await AsyncStorage.getItem('userEmail');
+      const email = await AsyncStorage.getItem('userEmail')
       if (!email) {
-        console.log('Email not found');
-        return;
+        console.log('Email not found')
+        return
       }
 
       const response = await fetch(`/(api)/TravelHistory?email=${email}`, {
@@ -75,39 +85,39 @@ const History = () => {
         headers: {
           'Content-Type': 'application/json',
         },
-      });
+      })
 
       if (!response.ok) {
-        throw new Error('Network wrong');
+        throw new Error('Network wrong')
       }
 
-      const result = await response.json();
+      const result = await response.json()
       if (!Array.isArray(result)) {
-        console.error('Wrong Data:', result);
-        return;
+        console.error('Wrong Data:', result)
+        return
       }
 
       if (result.length === 0) {
-        console.log('NO data found');
-        return;
+        console.log('NO data found')
+        return
       }
 
-      setTravelHistory(result);
+      setTravelHistory(result)
     } catch (error) {
-      console.error('Getting travel history wrong:', error);
-      setError('Error when getting travelHistory');
+      console.error('Getting travel history wrong:', error)
+      setError('Error when getting travelHistory')
     } finally {
-      setLoading(false);
+      setLoading(false)
     }
-  };
+  }
 
   // useFocusEffect will trigger fetchTravelHistoryFromApi every time the screen is focused
   useFocusEffect(
     useCallback(() => {
-      setLoading(true); // Show loading while fetching data
-      fetchTravelHistoryFromApi();
+      setLoading(true) // Show loading while fetching data
+      fetchTravelHistoryFromApi()
     }, [])
-  );
+  )
 
   if (loading) {
     return (
@@ -115,7 +125,7 @@ const History = () => {
         <ActivityIndicator size="large" color="#0000ff" />
         <Text>Loading...</Text>
       </View>
-    );
+    )
   }
 
   if (error) {
@@ -123,15 +133,14 @@ const History = () => {
       <View style={styles.errorContainer}>
         <Text style={styles.errorText}>{error}</Text>
       </View>
-    );
+    )
   }
 
   return (
     <ImageBackground
       source={require('../../../assets/images/yellow.png')}
       style={styles.backgroundImage}
-      resizeMode="cover"
-    >
+      resizeMode="cover">
       <View style={styles.overlay} />
       <SafeAreaView style={styles.container}>
         <Text style={styles.title}>Travel History</Text>
@@ -141,17 +150,17 @@ const History = () => {
           renderItem={({ item }) => (
             <TouchableOpacity
               style={styles.cardContainer}
-              onPress={() => handleCheckDetails(item)}
-            >
+              onPress={() => handleCheckDetails(item)}>
               <ImageBackground
                 source={{ uri: photoUrlBase + item.photoreference }}
                 style={styles.cardImageBackground}
-                imageStyle={styles.cardImage}
-              >
+                imageStyle={styles.cardImage}>
                 {/* Wrap destination and location in styled containers */}
                 <View style={styles.overlayTextContainer}>
                   <View style={styles.textWrapper}>
-                    <Text style={styles.destinationLabel}>{item.destination}</Text>
+                    <Text style={styles.destinationLabel}>
+                      {item.destination}
+                    </Text>
                   </View>
                   <View style={styles.locationWrapper}>
                     <Icon name="location-outline" size={14} color="white" />
@@ -165,8 +174,8 @@ const History = () => {
         />
       </SafeAreaView>
     </ImageBackground>
-  );
-};
+  )
+}
 
 const styles = StyleSheet.create({
   loadingContainer: {
@@ -261,6 +270,6 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     alignSelf: 'flex-start',
   },
-});
+})
 
-export default History;
+export default History

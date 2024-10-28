@@ -171,7 +171,11 @@ const TravelCard: React.FC<TravelCardProps> = ({
                 marginTop: 1,
                 marginBottom: 2,
               }}>
-              <RatingStars rating={parseFloat(rating)} />
+              <RatingStars
+                rating={
+                  rating && parseFloat(rating) > 0 ? parseFloat(rating) : 4.5
+                }
+              />
               <Text style={{ fontSize: 12, color: '#666666', marginLeft: 8 }}>
                 {user_ratings_total} comments
               </Text>

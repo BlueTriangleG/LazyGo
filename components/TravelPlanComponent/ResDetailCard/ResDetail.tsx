@@ -13,9 +13,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage'
 import { photoUrlBase } from '@/lib/google-map-api'
 import Icon from 'react-native-vector-icons/FontAwesome'
 import { Button } from 'tamagui'
-import { classNames } from '../../../node_modules/@tamagui/remove-scroll/src/RemoveScroll'
 import SuccessPopup from '@/components/favourite/successPopup'
-
 type ResDetailProps = {
   onClose: () => void
   onFavorite: () => void
@@ -171,75 +169,54 @@ const ResDetail: React.FC<ResDetailProps> = ({
   }
 
   return (
-    <View className="flex-1 w-full h-full justify-center items-center">
+    <View className="flex-1 justify-center items-center">
       {/* Wrap modal content with TouchableWithoutFeedback */}
       <View
         style={{ maxHeight: screenHeight * 0.75 }} // set max height based on screen
         className="bg-white w-11/12 rounded-2xl overflow-hidden shadow-lg">
         <TouchableOpacity
           onPress={onClose}
-          className="absolute top-0.5 right-0.5 z-10 w-11 h-11 rounded-full items-center justify-center">
-          <Icon name="times" size={26} color="#333" />
+          className="absolute top-1 right-1 z-10 w-11 h-11 rounded-full items-center justify-center">
+          <Icon name="times" size={24} color="#333" />
         </TouchableOpacity>
         <ScrollView
           contentContainerStyle={{ padding: 16 }}
           showsHorizontalScrollIndicator={false}
           showsVerticalScrollIndicator={false}>
           {/* image */}
-          <View className="m-3">
-            {photoReference && (
-              <View className="items-center mt-3">
-                <Image
-                  source={{ uri: photoUrlBase + photoReference }} // show pic
-                  style={{
-                    width: '102%',
-                    height: 280,
-                    borderRadius: 10,
-                    margin: -5,
-                  }}
-                  resizeMode="cover"
-                />
-              </View>
-            )}
+          {photoReference && (
+            <View className="items-center">
+              <Image
+                source={{ uri: photoUrlBase + photoReference }} // show pic
+                style={{
+                  width: '102%',
+                  height: 280,
+                  borderRadius: 10,
+                  margin: -5,
+                }}
+                resizeMode="cover"
+              />
+            </View>
+          )}
 
+          {/* title */}
+          {title && (
+            <View className="mt-4">
+              <Text className="text-lg font-bold text-gray-800 mb-2">
+                {title}
+              </Text>
+            </View>
+          )}
 
-            {/* title */}
-            {title && (
-              <View className="mt-4">
-                <Text className="text-lg font-bold text-gray-800 mb-2">
-                  {title}
+          {/* favorite and visited */}
+          {title && (
+            <View className="flex-row space-x-4 mb-4">
+              <TouchableOpacity
+                onPress={handleFavorite}
+                className="flex-1 bg-yellow-500 rounded-full py-2">
+                <Text className="text-white text-center text-sm font-semibold">
+                  Favorite
                 </Text>
-              </View>
-            )}
-
-            {/* favorite and visited */}
-            {title && (
-              <View className="flex-row space-x-4 mb-4">
-                <TouchableOpacity
-                  onPress={handleFavorite}
-                  className="flex-1 bg-yellow-500 rounded-full py-2">
-                  <Text className="text-white text-center text-sm font-semibold">
-                    Favorite
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  onPress={handleVisited}
-                  className="flex-1 bg-blue-100 rounded-full py-2">
-                  <Text className="text-blue-500 text-center text-sm font-semibold">
-                    Mark as Visited
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-
-            {/* rating */}
-            {rate && (
-              <View className="flex-row items-center mt-2 mb-4">
-                <RatingStars rating={rate} />
-                {/* 如果评论数是动态的，可以在此添加条件渲染 */}
-                <Text className="text-xs text-gray-500 ml-2">
-                  {user_ratings_total} comments
-
               </TouchableOpacity>
               {showSuccess && <SuccessPopup onHide={() => setShowSuccess(false)} />}
               <TouchableOpacity
@@ -248,71 +225,78 @@ const ResDetail: React.FC<ResDetailProps> = ({
                 <Text className="text-blue-500 text-center text-sm font-semibold">
                   Mark as Visited
                 </Text>
-              </View>
-            )}
+              </TouchableOpacity>
+            </View>
+          )}
 
-            {/* 地点信息 */}
-            {description && (
-              <Text className="text-xs text-gray-600 mb-4">{description}</Text>
-            )}
+          {/* rating */}
+          {rate && (
+            <View className="flex-row items-center mt-2 mb-4">
+              <RatingStars rating={rate} />
+              {/* 如果评论数是动态的，可以在此添加条件渲染 */}
+              <Text className="text-xs text-gray-500 ml-2">
+                {user_ratings_total} comments
+              </Text>
+            </View>
+          )}
 
-            {/* 交通信息 */}
-            {transportation && (
-              <>
-                <Text className="text-sm font-bold text-gray-700 mb-2">
-                  Transportation
-                </Text>
-                <Text className="text-sm text-gray-600 mb-4">
-                  {transportation}
-                </Text>
-              </>
-            )}
+          {/* 地点信息 */}
+          {description && (
+            <Text className="text-xs text-gray-600 mb-4">{description}</Text>
+          )}
 
-            {/* 距离信息 */}
-            {distance && (
-              <>
-                <Text className="text-sm font-bold text-gray-700 mb-2">
-                  Distance
-                </Text>
-                <Text className="text-sm text-gray-600 mb-4">{distance}</Text>
-              </>
-            )}
+          {/* 交通信息 */}
+          {transportation && (
+            <>
+              <Text className="text-sm font-bold text-gray-700 mb-2">
+                Transportation
+              </Text>
+              <Text className="text-sm text-gray-600 mb-4">
+                {transportation}
+              </Text>
+            </>
+          )}
 
-            {/* 价格信息 */}
-            {estimatedPrice && (
-              <>
-                <Text className="text-sm font-bold text-gray-700 mb-2">
-                  Price
-                </Text>
-                <Text className="text-sm text-gray-600 mb-4">
-                  {estimatedPrice}
-                </Text>
-              </>
-            )}
+          {/* 距离信息 */}
+          {distance && (
+            <>
+              <Text className="text-sm font-bold text-gray-700 mb-2">
+                Distance
+              </Text>
+              <Text className="text-sm text-gray-600 mb-4">{distance}</Text>
+            </>
+          )}
 
-            {/* 详细描述 */}
-            {description && (
-              <>
-                <Text className="text-sm font-bold text-gray-700 mb-2">
-                  Description
-                </Text>
-                <Text className="text-sm text-gray-600 mb-4">
-                  {description}
-                </Text>
-              </>
-            )}
+          {/* 价格信息 */}
+          {estimatedPrice && (
+            <>
+              <Text className="text-sm font-bold text-gray-700 mb-2">
+                Price
+              </Text>
+              <Text className="text-sm text-gray-600 mb-4">
+                {estimatedPrice}
+              </Text>
+            </>
+          )}
 
-            {/* 提示信息 */}
-            {tips && (
-              <>
-                <Text className="text-sm font-bold text-gray-700 mb-2">
-                  Tips
-                </Text>
-                <Text className="text-sm text-gray-600 mb-4">{tips}</Text>
-              </>
-            )}
-            {/* close button */}
-          </View>
+          {/* 详细描述 */}
+          {description && (
+            <>
+              <Text className="text-sm font-bold text-gray-700 mb-2">
+                Description
+              </Text>
+              <Text className="text-sm text-gray-600 mb-4">{description}</Text>
+            </>
+          )}
+
+          {/* 提示信息 */}
+          {tips && (
+            <>
+              <Text className="text-sm font-bold text-gray-700 mb-2">Tips</Text>
+              <Text className="text-sm text-gray-600 mb-4">{tips}</Text>
+            </>
+          )}
+          {/* close button */}
         </ScrollView>
       </View>
     </View>
