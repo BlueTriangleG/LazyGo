@@ -26,6 +26,7 @@
         "android.permission.ACCESS_FINE_LOCATION"
       ],
       "package": "com.gaoyuanhao.LazyGo"
+
     },
     "web": {
       "bundler": "metro",

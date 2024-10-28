@@ -208,7 +208,6 @@ const ResDetail: React.FC<ResDetailProps> = ({
                 </Text>
               </View>
             )}
-
             {/* favorite and visited */}
             {title && (
               <View className="flex-row space-x-4 mb-4">
