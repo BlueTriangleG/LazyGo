@@ -47,7 +47,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
   distance,
   estimatedPrice,
   photoReference,
-  rate,
+  rate = 4.5,
   tips,
 }) => {
   const [email, setEmail] = useState<string | null>(null)
@@ -108,8 +108,8 @@ const ResDetail: React.FC<ResDetailProps> = ({
     }
   }
   const RatingStars = ({ rating }) => {
-    const fullStars = Math.floor(rating) // 获取完整星星的数量
-    const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
+    const fullStars = Math.floor(rating)
+    const hasHalfStar = rating % 1 !== 0
     const stars = []
 
     // 添加完整的星星
