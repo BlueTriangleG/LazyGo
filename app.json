@@ -50,9 +50,6 @@
       "typedRoutes": true
     },
     "extra": {
-      "eas": {
-        "projectId": "47cb03c2-ad7d-4359-978b-70e9c546afbc"
-      }
     },
     "owner": "gaoyuanhao"
   }
