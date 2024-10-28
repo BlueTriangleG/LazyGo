@@ -21,7 +21,7 @@ export interface Activity {
   transportation: string | null
   distance: string | null
   estimatedPrice: string | null
-  startLocation: string | null
+  startLocation: string  | null
   endLocation: string | null
   photo_reference: string | null
   rating: number | null
@@ -53,6 +53,7 @@ const json_sample: Plan = {
   ]
 }
 
+// function to calculate radius according to min and max time spend and transportation 
 function calculate_radius(TimeSpendMin:number, TimeSpendMax:number, transportation: string){
   let minRadius = 0
   let maxRadius = 0
@@ -72,6 +73,63 @@ function calculate_radius(TimeSpendMin:number, TimeSpendMax:number, transportati
   }
   return [minRadius, maxRadius]
 }
+
+// function to filter google map data by minimum radius
+function filterGoogleMapDataByMinRadius(filteredPlacesJson: any[], minRadius:number): any[] {
+  let farthestPlace = filteredPlacesJson.reduce((max, current) => max.distance > current.distance ? max : current);
+  filteredPlacesJson = filteredPlacesJson.filter(place => place.distance >= minRadius / 1000)
+  if (filteredPlacesJson.length === 0) {
+    filteredPlacesJson = [farthestPlace]
+  }
+  return filteredPlacesJson
+}
+
+// Function to create the request body to call the gpt
+function create_requestBody(type:string, currentLocation: string, departureTime:string, travel_mode:string, filteredPlacesJson: any[], filteredDistanceMatrix: any[], planJson: Plan, history: any){
+  const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter). Let the "time" of the plan be the current time.
+  All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}. You don't need to change the photo_reference from the given data, just use the photo_reference in the given data.
+  The current plan is ${JSON.stringify(planJson)}. The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
+
+  // attractions has a slightly different request body to support its functionality of generating multiple places for the plan
+  if (type == 'attractions'){
+    const requestBody = {
+      model: 'gpt-4o-mini',
+      messages: [
+        {
+          role: 'system',
+          content: `You are a robot to decide which tourist attraction to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
+                      "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data. 
+                      Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
+                      You must follow the rules :1. If there 5 or 4 tourist attractions remaining to go, please give me a plan to go to an attraction in the morning and "time" must be a reasonable time from 9 am to 12 am. 2.If there are 3 or 2 tourist attractions remaining to go, please give me a plan to go to an attraction in the afternoon and "time" must be a reasonable time from 1pm to 6pm.
+                      3.If there is only 1 tourist attraction remaining to go, please give me a plan to go to an attraction at night and "time" must be a reasonable time from 7 pm to 22 pm. 4.You must filter the places given and decide the most appropriate tourist attraction at the "time".
+                      Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json).
+                      [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
+        },
+        { role: 'user', content: requestMessage },
+      ],
+      max_tokens: 1000,
+    }
+    return requestBody
+  } else {
+    const requestBody = {
+      model: 'gpt-4o-mini',
+      messages: [
+      {
+        role: 'system',
+        content: `You are a robot to decide where (${type}) to go  based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
+                    "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data. 
+                    Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
+                    Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON. If the given data of places around is empty, you must return {} (empty json).
+                    [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
+      },
+      { role: 'user', content: requestMessage },
+      ],
+      max_tokens: 1000,
+      }
+      return requestBody
+  }
+}
+
 // Function to generate meal plan for the day or the next day, including breakfast, lunch, dinner
 export async function generatePlan_restaurant(
   gps_location: string,
@@ -121,25 +179,7 @@ export async function generatePlan_restaurant(
       }
 
       const url = 'https://api.openai.com/v1/chat/completions'
-      const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter). Let the "time" of the plan be the current time.
-            All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}. You don't need to change the photo_reference from the given data, just use the photo_reference in the given data.
-            The current plan is ${JSON.stringify(planJson)}. The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
-
-      const requestBody = {
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a robot to decide which restuarant to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data. 
-                        Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
-                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON. If the given data of places around is empty, you must return {} (empty json).
-                        [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
-          },
-          { role: 'user', content: requestMessage },
-        ],
-        max_tokens: 1000,
-      }
+      const requestBody = create_requestBody('restaurant', currentLocation, departureTime,travel_mode, filteredPlacesJson, filteredDistanceMatrix, planJson,history);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -155,13 +195,15 @@ export async function generatePlan_restaurant(
       if (activity !== JSON.stringify({})) {
         const activity_json: Activity = JSON.parse(activity)
         planJson[1].push(activity_json)
-        currentLocation = activity_json.endLocation
+        currentLocation = activity_json.endLocation ? '': gps_location
       }
     }
     for (let day in planJson) {
       planJson[day].forEach((activity, index) => {
         const destinationName = activity.destination
-        plusVisited(destinationName)
+        if (destinationName){
+          plusVisited(destinationName)
+        }
       })
     }
     return planJson
@@ -220,24 +262,7 @@ export async function generatePlan_cafe(
       }
 
       const url = 'https://api.openai.com/v1/chat/completions'
-      const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
-            All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
-            The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
-      const requestBody = {
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a robot to decide which cafe to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data.
-                        Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
-                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json).
-                        [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
-          },
-          { role: 'user', content: requestMessage },
-        ],
-        max_tokens: 1000,
-      }
+      const requestBody = create_requestBody('cafe', currentLocation, departureTime,travel_mode, filteredPlacesJson, filteredDistanceMatrix, planJson, history);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -253,13 +278,15 @@ export async function generatePlan_cafe(
       if (activity !== JSON.stringify({})) {
         const activity_json: Activity = JSON.parse(activity)
         planJson[1].push(activity_json)
-        currentLocation = activity_json.endLocation
+        currentLocation = activity_json.endLocation ? '': gps_location
       }
     }
     for (let day in planJson) {
       planJson[day].forEach((activity, index) => {
         const destinationName = activity.destination
-        plusVisited(destinationName)
+        if (destinationName){
+          plusVisited(destinationName)
+        }
       })
     }
     return planJson
@@ -318,24 +345,7 @@ export async function generatePlan_entertainment(
       }
 
       const url = 'https://api.openai.com/v1/chat/completions'
-      const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
-            All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
-            The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
-      const requestBody = {
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a robot to decide which place to go for entertainment based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data. 
-                        Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
-                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json).
-                        [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
-          },
-          { role: 'user', content: requestMessage },
-        ],
-        max_tokens: 1000,
-      }
+      const requestBody = create_requestBody('entertainment', currentLocation, departureTime,travel_mode, filteredPlacesJson, filteredDistanceMatrix, planJson, history);
 
       const response = await fetch(url, {
         method: 'POST',
@@ -351,13 +361,15 @@ export async function generatePlan_entertainment(
       if (activity !== JSON.stringify({})) {
         const activity_json: Activity = JSON.parse(activity)
         planJson[1].push(activity_json)
-        currentLocation = activity_json.endLocation
+        currentLocation = activity_json.endLocation ? '': gps_location
       }
     }
     for (let day in planJson) {
       planJson[day].forEach((activity, index) => {
         const destinationName = activity.destination
-        plusVisited(destinationName)
+        if (destinationName){
+          plusVisited(destinationName)
+        }
       })
     }
     return planJson
@@ -368,7 +380,6 @@ export async function generatePlan_entertainment(
 }
 
 // Function to generate the plan for entertainment
-
 export async function generatePlan_milktea(
     gps_location: string,
     TimeSpendMin: number,
@@ -414,24 +425,7 @@ export async function generatePlan_milktea(
         }
   
         const url = 'https://api.openai.com/v1/chat/completions'
-        const requestMessage = `It's ${departureTime} now. Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).Let the "time" of the plan be the current time.
-              All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
-              The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
-        const requestBody = {
-          model: 'gpt-4o-mini',
-          messages: [
-            {
-              role: 'system',
-              content: `You are a robot to decide which place to go to drink milk tea based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                          "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data.
-                          Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
-                          Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json).
-                          [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
-            },
-            { role: 'user', content: requestMessage },
-          ],
-          max_tokens: 1000,
-        }
+        const requestBody = create_requestBody('milktea', currentLocation, departureTime,travel_mode, filteredPlacesJson, filteredDistanceMatrix, planJson, history);
   
         const response = await fetch(url, {
           method: 'POST',
@@ -447,13 +441,15 @@ export async function generatePlan_milktea(
         if (activity !== JSON.stringify({})) {
           const activity_json: Activity = JSON.parse(activity)
           planJson[1].push(activity_json)
-          currentLocation = activity_json.endLocation
+          currentLocation = activity_json.endLocation ? '': gps_location
         }
       }
       for (let day in planJson) {
         planJson[day].forEach((activity, index) => {
           const destinationName = activity.destination
-          plusVisited(destinationName)
+          if (destinationName){
+            plusVisited(destinationName)
+          }
         })
       }
       return planJson
@@ -527,26 +523,8 @@ export async function generatePlan_attractions(
       }
 
       const url = 'https://api.openai.com/v1/chat/completions'
-      const requestMessage = `It's ${departureTime} now. If the current time exceed 22 pm, Give me the plan to go to tourist attractions next day.  Please fill in the "transportation" with ${travel_mode || 'driving'} (Capitalize the first letter).There are ${numAttractions - i} tourist attractions remaining to go.
-            All the places around: ${JSON.stringify(filteredPlacesJson)}. All distances and durations from current location to the places one by one in previous data: ${JSON.stringify(filteredDistanceMatrix[0])}.
-            The current plan is ${JSON.stringify(planJson)}.The history is ${JSON.stringify(history)}. "title" in history is the names of places."visit_count" is the times the user has visited this place.`
-      const requestBody = {
-        model: 'gpt-4o-mini',
-        messages: [
-          {
-            role: 'system',
-            content: `You are a robot to decide which tourist attraction to go based on the price level, rating, distance and duration from given data.You must return in the form like: ${JSON.stringify(json_sample[1][0])} and avoid any syntax error.You should only return the string form of the json.
-                        "destination" is the true name of the destination in the data given."time" is the recommended start time to go to the destination."date" is the date of the activity."destination describ" is the description of the destination. "destination duration" is the recommended time staying at the destination in minutes."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data)."startLocation" and "endLocation" are location in latitude and longitude.Fill in the "rating", "user_rating_in_total", "startLocation" and "endLocation" of the destination based on the given map data. 
-                        Fill in the "duration", "distances" with the given data containing distances and durations.The "startLocation" must be "${currentLocation}". The "endLocation" must be the latitude and longtitude of the destination. You should only choose the destinations from the given Google Map API data.
-                        You must follow the rules :1. If there 5 or 4 tourist attractions remaining to go, please give me a plan to go to an attraction in the morning and "time" must be a reasonable time from 9 am to 12 am. 2.If there are 3 or 2 tourist attractions remaining to go, please give me a plan to go to an attraction in the afternoon and "time" must be a reasonable time from 1pm to 6pm.
-                        3.If there is only 1 tourist attraction remaining to go, please give me a plan to go to an attraction at night and "time" must be a reasonable time from 7 pm to 22 pm. 4.You must filter the places given and decide the most appropriate tourist attraction at the "time".
-                        Do not return anything beyond the given data. Do not return anything besides the JSON.The activity you planned must contain all the keys in the sample form. If a day has no plan, do not include it in the JSON.If the given data of places around is empty, you must return {} (empty json).
-                        [Important] 1.Don't let me go to the same attraction twice. 2.The "time" of returned activity should be later than the "time"+"destinationDuration"+"duration" of last activity in the current plan. 3.The generated plan should avoid the repeated places in history. 4.If all places in the dataset exist in history, the less visited a place is, the easier it is to be selected. However, distance, price, and ratings should not be ignored.`,
-          },
-          { role: 'user', content: requestMessage },
-        ],
-        max_tokens: 1000,
-      }
+      const requestBody = create_requestBody('attractions', currentLocation, departureTime,travel_mode, filteredPlacesJson, filteredDistanceMatrix, planJson,history);
+      
 
       const response = await fetch(url, {
         method: 'POST',
@@ -562,13 +540,15 @@ export async function generatePlan_attractions(
       if (activity !== JSON.stringify({})) {
         const activity_json: Activity = JSON.parse(activity)
         planJson[1].push(activity_json)
-        currentLocation = activity_json.endLocation
+        currentLocation = activity_json.endLocation ? '': gps_location
       }
     }
     for (let day in planJson) {
       planJson[day].forEach((activity, index) => {
         const destinationName = activity.destination
-        plusVisited(destinationName)
+        if (destinationName){
+          plusVisited(destinationName)
+        }
       })
     }
     return planJson
@@ -578,13 +558,6 @@ export async function generatePlan_attractions(
   }
 }
 
-function filterGoogleMapDataByMinRadius(filteredPlacesJson: any[], minRadius:number): any[] {
-  let farthestPlace = filteredPlacesJson.reduce((max, current) => max.distance > current.distance ? max : current);
-  filteredPlacesJson = filteredPlacesJson.filter(place => place.distance >= minRadius / 1000)
-  if (filteredPlacesJson.length === 0) {
-    filteredPlacesJson = [farthestPlace]
-  }
-  return filteredPlacesJson
-}
+
 
 

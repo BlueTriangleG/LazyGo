@@ -27,7 +27,7 @@ export interface RecommendDetail {
   startLocation: string
   endLocation: string
 }
-function convertToRecommendDetail(place, currentLocation: string) {
+function convertToRecommendDetail(place: any, currentLocation: string) {
   return {
     destination: place.name || 'Unknown Name',
     destinationDescrib: null,
@@ -116,11 +116,11 @@ export async function generateDailyRecommends(
   currentLocation: string
 ): Promise<Activity[] | void> {
   try {
-    let restaurants = []
-    let milkteas = []
-    let cafes = []
-    let entertainments = []
-    let attractions = []
+    let restaurants:any = []
+    let milkteas: any = []
+    let cafes:any = []
+    let entertainments: any = []
+    let attractions:any = []
 
     const promises = Types.map(async (type) => {
       const radius = 2500
@@ -190,6 +190,7 @@ export async function generateDailyRecommends(
           return item
         }
       }
+      return null
     }
 
     const randomRestaurant =
@@ -229,7 +230,7 @@ export async function generateDailyRecommends(
           )
         : null
 
-    let recommends = []
+    let recommends:any[] = []
 
     if (randomRestaurant) recommends.push(randomRestaurant)
     if (randomMilktea) recommends.push(randomMilktea)
@@ -261,7 +262,6 @@ export async function generateDailyRecommends(
     return output
   } catch (error) {
     console.error('Error generating recommends:', error)
-    console.error(error.stack)
     return
   }
 }
