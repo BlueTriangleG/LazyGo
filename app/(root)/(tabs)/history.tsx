@@ -171,6 +171,7 @@ const History = () => {
             </TouchableOpacity>
           )}
           ItemSeparatorComponent={() => <View style={styles.separator} />}
+          showsVerticalScrollIndicator={false} 
         />
       </SafeAreaView>
     </ImageBackground>
@@ -204,11 +205,12 @@ const styles = StyleSheet.create({
     flex: 1,
     padding: 16,
     backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    marginBottom: 60,
   },
   title: {
     fontSize: 24,
     fontWeight: 'bold',
-    marginBottom: 10,
+    marginBottom: 5,
     textAlign: 'center',
     color: '#333',
   },
