@@ -15,7 +15,7 @@ import LottieView from 'lottie-react-native'
 
 import { useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
+import SuccessPopup from '@/components/favourite/successPopup'
 export type ExploreProps = {
   date: string
   plan: string
@@ -233,7 +233,7 @@ export default function TabTwoScreen(props: ExploreProps) {
                 </>
 
               )}
-              {showSuccess && <SuccessPopup onHide={() => setShowSuccess(false)} />}
+              {showSuccessAnimation && <SuccessPopup onHide={() => setShowSuccess(false)} />}
 
 
             </React.Fragment>
