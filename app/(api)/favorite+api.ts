@@ -28,26 +28,30 @@ export async function POST(request: Request) {
       );
     }
 
-    // check if title already in database
+    // check if title already in database with the same email
     const existingTitleRecord = await sql`
-      SELECT * FROM favorite WHERE LOWER(title) = LOWER(${title})
+      SELECT * FROM favorite 
+      WHERE LOWER(title) = LOWER(${title}) 
+      AND email = ${email}
     `;
 
     if (existingTitleRecord.length > 0) {
       return new Response(
-        JSON.stringify({ error: 'Record with this title already exists' }), 
-        { status: 409 } //
+        JSON.stringify({ error: 'Record with this title already exists for this email' }), 
+        { status: 409 }
       );
     }
 
-    // check if photoReference already in database
+    // check if photoReference already in database with the same email
     const existingPhotoReferenceRecord = await sql`
-      SELECT * FROM favorite WHERE photoReference = ${photoReference}
+      SELECT * FROM favorite 
+      WHERE photoReference = ${photoReference} 
+      AND email = ${email}
     `;
 
     if (existingPhotoReferenceRecord.length > 0) {
       return new Response(
-        JSON.stringify({ error: 'Record with this photoReference already exists' }), 
+        JSON.stringify({ error: 'Record with this photoReference already exists for this email' }), 
         { status: 409 }
       );
     }
@@ -92,6 +96,7 @@ export async function POST(request: Request) {
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }
+
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
