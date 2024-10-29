@@ -15,7 +15,7 @@ import LottieView from 'lottie-react-native'
 
 import { useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
+import SuccessPopup from '@/components/favourite/successPopup'
 export type ExploreProps = {
   date: string
   plan: string
@@ -220,18 +220,22 @@ export default function TabTwoScreen(props: ExploreProps) {
                 rating={data.rating}
                 user_ratings_total={data.user_ratings_total}
               />
-              {index === travelData[selectedDay].length - 1 &&
-                !isFromHistory && (
-                  <>
-                    <TouchableOpacity
-                      style={styles.addButton}
-                      className="mx-3"
-                      onPress={() => addToHistory(data)} // call addToHistory
-                    >
-                      <Text style={styles.addButtonText}>Save Plan</Text>
-                    </TouchableOpacity>
-                  </>
-                )}
+
+              {index === travelData[selectedDay].length - 1 && !isFromHistory && (
+                <>
+                  <TouchableOpacity
+                    style={styles.addButton}
+                    className="mx-3"
+                    onPress={() => addToHistory(data)} // call addToHistory
+                  >
+                    <Text style={styles.addButtonText}>Save Plan</Text>
+                  </TouchableOpacity>
+                </>
+
+              )}
+              {showSuccessAnimation && <SuccessPopup onHide={() => setShowSuccess(false)} />}
+
+
             </React.Fragment>
           ))}
           {/* {isFromHistory && <NFCControl />} */}
