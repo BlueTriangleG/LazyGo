@@ -218,6 +218,7 @@ const ResDetail: React.FC<ResDetailProps> = ({
                     Favorite
                   </Text>
                 </TouchableOpacity>
+                {showSuccess && <SuccessPopup onHide={() => setShowSuccess(false)} />}
                 <TouchableOpacity
                   onPress={handleVisited}
                   className="flex-1 bg-blue-100 rounded-full py-2">
