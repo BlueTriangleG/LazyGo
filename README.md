@@ -36,15 +36,21 @@
 
 2. Create a .env file with content:
 
-```
-   Include api keys i send for you
-
-```
+   ```bash
+   # Need to fill these values
+   EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=
+   EXPO_PUBLIC_GOOGLE_MAP_API_KEY=
+   EXPO_PUBLIC_GPT_KEY=
+   EXPO_PUBLIC_DATABASE_URL=
+   EXPO_PUBLIC_SERVER_URL=https://lazygo.com/
+   EXPO_PUBLIC_WETHER_API_KEY=
+   ```
 
 3. Start the app
 
    ```bash
-    npx expo start
+   # Do add the flag "--go"
+   npx expo start --go
    ```
 
 In the output, you'll find options to open the app in a
@@ -55,3 +61,6 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+## Preview
+![b34222cbebd60f3d0faaa10d7387a67](https://github.com/user-attachments/assets/144a7677-59d4-4a15-87b8-60c9e6d75805)
