@@ -1,28 +1,41 @@
-import React, { useEffect, useState } from 'react';
-import { View, Text, TouchableOpacity, Image, Dimensions, ScrollView } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
-import { photoUrlBase } from '@/lib/google-map-api';
-import Icon from 'react-native-vector-icons/FontAwesome';
+import React, { useEffect, useState } from 'react'
 
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Image,
+  Dimensions,
+  TouchableWithoutFeedback,
+  ScrollView,
+} from 'react-native'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { photoUrlBase } from '@/lib/google-map-api'
+import Icon from 'react-native-vector-icons/FontAwesome'
+import { Button } from 'tamagui'
+import { classNames } from '../../../node_modules/@tamagui/remove-scroll/src/RemoveScroll'
 type ResDetailProps = {
-  onClose: () => void;
-  onFavorite: () => void;
-  title: string;
-  description: string;
-  coords: string;
-  duration: string;
-  destinationDuration: string;
-  transportation: string;
-  distance: string;
-  estimatedPrice: string;
-  photoReference: string;
-  tips: string;
-};
+  onClose: () => void
+  onFavorite: () => void
+  title: string | null
+  description: string | null
+  coords: string | null
+  duration: string | null
+  destinationDuration: string | null
+  transportation: string | null
+  distance: string | null
+  estimatedPrice: string | null
+  photoReference: string | null
+  tips: string | null
+  user_ratings_total: number | null
+  rate: number | null
+}
 
 // collect screen height
-const screenHeight = Dimensions.get('window').height;
+const screenHeight = Dimensions.get('window').height
 
 const ResDetail: React.FC<ResDetailProps> = ({
+  user_ratings_total,
   onClose,
   onFavorite,
   title,
@@ -34,27 +47,28 @@ const ResDetail: React.FC<ResDetailProps> = ({
   distance,
   estimatedPrice,
   photoReference,
+  rate = 4.5,
   tips,
 }) => {
-  const [email, setEmail] = useState<string | null>(null);
-  const [tempLat, tempLong] = coords.split(',').map(Number);
+  const [email, setEmail] = useState<string | null>(null)
+  const [tempLat, tempLong] = coords.split(',').map(Number)
 
   // get local email
   useEffect(() => {
     const fetchEmail = async () => {
-      const storedEmail = await AsyncStorage.getItem('userEmail');
+      const storedEmail = await AsyncStorage.getItem('userEmail')
       if (storedEmail) {
-        setEmail(storedEmail);
+        setEmail(storedEmail)
       }
-    };
+    }
 
-    fetchEmail();
-  }, []);
+    fetchEmail()
+  }, [])
 
   const handleFavorite = async () => {
     if (!email) {
-      console.error('Did not found email');
-      return;
+      console.error('Did not found email')
+      return
     }
 
     const favoriteData = {
@@ -70,7 +84,8 @@ const ResDetail: React.FC<ResDetailProps> = ({
       estimatedPrice,
       photoReference,
       tips,
-    };
+      user_ratings_total,
+    }
 
     // call favorite api database
     try {
@@ -80,54 +95,57 @@ const ResDetail: React.FC<ResDetailProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(favoriteData),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
       if (response.ok) {
-        console.log('favorite added:', result);
+        console.log('favorite added:', result)
       } else {
-        console.error('favorite failed:', result);
+        console.error('favorite failed:', result)
       }
     } catch (error) {
-      console.error('Wrong request:', error);
+      console.error('Wrong request:', error)
     }
-  };
+  }
   const RatingStars = ({ rating }) => {
-    const fullStars = Math.floor(rating); // 获取完整星星的数量
-    const hasHalfStar = rating % 1 !== 0; // 判断是否有半颗星
-    const stars = [];
+    const fullStars = Math.floor(rating)
+    const hasHalfStar = rating % 1 !== 0
+    const stars = []
 
     // 添加完整的星星
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<Icon key={i} name="star" size={20} color="gold" />);
+      stars.push(<Icon key={i} name="star" size={20} color="gold" />)
     }
 
     // 添加半颗星
     if (hasHalfStar) {
-      stars.push(<Icon key={fullStars} name="star-half-full" size={20} color="gold" />);
+      stars.push(
+        <Icon key={fullStars} name="star-half-full" size={20} color="gold" />
+      )
     }
 
     // 添加空星星
-    const emptyStars = 5 - stars.length;
+    const emptyStars = 5 - stars.length
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />);
+      stars.push(
+        <Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />
+      )
     }
 
-    return <View style={{ flexDirection: 'row' }}>{stars}</View>;
-  };
-
+    return <View style={{ flexDirection: 'row' }}>{stars}</View>
+  }
 
   const handleVisited = async () => {
     if (!email) {
-      console.error('Email not Found');
-      return;
+      console.error('Email not Found')
+      return
     }
 
     const visitedData = {
       email,
       title,
       visit_count: 1, // first visit
-    };
+    }
 
     // VisitedPlaces Database
     try {
@@ -137,105 +155,157 @@ const ResDetail: React.FC<ResDetailProps> = ({
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(visitedData),
-      });
+      })
 
-      const result = await response.json();
+      const result = await response.json()
       if (response.ok) {
-        console.log('Visited added:', result);
+        console.log('Visited added:', result)
       } else {
-        console.error('Visited failed:', result);
+        console.error('Visited failed:', result)
       }
     } catch (error) {
-      console.error('Wrong request:', error);
+      console.error('Wrong request:', error)
     }
-  };
+  }
 
   return (
-    <View className="flex-1 justify-center items-center">
-      <TouchableOpacity
-        onPress={onClose} // close card
-        style={{ backgroundColor: 'rgba(0, 0, 0, 0.7)' }}
-        className="absolute inset-0"
-      />
-
-      {/* card container */}
+    <View className="flex-1 w-full h-full justify-center items-center">
+      {/* Wrap modal content with TouchableWithoutFeedback */}
       <View
-        style={{ maxHeight: screenHeight * 0.75 }} // set max height based on screen 
-        className="bg-white w-11/12 rounded-2xl overflow-hidden shadow-lg"
-      >
+        style={{ maxHeight: screenHeight * 0.75 }} // set max height based on screen
+        className="bg-white w-11/12 rounded-2xl overflow-hidden shadow-lg">
+        <TouchableOpacity
+          onPress={onClose}
+          className="absolute top-0.5 right-0.5 z-10 w-11 h-11 rounded-full items-center justify-center">
+          <Icon name="times" size={26} color="#333" />
+        </TouchableOpacity>
         <ScrollView
           contentContainerStyle={{ padding: 16 }}
-          showsHorizontalScrollIndicator={false} // 隐藏水平滚动条
-          showsVerticalScrollIndicator={false} // 隐藏垂直滚动条
-        >
+          showsHorizontalScrollIndicator={false}
+          showsVerticalScrollIndicator={false}>
           {/* image */}
-          <Image
-            source={{ uri: photoUrlBase + photoReference }} // show pic
-            style={{ width: 300, height: 300, borderRadius: 10, marginRight: 10 }}
-            resizeMode="cover"
-          />
+          <View className="m-3">
+            {photoReference && (
+              <View className="items-center mt-3">
+                <Image
+                  source={{ uri: photoUrlBase + photoReference }} // show pic
+                  style={{
+                    width: '102%',
+                    height: 280,
+                    borderRadius: 10,
+                    margin: -5,
+                  }}
+                  resizeMode="cover"
+                />
+              </View>
+            )}
 
-          {/* title */}
-          <View className="mt-4">
-            <Text className="text-lg font-bold text-gray-800 mb-2">{title}</Text>
+            {/* title */}
+            {title && (
+              <View className="mt-4">
+                <Text className="text-lg font-bold text-gray-800 mb-2">
+                  {title}
+                </Text>
+              </View>
+            )}
 
             {/* favorite and visited */}
-            <View className="flex-row space-x-4 mb-4">
-              <TouchableOpacity
-                onPress={handleFavorite}
-                className="flex-1 bg-yellow-500 rounded-full py-2"
-              >
-                <Text className="text-white text-center text-sm font-semibold">Favorite</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                onPress={handleVisited}
-                className="flex-1 bg-blue-100 rounded-full py-2"
-              >
-                <Text className="text-blue-500 text-center text-sm font-semibold">Mark as Visited</Text>
-              </TouchableOpacity>
-            </View>
+            {title && (
+              <View className="flex-row space-x-4 mb-4">
+                <TouchableOpacity
+                  onPress={handleFavorite}
+                  className="flex-1 bg-yellow-500 rounded-full py-2">
+                  <Text className="text-white text-center text-sm font-semibold">
+                    Favorite
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={handleVisited}
+                  className="flex-1 bg-blue-100 rounded-full py-2">
+                  <Text className="text-blue-500 text-center text-sm font-semibold">
+                    Mark as Visited
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
 
-            {/* rating tbc*/}
-            <View className="flex-row items-center mt-2 mb-4">
-              <RatingStars rating={parseFloat(tips)} />
-              <Text className="text-xs text-gray-500 ml-2">3847 comments</Text>
-            </View>
+            {/* rating */}
+            {rate && (
+              <View className="flex-row items-center mt-2 mb-4">
+                <RatingStars rating={rate} />
+                {/* 如果评论数是动态的，可以在此添加条件渲染 */}
+                <Text className="text-xs text-gray-500 ml-2">
+                  {user_ratings_total} comments
+                </Text>
+              </View>
+            )}
 
             {/* 地点信息 */}
-            <Text className="text-xs text-gray-600 mb-4">
-              {description}
-            </Text>
+            {description && (
+              <Text className="text-xs text-gray-600 mb-4">{description}</Text>
+            )}
 
             {/* 交通信息 */}
-            <Text className="text-sm font-bold text-gray-700 mb-2">Transportation</Text>
-            <Text className="text-sm text-gray-600 mb-4">{transportation}</Text>
+            {transportation && (
+              <>
+                <Text className="text-sm font-bold text-gray-700 mb-2">
+                  Transportation
+                </Text>
+                <Text className="text-sm text-gray-600 mb-4">
+                  {transportation}
+                </Text>
+              </>
+            )}
 
-            <Text className="text-sm font-bold text-gray-700 mb-2">distance</Text>
-            <Text className="text-sm text-gray-600 mb-4">{distance}</Text>
+            {/* 距离信息 */}
+            {distance && (
+              <>
+                <Text className="text-sm font-bold text-gray-700 mb-2">
+                  Distance
+                </Text>
+                <Text className="text-sm text-gray-600 mb-4">{distance}</Text>
+              </>
+            )}
 
-            <Text className="text-sm font-bold text-gray-700 mb-2">Price</Text>
-            <Text className="text-sm text-gray-600 mb-4">{estimatedPrice}</Text>
+            {/* 价格信息 */}
+            {estimatedPrice && (
+              <>
+                <Text className="text-sm font-bold text-gray-700 mb-2">
+                  Price
+                </Text>
+                <Text className="text-sm text-gray-600 mb-4">
+                  {estimatedPrice}
+                </Text>
+              </>
+            )}
 
-            {/* 简介 */}
-            <Text className="text-sm font-bold text-gray-700 mb-2">Description</Text>
-            <Text className="text-sm text-gray-600 mb-4">{description}</Text>
-            {/* 
+            {/* 详细描述 */}
+            {description && (
+              <>
+                <Text className="text-sm font-bold text-gray-700 mb-2">
+                  Description
+                </Text>
+                <Text className="text-sm text-gray-600 mb-4">
+                  {description}
+                </Text>
+              </>
+            )}
 
-            <Text className="text-sm font-bold text-gray-700 mb-2">Tips</Text>
-            <Text className="text-sm text-gray-600 mb-4">{tips}</Text> */}
-
+            {/* 提示信息 */}
+            {tips && (
+              <>
+                <Text className="text-sm font-bold text-gray-700 mb-2">
+                  Tips
+                </Text>
+                <Text className="text-sm text-gray-600 mb-4">{tips}</Text>
+              </>
+            )}
             {/* close button */}
-            <TouchableOpacity
-              onPress={onClose}
-              className="bg-blue-500 rounded-full py-2 mb-4"
-            >
-              <Text className="text-white text-center text-sm font-semibold">Close</Text>
-            </TouchableOpacity>
           </View>
         </ScrollView>
       </View>
     </View>
-  );
-};
+  )
+}
 
-export default ResDetail;
+export default ResDetail

@@ -1,5 +1,5 @@
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { Text, View, ScrollView, Alert, Image } from 'react-native'
+import { Text, View, ScrollView, Alert } from 'react-native'
 import { FlashList } from '@shopify/flash-list'
 import { useCallback, useContext, useEffect, useState } from 'react'
 
@@ -35,6 +35,7 @@ import * as Location from 'expo-location'
 import Header from './header'
 import { icons, images } from '@/constants'
 import LottieView from 'lottie-react-native'
+import { Button, Card, H2, Image, Paragraph, XStack } from 'tamagui'
 
 import { useMyContext } from '@/app/context/MyContext'
 
@@ -46,7 +47,8 @@ type Message = {
 export type UserConfig = {
   minPrice?: number
   maxPrice?: number
-  departureTime: string
+  timeSpentMin: number
+  timeSpentMax: number
   transportation: string
   placeType?: string
   people?: string
@@ -83,7 +85,7 @@ const Chat = (props: ChatProps) => {
   } else if (chatParams.placeType === 'cafe') {
     presetChats = presetChats_caf
     presetOptions = presetOptions_caf
-  } else if (chatParams.placeType === 'milktea'){
+  } else if (chatParams.placeType === 'milktea') {
     presetChats = presetChats_mkt
     presetOptions = presetOptions_mkt
   }
@@ -98,7 +100,8 @@ const Chat = (props: ChatProps) => {
   const [currentChat, setCurrentChat] = useState<string>('')
   const [progress, setProgress] = useState<number>(0)
   const [userConfig, setUserConfig] = useState<UserConfig>({
-    departureTime: '',
+    timeSpentMin: 0,
+    timeSpentMax: 10,
     transportation: '',
     placeType: chatParams.placeType,
   })
@@ -130,7 +133,8 @@ const Chat = (props: ChatProps) => {
     console.log('userConfig', userConfig)
     let initMsgContent = chatsArray.find((chat) => chat.keyword === 'init')
     setUserConfig({
-      departureTime: '',
+      timeSpentMin: 0,
+      timeSpentMax: 10,
       transportation: '',
       placeType: chatParams.placeType,
     })
@@ -227,14 +231,20 @@ const Chat = (props: ChatProps) => {
         userConfig.maxPrice = maxPrice === -1 ? undefined : maxPrice
         setUserConfig({ ...userConfig })
         break
-      case 'departure_time':
-        userConfig.departureTime = key
+      case 'time_spent':
+        let timeSpentMin = parseInt(key.split(',')[0])
+        let timeSpentMax = parseInt(key.split(',')[1])
+        userConfig.timeSpentMin = timeSpentMin
+        userConfig.timeSpentMax = timeSpentMax
         setUserConfig({ ...userConfig })
         break
       case 'travel_mode':
         userConfig.transportation = key
         setUserConfig({ ...userConfig })
         break
+      case 'people':
+        userConfig.people = key
+        setUserConfig({ ...userConfig })
       default:
         break
     }
@@ -287,21 +297,14 @@ const Chat = (props: ChatProps) => {
       console.log('userConfig', userConfig)
 
       const locationString = `${currentLocation.latitude},${currentLocation.longitude}`
-      const now = new Date()
-      const futureTime = new Date(
-        now.getTime() + Number(userConfig.departureTime) * 60 * 1000
-      )
-      const departureTime = new Date(
-        futureTime.getTime() - futureTime.getTimezoneOffset() * 60000
-      ).toISOString()
-
       // Call API to generate plan
       let result: Plan | void
       switch (chatParams.placeType) {
         case 'restaurant':
           result = await generatePlan_restaurant(
             locationString,
-            Number(userConfig.departureTime),
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
@@ -310,14 +313,16 @@ const Chat = (props: ChatProps) => {
         case 'milktea':
           result = await generatePlan_milktea(
             locationString,
-            userConfig.departureTime,
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation
           )
           break
         case 'cafe':
           result = await generatePlan_cafe(
             locationString,
-            departureTime,
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
@@ -326,7 +331,8 @@ const Chat = (props: ChatProps) => {
         case 'attraction':
           result = await generatePlan_attractions(
             locationString,
-            departureTime,
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation,
             userConfig.minPrice,
             userConfig.maxPrice
@@ -341,7 +347,8 @@ const Chat = (props: ChatProps) => {
           }
           result = await generatePlan_entertainment(
             locationString,
-            departureTime,
+            userConfig.timeSpentMin,
+            userConfig.timeSpentMax,
             userConfig.transportation,
             keywords
           )
@@ -365,10 +372,30 @@ const Chat = (props: ChatProps) => {
           content: (
             <View>
               <View className="h-px bg-gray-300 my-6" />
-              <Text>Day {key}</Text>
-              {activities.map((data, index) => (
-                <View style={{ width: '90%', marginLeft: 20 }} key={index}>
+              <Card
+                onPress={() => handleCheckDetails(key, result)}
+                animation="bouncy"
+                scale={0.9}
+                backgroundColor={'#fff'}
+                hoverStyle={{ scale: 0.925 }}
+                pressStyle={{ scale: 0.875 }}
+                className="p-2"
+                style={{
+                  width: '95%',
+                  borderRadius: 8,
+                  marginVertical: 8,
+                  marginLeft: 10,
+                  // Shadow properties
+
+                  shadowColor: '#000', // iOS
+                  shadowOffset: { width: 0, height: 2 }, // iOS
+                  shadowOpacity: 0.25, // iOS
+                  shadowRadius: 3.84, // iOS
+                  elevation: 5, // Android
+                }}>
+                {activities.map((data, index) => (
                   <TravelCard
+                    key={index}
                     time={data.time}
                     duration={data.duration}
                     destination={data.destination}
@@ -380,14 +407,12 @@ const Chat = (props: ChatProps) => {
                     startLocation={data.startLocation}
                     endLocation={data.endLocation}
                     photoReference={data.photo_reference}
+                    rating={data.rating}
+                    user_ratings_total={data.user_ratings_total}
                   />
-                </View>
-              ))}
-              <CustomButton
-                title={'Check Details'}
-                className="mt-6 bg-red-300"
-                onPress={() => handleCheckDetails(key, result)}
-              />
+                ))}
+              </Card>
+
               <View className="h-px bg-gray-300 my-6" />
             </View>
           ),

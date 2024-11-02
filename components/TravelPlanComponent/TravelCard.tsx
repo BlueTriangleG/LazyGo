@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react'
 import ResDetail from '@/components/TravelPlanComponent/ResDetailCard/ResDetail' // 导入 ResDetail 模态框
-import Icon from 'react-native-vector-icons/FontAwesome';
+import Icon from 'react-native-vector-icons/FontAwesome'
 import {
   View,
   Text,
@@ -8,24 +8,26 @@ import {
   Image,
   TouchableOpacity,
   Linking,
+  TouchableWithoutFeedback,
   Modal,
 } from 'react-native'
 import { photoUrlBase } from '@/lib/google-map-api'
 
-
 type TravelCardProps = {
-  time: string
-  duration: string
-  destination: string
-  destinationDescrib: string
-  destinationDuration: string
-  transportation: string
-  distance: string
-  estimatedPrice: string
-  startLocation: string
-  endLocation: string
-  detailedinfo: string
-  photoReference: string
+  time: string | null
+  duration: string | null
+  destination: string | null
+  destinationDescrib: string | null
+  destinationDuration: string | null
+  transportation: string | null
+  distance: string | null
+  estimatedPrice: string | null
+  startLocation: string | null
+  endLocation: string | null
+  detailedinfo: string | null
+  photoReference: string | null
+  rating: number | null
+  user_ratings_total: number | null
 }
 
 const TravelCard: React.FC<TravelCardProps> = ({
@@ -40,6 +42,8 @@ const TravelCard: React.FC<TravelCardProps> = ({
   startLocation,
   endLocation,
   detailedinfo,
+  rating,
+  user_ratings_total,
   photoReference,
 }) => {
   const [lineHeight, setLineHeight] = useState(0)
@@ -55,29 +59,32 @@ const TravelCard: React.FC<TravelCardProps> = ({
     }
   }
   const RatingStars = ({ rating }) => {
-    const fullStars = Math.floor(rating); // 获取完整星星的数量
-    const hasHalfStar = rating % 1 !== 0; // 判断是否有半颗星
-    const stars = [];
+    const fullStars = Math.floor(rating) // 获取完整星星的数量
+    const hasHalfStar = rating % 1 !== 0 // 判断是否有半颗星
+    const stars = []
 
     // 添加完整的星星
     for (let i = 0; i < fullStars; i++) {
-      stars.push(<Icon key={i} name="star" size={20} color="gold" />);
+      stars.push(<Icon key={i} name="star" size={20} color="gold" />)
     }
 
     // 添加半颗星
     if (hasHalfStar) {
-      stars.push(<Icon key={fullStars} name="star-half-full" size={20} color="gold" />);
+      stars.push(
+        <Icon key={fullStars} name="star-half-full" size={20} color="gold" />
+      )
     }
 
     // 添加空星星
-    const emptyStars = 5 - stars.length;
+    const emptyStars = 5 - stars.length
     for (let i = 0; i < emptyStars; i++) {
-      stars.push(<Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />);
+      stars.push(
+        <Icon key={fullStars + 1 + i} name="star-o" size={20} color="gold" />
+      )
     }
 
-    return <View style={{ flexDirection: 'row' }}>{stars}</View>;
-  };
-
+    return <View style={{ flexDirection: 'row' }}>{stars}</View>
+  }
 
   const renderTransportationIcons = () => {
     switch (transportation) {
@@ -97,21 +104,10 @@ const TravelCard: React.FC<TravelCardProps> = ({
     Linking.openURL(url).catch((err) => console.error('An error occurred', err))
   }
 
-  const getRandomRating = () => {
-    return (Math.random() * (5 - 3.5) + 3.5).toFixed(1); // Generates a random number between 3.5 and 5
-  };
-
-  // Function to generate a random number of comments between 300 and 3000
-  const getRandomComments = () => {
-    return Math.floor(Math.random() * (3000 - 300 + 1)) + 300; // Generates a random integer between 300 and 3000
-  };
-
-  const randomRating = getRandomRating();
-  const randomComments = getRandomComments();
-
   return (
     <View style={styles.container}>
-      {/* 左边时间线，带有标记和线 */}
+      {/* 左边时间线 */}
+      {/* ...时间线的代码... */}
       <View style={styles.timelineContainer}>
         <Image
           source={require('@/assets/images/start.png')}
@@ -121,91 +117,132 @@ const TravelCard: React.FC<TravelCardProps> = ({
           <View style={styles.dashedLine} />
         </View>
       </View>
-
       {/* 外部卡片 */}
       <View style={styles.outerCard} ref={cardRef} onLayout={handleCardLayout}>
         {/* 内部卡片 */}
         <View style={styles.card}>
           <View style={styles.header}>
-            {/* 包裹 Image 的 View */}
-            <View style={styles.imageContainer}>
-              <Image
-                source={{ uri: photoUrlBase + photoReference }}
-                style={styles.image}
-                resizeMode="cover"
-              />
-              <View style={styles.priceTag}>
-                <Text style={styles.priceText}>{estimatedPrice}</Text>
+            {/* 图片 */}
+            {photoReference && (
+              <View style={styles.imageContainer}>
+                <Image
+                  source={{ uri: photoUrlBase + photoReference }}
+                  style={styles.image}
+                  resizeMode="cover"
+                />
+                {estimatedPrice && (
+                  <View style={styles.priceTag}>
+                    <Text style={styles.priceText}>{estimatedPrice}</Text>
+                  </View>
+                )}
               </View>
-            </View>
-
+            )}
           </View>
 
-          <Text style={styles.location}>
-            {destination}
-            {'\n'}
-            <Text style={styles.departureTime}>Depart at: {time}</Text>
-          </Text>
-
-          <View style={styles.durationContainer}>
-            <Image
-              source={require('@/assets/images/TravelCard/time.png')}
-              style={styles.icon}
-            />
-            <Text style={styles.destinationDuration}>
-              Stay Duration: {destinationDuration} min
+          {/* 目的地和出发时间 */}
+          {destination && (
+            <Text style={styles.location}>
+              {destination}
+              {'\n'}
+              {time && (
+                <Text style={styles.departureTime}>Depart at: {time}</Text>
+              )}
             </Text>
-          </View>
-          <View className="flex-row items-center mt-1 mb-2">
-            <RatingStars rating={parseFloat(randomRating)} />
-            <Text className="text-xs text-gray-500 ml-2">{randomComments} comments</Text>
-          </View>
+          )}
 
+          {/* 停留时间 */}
+          {destinationDuration && (
+            <View style={styles.durationContainer}>
+              <Image
+                source={require('@/assets/images/TravelCard/time.png')}
+                style={styles.icon}
+              />
+              <Text style={styles.destinationDuration}>
+                Stay Duration: {destinationDuration} min
+              </Text>
+            </View>
+          )}
+
+          {rating !== null && user_ratings_total !== null && (
+            <View
+              style={{
+                flexDirection: 'row',
+                alignItems: 'center',
+                marginTop: 1,
+                marginBottom: 2,
+              }}>
+              <RatingStars
+                rating={
+                  rating && parseFloat(rating) > 0 ? parseFloat(rating) : 4.5
+                }
+              />
+              <Text style={{ fontSize: 12, color: '#666666', marginLeft: 8 }}>
+                {user_ratings_total} comments
+              </Text>
+            </View>
+          )}
           {/* click show more */}
           <View style={styles.transportInfoContainer}>
             <TouchableOpacity onPress={() => setModalVisible(true)}>
               <Text style={styles.transportInfo}>More Detail...</Text>
             </TouchableOpacity>
           </View>
+
+          {/* click for more detail */}
+          <Modal
+            transparent={true}
+            animationType="slide"
+            visible={modalVisible}
+            onRequestClose={() => setModalVisible(false)}>
+            <View
+              style={{
+                flex: 1,
+                backgroundColor: 'rgba(0,0,0,0.5)',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}>
+              <ResDetail
+                onClose={() => setModalVisible(false)}
+                title={destination}
+                description={destinationDescrib}
+                coords={endLocation}
+                duration={duration}
+                destinationDuration={destinationDuration}
+                transportation={transportation}
+                distance={distance}
+                estimatedPrice={estimatedPrice}
+                photoReference={photoReference}
+                rating={rating}
+                tips={rating}
+                user_ratings_total={user_ratings_total}
+              />
+            </View>
+          </Modal>
         </View>
 
-        {/* Navigation Info */}
+        {/* 导航信息 */}
         <View style={styles.additionalInfoContainer}>
           <Text style={styles.sectionTitle}>Navigation Info</Text>
           <TouchableOpacity onPress={openGoogleMaps}>
             <Text style={styles.detailedInfo}>Click to google map</Text>
           </TouchableOpacity>
-          <View style={styles.transportIcons}>
-            <Text>
-              Distance: {distance} / {transportation} ({duration})
-            </Text>
-          </View>
-
+          {(distance || transportation || duration) && (
+            <View style={styles.transportIcons}>
+              <Text>
+                {distance ? `Distance: ${distance}` : ''}
+                {distance && transportation ? ' / ' : ''}
+                {transportation || ''}
+                {(distance || transportation) && duration ? ' ' : ''}
+                {duration ? `(${duration})` : ''}
+              </Text>
+            </View>
+          )}
         </View>
       </View>
 
-      {/* click for more detail */}
-      <Modal
-        transparent={true}
-        visible={modalVisible}
-        onRequestClose={() => setModalVisible(false)}
-      >
-        <ResDetail
-          onClose={() => setModalVisible(false)}
-          title={destination}
-          description={destinationDescrib}
-          coords={endLocation}
-          duration={duration}
-          destinationDuration={destinationDuration}
-          transportation={transportation}
-          distance={distance}
-          estimatedPrice={estimatedPrice}
-          photoReference={photoReference}
-          tips={randomRating}
-        />
-      </Modal>
-
-    </View >
+      {/* 模态框 */}
+      {/* ...模态框的代码... */}
+    </View>
   )
 }
 
@@ -240,14 +277,16 @@ const styles = StyleSheet.create({
   },
   outerCard: {
     padding: 0,
-    margin: 15,
+    marginTop: 15,
+    marginLeft: 15,
+    marginRight: 15,
+    marginBottom: 5,
     width: '100%',
   },
   card: {
     backgroundColor: '#FFFFFF',
     padding: 15,
     borderRadius: 10,
-    marginBottom: 20,
     width: '100%',
   },
   header: {
@@ -301,7 +340,6 @@ const styles = StyleSheet.create({
     color: '#000000',
   },
   additionalInfoContainer: {
-    marginTop: 10,
     paddingTop: 10,
     borderTopWidth: 1,
     borderTopColor: '#E0E0E0',

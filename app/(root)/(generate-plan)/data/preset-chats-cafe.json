@@ -10,6 +10,6 @@
   },
   {
     "content": "How long do you want to spend on this trip?",
-    "keyword": "departure_time"
+    "keyword": "time_spent"
   }
 ]

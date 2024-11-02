@@ -1,6 +1,6 @@
 [
   {
-    "content": "Hi there! We got several recommendations about cafe! Choose a option to continue your process, we will help you find the best answer!",
+    "content": "Hi there! We got several recommendations about a Tour! Choose a option to continue your process, we will help you find the best answer!",
     "keyword": "init"
   },
 
@@ -9,7 +9,7 @@
     "keyword": "travel_mode"
   },
   {
-    "content": "How long do you want to spend on this trip?",
-    "keyword": "departure_time"
+    "content": "How long do you want to spend on transportation among attractions?",
+    "keyword": "time_spent"
   }
 ]

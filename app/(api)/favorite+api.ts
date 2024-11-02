@@ -4,7 +4,6 @@ export async function POST(request: Request) {
   try {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
 
-    // 从请求中获取 JSON 数据
     const { 
       title, 
       description, 
@@ -17,10 +16,11 @@ export async function POST(request: Request) {
       distance, 
       estimatedPrice, 
       photoReference, 
-      tips 
+      tips,
+      user_ratings_total = 0 
     } = await request.json();
 
-    // 检查必填字段
+    // check needed
     if (!title || !description || tempLat === undefined || tempLong === undefined || !email) {
       return new Response(
         JSON.stringify({ error: 'Missing required fields' }), 
@@ -28,7 +28,30 @@ export async function POST(request: Request) {
       );
     }
 
-    // 插入数据到 favorite 表
+    // check if title already in database
+    const existingTitleRecord = await sql`
+      SELECT * FROM favorite WHERE LOWER(title) = LOWER(${title})
+    `;
+
+    if (existingTitleRecord.length > 0) {
+      return new Response(
+        JSON.stringify({ error: 'Record with this title already exists' }), 
+        { status: 409 } //
+      );
+    }
+
+    // check if photoReference already in database
+    const existingPhotoReferenceRecord = await sql`
+      SELECT * FROM favorite WHERE photoReference = ${photoReference}
+    `;
+
+    if (existingPhotoReferenceRecord.length > 0) {
+      return new Response(
+        JSON.stringify({ error: 'Record with this photoReference already exists' }), 
+        { status: 409 }
+      );
+    }
+
     const response = await sql`
       INSERT INTO favorite (
         title, 
@@ -42,7 +65,8 @@ export async function POST(request: Request) {
         distance, 
         estimatedPrice, 
         photoReference, 
-        tips
+        tips,
+        user_ratings_total 
       ) VALUES (
         ${title}, 
         ${description}, 
@@ -55,11 +79,12 @@ export async function POST(request: Request) {
         ${distance}, 
         ${estimatedPrice}, 
         ${photoReference}, 
-        ${tips}
+        ${tips},
+        ${user_ratings_total} 
       )
     `;
 
-    // 返回成功响应
+    // return success
     return new Response(JSON.stringify({ data: response }), { status: 201 });
 
   } catch (error) {
@@ -68,7 +93,6 @@ export async function POST(request: Request) {
   }
 }
 
-
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const email = searchParams.get('email');
@@ -76,16 +100,16 @@ export async function GET(request: Request) {
   try {
     const sql = neon(`${process.env.EXPO_PUBLIC_DATABASE_URL}`);
     
-    // 从 favorite 表中查询数据
+    // get data from favorite 
     const response = await sql`
       SELECT * FROM favorite WHERE email = ${email}
     `;
 
-    // 返回查询结果
+
     return new Response(JSON.stringify(response), { status: 200 });
 
   } catch (error) {
-    console.error('获取 favorite 数据时出错:', error);
+    console.error('Getting favorite wrong:', error);
     return new Response(JSON.stringify({ error: 'Internal Server Error' }), { status: 500 });
   }
 }

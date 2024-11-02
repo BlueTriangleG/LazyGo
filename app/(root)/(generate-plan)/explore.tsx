@@ -5,24 +5,16 @@ import {
   Text,
   View,
   TouchableOpacity,
-  Alert,
-  ActivityIndicator,
   ImageBackground,
   Modal,
 } from 'react-native'
-import ParallaxScrollView from '@/components/TravelPlanComponent/ParallaxScrollView'
 import TravelCard from '@/components/TravelPlanComponent/TravelCard'
 import Map from '@/components/TravelPlanComponent/Map'
-import AddMoreRes from '@/components/TravelPlanComponent/AddMoreRes'
-import { generatePlan_restaurant } from '@/lib/gpt-plan-generate'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import LottieView from 'lottie-react-native'
 
-import { getCurrentLocation } from '@/lib/location'
 import { useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import { getPhotoByReference } from '@/lib/google-map-api'
-import NFCControl from '@/components/TravelPlanComponent/NFCControl';
 
 export type ExploreProps = {
   date: string
@@ -44,7 +36,7 @@ export default function TabTwoScreen(props: ExploreProps) {
   const [latData1, setLatData1] = useState({}) // Initialize as an object
   const [email, setEmail] = useState<string | null>(null)
 
-  const [isFromHistory, setIsFromHistory] = useState<boolean>(false);
+  const [isFromHistory, setIsFromHistory] = useState<boolean>(false)
 
   useEffect(() => {
     // console.log("Explore page params: date: [", exploreParams.date, "], plan: [", exploreParams.plan, "]");
@@ -60,8 +52,8 @@ export default function TabTwoScreen(props: ExploreProps) {
     // Parse travel plan
     const parsedPlan = JSON.parse(exploreParams.plan)
     setTravelData(parsedPlan)
-    console.log("explore.tsx++++++=======++++++++", parsedPlan)
-    setIsFromHistory(!!exploreParams.fromHistory);
+    console.log('explore.tsx++++++=======++++++++', parsedPlan)
+    setIsFromHistory(!!exploreParams.fromHistory)
     const newLatData1 = {}
     // Extract required information
     for (const [key, travels] of Object.entries(parsedPlan)) {
@@ -81,31 +73,6 @@ export default function TabTwoScreen(props: ExploreProps) {
     if (Object.keys(newLatData1).length > 0) {
       setLoading(false)
     }
-
-    const fetchRestaurantPlan = async () => {
-      try {
-        let curLocation = await getCurrentLocation()
-        if (!curLocation) {
-          Alert.alert('Please enable location service')
-          return
-        }
-        setCurrentLocation(curLocation)
-        const result = await generatePlan_restaurant(
-          curLocation,
-          '2024-09-29T23:00:00Z',
-          'driving'
-        )
-        // Directly store the result in travelData
-        setTravelData(result)
-      } catch (error) {
-        console.error('Error fetching restaurant plan:', error)
-      } finally {
-        setLoading(false) // Set loading to false when done
-        setShowSuccessAnimation(true) // Trigger success animation after loading
-      }
-    }
-
-    // fetchRestaurantPlan();
   }, []) // Empty dependency array to run once on mount
 
   const handleAddDestination = () => {
@@ -117,14 +84,19 @@ export default function TabTwoScreen(props: ExploreProps) {
   }
 
   const addToHistory = async (data) => {
-    // 调用 handleTravelHistory 函数以更新 TravelHistory 数据库
-    await handleTravelHistory(data)
+    const success = await handleTravelHistory(data)
+    if (success) {
+      setShowSuccessAnimation(true)
+    } else {
+      console.error('Failed to save plan')
+      // 你可以在这里添加一个错误提示给用户
+    }
   }
 
   const handleTravelHistory = async (data) => {
     if (!email) {
       console.error('No Email Found')
-      return
+      return false
     }
 
     const travelData = {
@@ -138,7 +110,9 @@ export default function TabTwoScreen(props: ExploreProps) {
       startLocation: data.startLocation,
       endLocation: data.endLocation,
       detailedInfo: data.detailedInfo || '4.7',
+      user_ratings_total: data.user_ratings_total,
       photoReference: data.photo_reference,
+      // rating: data.rating || '4.7',
       email,
     }
 
@@ -155,11 +129,14 @@ export default function TabTwoScreen(props: ExploreProps) {
       const result = await response.json()
       if (response.ok) {
         console.log('Travel history added:', result)
+        return true
       } else {
         console.error('Travel history failed:', result)
+        return false
       }
     } catch (error) {
       console.error('Wrong request:', error)
+      return false
     }
   }
 
@@ -190,16 +167,16 @@ export default function TabTwoScreen(props: ExploreProps) {
       {/* Full-Screen Lottie Animation Modal */}
       {showSuccessAnimation && (
         <Modal
-          transparent={false}
+          transparent={true}
           animationType="fade"
           visible={showSuccessAnimation}>
           <View style={styles.modalBackground}>
             <LottieView
-              source={require('../../../assets/animation/success.json')} // Full-screen success animation path
+              source={require('../../../assets/animation/success2.json')}
               autoPlay
-              loop={false} // Play the animation once
-              onAnimationFinish={handleAnimationFinish} // Hide animation when it finishes
-              style={{ width: 300, height: 300 }} // Customize size
+              loop={false}
+              onAnimationFinish={handleAnimationFinish}
+              style={{ width: 100, height: 100 }}
             />
           </View>
         </Modal>
@@ -240,17 +217,21 @@ export default function TabTwoScreen(props: ExploreProps) {
                 endLocation={data.endLocation}
                 photoReference={data.photo_reference}
                 detailedInfo={data.detailedinfo}
+                rating={data.rating}
+                user_ratings_total={data.user_ratings_total}
               />
-              {index === travelData[selectedDay].length - 1 && !isFromHistory && (
-                <>
-                  <TouchableOpacity
-                    style={styles.addButton}
-                    onPress={() => addToHistory(data)} // call addToHistory
-                  >
-                    <Text style={styles.addButtonText}>Add to History</Text>
-                  </TouchableOpacity>
-                </>
-              )}
+              {index === travelData[selectedDay].length - 1 &&
+                !isFromHistory && (
+                  <>
+                    <TouchableOpacity
+                      style={styles.addButton}
+                      className="mx-3"
+                      onPress={() => addToHistory(data)} // call addToHistory
+                    >
+                      <Text style={styles.addButtonText}>Save Plan</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
             </React.Fragment>
           ))}
           {/* {isFromHistory && <NFCControl />} */}
@@ -308,7 +289,12 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#000000',
+    backgroundColor: 'rgba(0, 0, 0, 0)',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
   },
   loadingContainer: {
     flex: 1,

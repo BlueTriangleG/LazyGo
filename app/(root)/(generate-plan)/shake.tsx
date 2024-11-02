@@ -16,7 +16,7 @@ const ShakeDetector: React.FC<ShakeDetectorProps> = ({ onShake, disabled }) => {
   })
   const [shakeCount, setShakeCount] = useState(0)
   const threshold = 3
-  const shakeThreshold = 6
+  const shakeThreshold = 4
   const resetTime = 1500 // 1.5秒
 
   useEffect(() => {

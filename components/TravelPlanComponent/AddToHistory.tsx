@@ -20,7 +20,7 @@ type AddToHistoryProps = {
 };
 
 const AddToHistory: React.FC<AddToHistoryProps> = ({ travelData, onClose }) => {
-  const [loading, setLoading] = useState(false); // Loading 状态
+  const [loading, setLoading] = useState(false); 
 
   const handleAddToHistory = async () => {
    
@@ -29,9 +29,9 @@ const AddToHistory: React.FC<AddToHistoryProps> = ({ travelData, onClose }) => {
   return (
     <TouchableOpacity style={styles.button} onPress={handleAddToHistory} disabled={loading}>
       {loading ? (
-        <ActivityIndicator color="#fff" /> // 加载时显示指示器
+        <ActivityIndicator color="#fff" />  
       ) : (
-        <Text style={styles.buttonText}>Add to History</Text>
+        <Text style={styles.buttonText}>Save Plan</Text>
       )}
     </TouchableOpacity>
   );
