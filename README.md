@@ -15,11 +15,16 @@
 
 ## Technique usage
 
-Code language: typescript
-Framework: expo reac native
-CSS: tailwind
-Authentication: clerk
-Database: Neon + postgres
+- Code language: typescript
+- Framework: expo reac native
+- CSS: tailwind
+- Authentication: clerk
+- Database: Neon + postgres
+- AI technique: ChatGPT
+  - The activities of the plan is generated step by step, making sure that the start position of each activity is the position of the previous activity. 
+  - Generate plan based on the following data: ```Details of nearby places with specific types or keywords, history of recommendation (prevent the generated plan from remaining unchanged), distances between the current position to nearby places, generated plan (avoid duplicated places in one plan)```.
+  - GPT can choose destinations based on the distance, price level, ratings and make a brief plan to the user.
+
 
 ## Get started
 
