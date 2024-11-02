@@ -8,46 +8,14 @@ import {
 } from './google-map-api'
 import {
   Activity,
-  filterDistanceMatrixData,
-  filterGoogleMapData,
-  GoogleMapPlace,
-  GoogleMapResponse,
 } from './gpt-plan-generate'
 import SensorData from './sensorReader'
 import { RecordingOptionsPresets } from 'expo-av/build/Audio'
-// export interface RecommendDetail {
-//   destination: string
-//   destinationDescrib: string
-//   vicinity: string
-//   distance: string
-//   estimatedPrice: string
-//   photo_reference: string
-//   startLocation: string
-//   endLocation:string
-// }
+import { 
+  filterDistanceMatrixData,
+  filterGoogleMapData,
+} from './google-map-filter'
 
-// const recommend_example = [
-//   {
-//     destination: 'ABC restaurant',
-//     destinationDescrib: 'A delicious restaurant',
-//     vicinity: '734 Swanston Rd, Carlton',
-//     distance: '1 km',
-//     estimatedPrice: '20 AUD',
-//     photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-//     startLocation: '48.8566,2.3522',
-//     endLocation: '48.8606,2.3376'
-//   },
-//   {
-//     destination: 'ABC restaurant',
-//     destinationDescrib: 'A delicious restaurant',
-//     vicinity: '734 Swanston Rd, Carlton',
-//     distance: '1 km',
-//     estimatedPrice: '20 AUD',
-//     photo_reference: 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx',
-//     startLocation: '48.8566,2.3522',
-//     endLocation: '48.8606,2.3376'
-//   },
-// ]
 export interface RecommendDetail {
   destination: string
   destinationDescrib: string
@@ -59,7 +27,7 @@ export interface RecommendDetail {
   startLocation: string
   endLocation: string
 }
-function convertToRecommendDetail(place, currentLocation: string) {
+function convertToRecommendDetail(place: any, currentLocation: string) {
   return {
     destination: place.name || 'Unknown Name',
     destinationDescrib: null,
@@ -148,11 +116,11 @@ export async function generateDailyRecommends(
   currentLocation: string
 ): Promise<Activity[] | void> {
   try {
-    let restaurants = []
-    let milkteas = []
-    let cafes = []
-    let entertainments = []
-    let attractions = []
+    let restaurants:any = []
+    let milkteas: any = []
+    let cafes:any = []
+    let entertainments: any = []
+    let attractions:any = []
 
     const promises = Types.map(async (type) => {
       const radius = 2500
@@ -222,6 +190,7 @@ export async function generateDailyRecommends(
           return item
         }
       }
+      return null
     }
 
     const randomRestaurant =
@@ -261,7 +230,7 @@ export async function generateDailyRecommends(
           )
         : null
 
-    let recommends = []
+    let recommends:any[] = []
 
     if (randomRestaurant) recommends.push(randomRestaurant)
     if (randomMilktea) recommends.push(randomMilktea)
@@ -283,131 +252,16 @@ export async function generateDailyRecommends(
     for (let i = 0; i < recommends.length; i++) {
       // If distance is not returned by google map, do not add it into the output
       if (filteredDistanceMatrix[0][i]?.distance != null) {
-        recommends[i].distance = filteredDistanceMatrix[0][i].distance
-        let activity = convertToActivity(recommends[i])
-        output.push(activity)
+        recommends[i].distance = filteredDistanceMatrix[0][i].distance;
+        let activity = convertToActivity(recommends[i]);
+        output.push(activity);
       }
+      
     }
 
     return output
   } catch (error) {
     console.error('Error generating recommends:', error)
-    console.error(error.stack)
     return
   }
 }
-
-// async function getRecommends(
-//   requestMessage: string
-// ): Promise<RecommendDetail[] | void> {
-//   if (!GPT_KEY) {
-//     console.error('GPT_KEY is not defined.')
-//     return
-//   }
-
-//   const url = 'https://api.openai.com/v1/chat/completions'
-
-//   const requestBody = {
-//     model: 'gpt-4o-mini',
-//     messages: [
-//       {
-//         role: 'system',
-//         content: `You are a robot to provide daily recommendation of places of types ${Types} in the form of JSON based on the given data from Google Map API. 4 dataset will be given, you must completely randomly select only one place from each dataset to generate recommendation for each type of places. You must return in the form like: ${JSON.stringify(recommend_example)} and avoid any syntax error.
-//                 If there are n datasets, the list contain n recommendations. The list can contain <n recommendations. If the dataset is empty, skip that type and do recommendation for the next type.
-//                 "destination" is the true name of the destination in the data given."destination describ" is the description of the destination."estimated price" is the estimated money spent in this destination (estimate according to the price level in the given data).
-//                 Fill in the "vicinity" with "vicinity" of the data given and keep "distance" be null. And the photo_reference is exactly the photo_reference from the given Google Map API data, no need to change it. You should only choose the destinations from the given Google Map API data. YOu must return the json
-//                 in the form of string without \`\`\`.Do not return anything beyond the given data. Do not return anything besides the JSON.The recommend mustcontain all the keys in the sample form.
-//                 `,
-//       },
-//       { role: 'user', content: requestMessage },
-//     ],
-//     max_tokens: 2000,
-//   }
-
-//   try {
-//     const response = await fetch(url, {
-//       method: 'POST',
-//       headers: {
-//         'Content-Type': 'application/json',
-//         Authorization: `Bearer ${GPT_KEY}`,
-//       },
-//       body: JSON.stringify(requestBody),
-//     })
-
-//     const data = await response.json()
-//     // console.log('data:', data.choices[0].message.content)
-//     return JSON.parse(data.choices[0].message.content)
-//   } catch (error) {
-//     console.error('Error calling GPT API:', error)
-//   }
-// }
-// export async function generateDailyRecommends(
-//   currentLocation: string
-// ): Promise<RecommendDetail[] | void> {
-//   try {
-//     let data_string = ''
-//     const promises = Types.map(async (type) => {
-//       switch (type) {
-//         case 'entertainment':
-//           const placesJson_ent = await getNearbyEntertainment(
-//             currentLocation,
-//             2500,
-//             [
-//               'bar',
-//               'karaoke',
-//               'escaperoom',
-//               'boardgame',
-//               'bowling',
-//               'spa',
-//               'arcade',
-//               'cinema',
-//               'museum',
-//             ]
-//           )
-//           const filteredPlacesJson_ent = filterGoogleMapData(placesJson_ent)
-//           data_string += `${type}: ${JSON.stringify(filteredPlacesJson_ent)};`
-//           break
-//         case 'milktea':
-//           const placesJson_mkt = await getNearbyMilkTea(currentLocation, 2500)
-//           const filteredPlacesJson_mkt = filterGoogleMapData(placesJson_mkt)
-//           data_string += `${type}: ${JSON.stringify(filteredPlacesJson_mkt)};`
-//         default:
-//           const placesJson = await getNearbyPlaces(currentLocation, 2500, type)
-//           const filteredPlacesJson = filterGoogleMapData(placesJson)
-//           data_string += `${type}: ${JSON.stringify(filteredPlacesJson)};`
-//           break
-//       }
-//     })
-//     console.log("----------------------places data get all--------------")
-//     await Promise.all(promises)
-
-//     let requestString = `${data_string}`
-//     let recommends = await getRecommends(requestString)
-//     console.log("----------------------recommends get from gpt--------------")
-//     if (!recommends) {
-//       console.error('No valid recommend returned')
-//       return
-//     }
-
-//     let vicinities: string[] = []
-//     recommends.forEach((recommend) => {
-//       vicinities.push(recommend.vicinity)
-//     })
-//     const distanceMatrix = await getDistanceMatrix(
-//       [currentLocation],
-//       vicinities
-//     )
-//     const filteredDistanceMatrix = filterDistanceMatrixData(distanceMatrix)
-//     let output: Activity[] = [];
-//     for (let i = 0; i < recommends.length; i++) {
-//       recommends[i].distance = filteredDistanceMatrix[0][i].distance
-//       let activity = convertToActivity(recommends[i]);
-//       output.push(activity);
-//     }
-
-//     return output
-//   } catch (error) {
-//     console.error('Error generating plan:', error)
-//     return
-//   }
-// }
