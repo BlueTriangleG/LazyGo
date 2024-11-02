@@ -143,7 +143,7 @@ export default function Page(props: CardProps) {
         recommendTipsPromise
           .then((recommendTips) => {
             if (recommendTips) {
-              console.log('Recommend Tips:', recommendTips)
+              // console.log('Recommend Tips:', recommendTips)
               const formattedRecommend = recommendTips.replace(/\\n/g, '\n')
               setTip(formattedRecommend)
             } else {
@@ -158,7 +158,7 @@ export default function Page(props: CardProps) {
         dailyRecommendsPromise
           .then((dailyRecommends) => {
             if (dailyRecommends) {
-              console.log('Daily Recommends:', dailyRecommends)
+              // console.log('Daily Recommends:', dailyRecommends)
               setDailyRecommends(dailyRecommends)
             } else {
               console.error('Failed to get dailyRecommends')

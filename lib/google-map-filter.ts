@@ -30,7 +30,7 @@ export const filterGoogleMapData = (data: GoogleMapResponse, currentLocation: st
         if (!data || !data.results) {
         return []
         }
-        console.log("data", data.results)
+        // console.log("data", data.results)
         const filteredResults = data.results
         .filter((place) => {
             return place.photos && place.photos.length > 0
