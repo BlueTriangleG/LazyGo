@@ -66,7 +66,7 @@ Open the software to quickly find places around you, and you can quickly find th
 2. Create a .env file with content:
 
    ```bash
-   # Need to fill these values
+   # Need to fill these values by your api keys
    EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY=
    EXPO_PUBLIC_GOOGLE_MAP_API_KEY=
    EXPO_PUBLIC_GPT_KEY=
@@ -90,3 +90,11 @@ In the output, you'll find options to open the app in a
 - [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
 
 You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+
+if your can not open the app, try
+
+```bash
+npx expo install
+```
+
+Any additional problem please let us know.
