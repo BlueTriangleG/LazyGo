@@ -15,7 +15,7 @@ import LottieView from 'lottie-react-native'
 
 import { useLocalSearchParams } from 'expo-router'
 import { SafeAreaView } from 'react-native-safe-area-context'
-
+import SuccessPopup from '@/components/favourite/successPopup'
 export type ExploreProps = {
   date: string
   plan: string
@@ -144,7 +144,7 @@ export default function TabTwoScreen(props: ExploreProps) {
   if (loading) {
     return (
       <ImageBackground
-        source={require('../../../assets/images/home.png')} // Ensure this path is correct
+        source={require('../../../assets/images/background.png')} // Ensure this path is correct
         style={styles.backgroundImage}
         resizeMode="cover" // Set the image's resize mode to cover
       >
@@ -220,6 +220,7 @@ export default function TabTwoScreen(props: ExploreProps) {
                 rating={data.rating}
                 user_ratings_total={data.user_ratings_total}
               />
+
               {index === travelData[selectedDay].length - 1 &&
                 !isFromHistory && (
                   <>
@@ -232,6 +233,9 @@ export default function TabTwoScreen(props: ExploreProps) {
                     </TouchableOpacity>
                   </>
                 )}
+              {showSuccessAnimation && (
+                <SuccessPopup onHide={() => setShowSuccess(false)} />
+              )}
             </React.Fragment>
           ))}
           {/* {isFromHistory && <NFCControl />} */}

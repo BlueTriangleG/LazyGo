@@ -42,8 +42,10 @@ export async function POST(request: Request) {
 
     // check if destination already in database
     const existingDestinationRecord = await sql`
-      SELECT * FROM TravelHistory WHERE LOWER(destination) = LOWER(${destination})
-    `
+    SELECT * FROM TravelHistory 
+    WHERE LOWER(destination) = LOWER(${destination}) AND LOWER(email) = LOWER(${email})
+  `
+  
 
     if (existingDestinationRecord.length > 0) {
       return new Response({ status: 409 })
