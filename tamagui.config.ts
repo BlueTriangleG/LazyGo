@@ -1,16 +1,15 @@
-import { createTamagui } from 'tamagui'
+import { config } from '@tamagui/config/v3'
+import { createTamagui } from 'tamagui' // or '@tamagui/core'
 
-const config = createTamagui({
-  themes: {
-    light: {
-      background: '#ffffff',
-      text: '#000000',
-    },
-    dark: {
-      background: '#000000',
-      text: '#ffffff',
-    },
-  },
-})
+const appConfig = createTamagui(config)
 
-export default config
+export type AppConfig = typeof appConfig
+
+declare module 'tamagui' {
+  // or '@tamagui/core'
+  // overrides TamaguiCustomConfig so your custom types
+  // work everywhere you import `tamagui`
+  interface TamaguiCustomConfig extends AppConfig {}
+}
+
+export default appConfig

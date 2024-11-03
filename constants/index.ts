@@ -37,6 +37,7 @@ import restaurant from '@/assets/icons/restaurant.png'
 import coffee from '@/assets/icons/coffee.png'
 import tour from '@/assets/icons/tour.png'
 import milkTea from '@/assets/icons/milk-tea.png'
+import home from '@/assets/icons/home.png'
 export const images = {
   onboarding1,
   onboarding2,
@@ -80,6 +81,7 @@ export const icons = {
   star,
   target,
   to,
+  home,
 }
 
 export const onboarding = [
