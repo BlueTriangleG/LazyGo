@@ -144,7 +144,7 @@ export default function TabTwoScreen(props: ExploreProps) {
   if (loading) {
     return (
       <ImageBackground
-        source={require('../../../assets/images/home.png')} // Ensure this path is correct
+        source={require('../../../assets/images/background.png')} // Ensure this path is correct
         style={styles.backgroundImage}
         resizeMode="cover" // Set the image's resize mode to cover
       >
@@ -221,21 +221,21 @@ export default function TabTwoScreen(props: ExploreProps) {
                 user_ratings_total={data.user_ratings_total}
               />
 
-              {index === travelData[selectedDay].length - 1 && !isFromHistory && (
-                <>
-                  <TouchableOpacity
-                    style={styles.addButton}
-                    className="mx-3"
-                    onPress={() => addToHistory(data)} // call addToHistory
-                  >
-                    <Text style={styles.addButtonText}>Save Plan</Text>
-                  </TouchableOpacity>
-                </>
-
+              {index === travelData[selectedDay].length - 1 &&
+                !isFromHistory && (
+                  <>
+                    <TouchableOpacity
+                      style={styles.addButton}
+                      className="mx-3"
+                      onPress={() => addToHistory(data)} // call addToHistory
+                    >
+                      <Text style={styles.addButtonText}>Save Plan</Text>
+                    </TouchableOpacity>
+                  </>
+                )}
+              {showSuccessAnimation && (
+                <SuccessPopup onHide={() => setShowSuccess(false)} />
               )}
-              {showSuccessAnimation && <SuccessPopup onHide={() => setShowSuccess(false)} />}
-
-
             </React.Fragment>
           ))}
           {/* {isFromHistory && <NFCControl />} */}

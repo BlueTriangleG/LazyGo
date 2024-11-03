@@ -8,7 +8,6 @@ import dollar from '@/assets/icons/dollar.png'
 import email from '@/assets/icons/email.png'
 import eyecross from '@/assets/icons/eyecross.png'
 import google from '@/assets/icons/google.png'
-import home from '@/assets/icons/home.png'
 import list from '@/assets/icons/list.png'
 import lock from '@/assets/icons/lock.png'
 import map from '@/assets/icons/map.png'
@@ -67,7 +66,6 @@ export const icons = {
   email,
   eyecross,
   google,
-  home,
   list,
   lock,
   map,
